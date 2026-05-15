@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="bi bi-book-half text-primary"></i> {{ LIBRARY_NAME }}
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/catalog/">
+                        <i class="bi bi-search"></i> Каталог книг
+                    </a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center gap-3">
+                {% if LIBRARY_PHONE %}
+                <span class="text-primary fw-bold" style="font-size:18px;">
+                    <i class="bi bi-telephone"></i> {{ LIBRARY_PHONE }}
+                </span>
+                {% endif %}
+                {% if user.is_authenticated %}
+                <a href="/my/" class="btn btn-outline-primary" style="min-height:44px;">
+                    <i class="bi bi-person"></i> Мой кабинет
+                </a>
+                {% else %}
+                <a href="/login/" class="btn btn-primary" style="min-height:44px;">
+                    Войти
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-3">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<footer class="mt-5 py-4 bg-light border-top">
+    <div class="container text-center">
+        {% if LIBRARY_PHONE %}
+        <p class="mb-1 fw-bold text-primary" style="font-size:22px;">
+            <i class="bi bi-telephone-fill"></i> {{ LIBRARY_PHONE }}
+        </p>
+        {% endif %}
+        <p class="text-muted mb-0" style="font-size:16px;">{{ LIBRARY_NAME }}</p>
+    </div>
+</footer>
+{% endblock %}

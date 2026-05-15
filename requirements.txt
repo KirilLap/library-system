@@ -1,0 +1,6 @@
+Django==5.2.1
+pymarc==5.2.3
+WeasyPrint==65.0
+qrcode[pil]==8.0
+Pillow==12.2.0
+python-dotenv==1.1.0

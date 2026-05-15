@@ -1,0 +1,22 @@
+/* Публичные страницы — минимальный размер шрифта для пенсионеров */
+.public-page {
+    font-size: 16px;
+}
+
+.public-page .card-title {
+    font-size: 18px;
+}
+
+.public-page .btn {
+    min-height: 44px;
+    padding: 10px 20px;
+}
+
+/* Кабинет библиотекаря */
+.table th {
+    white-space: nowrap;
+}
+
+.badge-status-in_library  { background-color: #198754; }
+.badge-status-in_delivery { background-color: #0d6efd; }
+.badge-status-lost        { background-color: #dc3545; }
