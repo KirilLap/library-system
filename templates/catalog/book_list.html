@@ -1,0 +1,150 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Каталог книг{% endblock %}
+{% block nav_catalog %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">
+        Каталог книг
+        <span class="badge bg-secondary fs-6">{{ total }}</span>
+    </h1>
+    <div class="d-flex gap-2">
+        <a href="{% url 'catalog_admin:marc_import' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-upload"></i> Импорт MARC
+        </a>
+        <a href="{% url 'catalog_admin:book_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Добавить книгу
+        </a>
+    </div>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" name="q" value="{{ q }}" class="form-control"
+               placeholder="Поиск по названию, автору, инв. номеру, штрих-коду...">
+    </div>
+    <div class="col-md-2">
+        <select name="status" class="form-select">
+            <option value="">Все статусы</option>
+            {% for val, label in status_choices %}
+            <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="genre" class="form-select">
+            <option value="">Все жанры</option>
+            {% for val, label in genre_choices %}
+            <option value="{{ val }}" {% if genre_filter == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="language" class="form-select">
+            <option value="">Все языки</option>
+            {% for val, label in language_choices %}
+            <option value="{{ val }}" {% if language_filter == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2 d-flex gap-1">
+        <button type="submit" class="btn btn-outline-primary flex-grow-1">
+            <i class="bi bi-search"></i> Найти
+        </button>
+        {% if q or status_filter or genre_filter or language_filter %}
+        <a href="{% url 'catalog_admin:index' %}" class="btn btn-outline-secondary" title="Сбросить">
+            <i class="bi bi-x-lg"></i>
+        </a>
+        {% endif %}
+    </div>
+</form>
+
+{% if page_obj.object_list %}
+<div class="table-responsive">
+    <table class="table table-hover table-sm align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Инв. номер</th>
+                <th>Название</th>
+                <th>Автор</th>
+                <th>Год</th>
+                <th>Жанр</th>
+                <th>Язык</th>
+                <th>Статус</th>
+                <th>Где сейчас</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in page_obj %}
+            <tr>
+                <td><code class="text-dark">{{ book.inventory_number }}</code></td>
+                <td>{{ book.title|truncatechars:55 }}</td>
+                <td class="text-muted">{{ book.author|truncatechars:35 }}</td>
+                <td>{{ book.year|default:"—" }}</td>
+                <td>{{ book.get_genre_display }}</td>
+                <td>{{ book.get_language_display }}</td>
+                <td>
+                    <span class="badge bg-{{ book.get_status_badge_class }}">
+                        {{ book.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    {% if book.status == 'IN_DELIVERY' %}
+                        {% with loc=book.current_location %}
+                            {% if loc %}<small>{{ loc.name }}</small>{% else %}—{% endif %}
+                        {% endwith %}
+                    {% else %}—{% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'catalog_admin:book_update' book.pk %}"
+                       class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav aria-label="Страницы">
+    <ul class="pagination pagination-sm">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}&status={{ status_filter }}&genre={{ genre_filter }}&language={{ language_filter }}">
+                ← Назад
+            </a>
+        </li>
+        {% endif %}
+        <li class="page-item disabled">
+            <span class="page-link">
+                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+            </span>
+        </li>
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}&status={{ status_filter }}&genre={{ genre_filter }}&language={{ language_filter }}">
+                Вперёд →
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5 text-muted">
+    <i class="bi bi-inbox display-4 d-block mb-2"></i>
+    {% if q or status_filter or genre_filter or language_filter %}
+        Ничего не найдено.
+        <a href="{% url 'catalog_admin:index' %}">Сбросить фильтры</a>
+    {% else %}
+        Каталог пуст.
+        <a href="{% url 'catalog_admin:book_create' %}">Добавить первую книгу</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

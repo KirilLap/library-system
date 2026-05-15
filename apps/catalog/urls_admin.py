@@ -1,11 +1,13 @@
 from django.urls import path
-from django.http import HttpResponse
+from . import views
 
 app_name = 'catalog_admin'
 
-def placeholder(request):
-    return HttpResponse('<h1>Кабинет библиотекаря — скоро здесь появится каталог</h1>')
-
 urlpatterns = [
-    path('', placeholder, name='index'),
+    path('', views.book_list, name='index'),
+    path('catalog/add/', views.book_create, name='book_create'),
+    path('catalog/<int:pk>/edit/', views.book_update, name='book_update'),
+    path('catalog/<int:pk>/delete/', views.book_delete, name='book_delete'),
+    path('catalog/import/', views.marc_import, name='marc_import'),
+    path('catalog/import/confirm/', views.marc_confirm, name='marc_confirm'),
 ]

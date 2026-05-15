@@ -1,0 +1,116 @@
+{% extends "admin_base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block nav_catalog %}active{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 col-lg-7">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h4 mb-0">{{ title }}</h1>
+            <a href="{% url 'catalog_admin:index' %}" class="btn btn-outline-secondary btn-sm">
+                ← Назад к каталогу
+            </a>
+        </div>
+
+        {% if book and book.status == 'IN_DELIVERY' %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            Книга сейчас <strong>на точке</strong>{% if current_location %}: <strong>{{ current_location.name }}</strong>{% endif %}.
+            Статус можно изменить только после возврата.
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">
+                                {{ form.inventory_number.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.inventory_number }}
+                            {% for err in form.inventory_number.errors %}
+                            <div class="text-danger small">{{ err }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.barcode.label }}</label>
+                            {{ form.barcode }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">
+                                {{ form.title.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% for err in form.title.errors %}
+                            <div class="text-danger small">{{ err }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label">{{ form.author.label }}</label>
+                            {{ form.author }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.year.label }}</label>
+                            {{ form.year }}
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label">{{ form.publisher.label }}</label>
+                            {{ form.publisher }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.isbn.label }}</label>
+                            {{ form.isbn }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.genre.label }}</label>
+                            {{ form.genre }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.language.label }}</label>
+                            {{ form.language }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.status.label }}</label>
+                            {{ form.status }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">{{ form.description.label }}</label>
+                            {{ form.description }}
+                        </div>
+
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2 align-items-center">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Сохранить
+                        </button>
+                        <a href="{% url 'catalog_admin:index' %}" class="btn btn-outline-secondary">
+                            Отмена
+                        </a>
+                        {% if book %}
+                        <a href="{% url 'catalog_admin:book_delete' book.pk %}"
+                           class="btn btn-outline-danger ms-auto">
+                            <i class="bi bi-trash"></i> Удалить книгу
+                        </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
