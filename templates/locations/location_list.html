@@ -1,0 +1,88 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Точки доставки{% endblock %}
+{% block nav_locations %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="bi bi-geo-alt"></i> Точки доставки</h2>
+    <a href="{% url 'locations_admin:create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Добавить точку
+    </a>
+</div>
+
+<div class="mb-3">
+    {% if show_inactive %}
+        <a href="?" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-eye-slash"></i> Скрыть неактивные
+        </a>
+    {% else %}
+        <a href="?inactive=1" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-eye"></i> Показать неактивные
+        </a>
+    {% endif %}
+</div>
+
+{% if locations %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Название</th>
+                <th>Тип</th>
+                <th>Адрес</th>
+                <th>Контакт</th>
+                <th class="text-center">Книг</th>
+                <th>Последняя доставка</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for loc in locations %}
+            <tr>
+                <td>
+                    <a href="{% url 'locations_admin:detail' loc.pk %}" class="fw-semibold text-decoration-none">
+                        {{ loc.name }}
+                    </a>
+                </td>
+                <td><span class="badge bg-secondary">{{ loc.get_type_display }}</span></td>
+                <td class="text-muted small">{{ loc.address|truncatechars:50 }}</td>
+                <td class="small">
+                    {% if loc.contact_person %}{{ loc.contact_person }}{% endif %}
+                    {% if loc.contact_phone %}<br><span class="text-muted">{{ loc.contact_phone }}</span>{% endif %}
+                </td>
+                <td class="text-center">
+                    <span class="badge bg-primary rounded-pill">{{ loc.books_count }}</span>
+                </td>
+                <td class="small text-muted">
+                    {% if loc.last_delivery_date %}
+                        {{ loc.last_delivery_date|date:"d.m.Y" }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    {% if loc.is_active %}
+                        <span class="badge bg-success">Активна</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Неактивна</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    <a href="{% url 'locations_admin:update' loc.pk %}" class="btn btn-sm btn-outline-secondary" title="Редактировать">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+    <i class="bi bi-geo-alt" style="font-size:3rem;"></i>
+    <p class="mt-3">Точек доставки пока нет. <a href="{% url 'locations_admin:create' %}">Добавить первую</a></p>
+</div>
+{% endif %}
+{% endblock %}
