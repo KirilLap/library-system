@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Акт доставки №{{ batch.pk }}</title>
+</head>
+<body>
+
+<h1>Акт доставки книг №{{ batch.pk }}</h1>
+<div class="meta">
+    <strong>Библиотека:</strong> {{ LIBRARY_NAME }}{% if LIBRARY_PHONE %} · {{ LIBRARY_PHONE }}{% endif %}<br>
+    <strong>Точка доставки:</strong> {{ batch.location.name }} ({{ batch.location.get_type_display }})<br>
+    <strong>Адрес:</strong> {{ batch.location.address }}<br>
+    {% if batch.location.contact_person %}
+    <strong>Контактное лицо:</strong> {{ batch.location.contact_person }}
+        {% if batch.location.contact_phone %} · {{ batch.location.contact_phone }}{% endif %}<br>
+    {% endif %}
+    <strong>Дата доставки:</strong> {{ batch.delivery_date|date:"d.m.Y" }}<br>
+    <strong>Количество книг:</strong> {{ items|length }}<br>
+    {% if batch.note %}<strong>Примечание:</strong> {{ batch.note }}<br>{% endif %}
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width:40px;">№</th>
+            <th style="width:90px;">Инв. №</th>
+            <th>Название</th>
+            <th>Автор</th>
+            <th style="width:50px;">Год</th>
+            <th style="width:80px;">Жанр</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ item.book.inventory_number }}</td>
+            <td>{{ item.book.title }}</td>
+            <td>{{ item.book.author }}</td>
+            <td>{{ item.book.year|default:"—" }}</td>
+            <td>{{ item.book.get_genre_display }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="footer">
+    Итого книг: <strong>{{ items|length }}</strong>
+</div>
+
+<div class="sign-block">
+    <div>
+        <div class="sign-line">Сдал (библиотекарь)</div>
+    </div>
+    <div>
+        <div class="sign-line">Принял (ответственный)</div>
+    </div>
+</div>
+
+</body>
+</html>

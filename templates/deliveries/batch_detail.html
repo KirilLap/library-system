@@ -1,0 +1,173 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Партия #{{ batch.pk }}{% endblock %}
+{% block nav_deliveries %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3 gap-2 flex-wrap">
+    <a href="{% url 'deliveries_admin:index' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="mb-0">Партия #{{ batch.pk }}</h2>
+    {% if batch.is_returned %}
+        <span class="badge bg-secondary fs-6">Возвращена {{ batch.returned_date|date:"d.m.Y" }}</span>
+    {% else %}
+        <span class="badge bg-success fs-6">На точке</span>
+    {% endif %}
+</div>
+
+<div class="row g-4">
+    <!-- Left: info + actions -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><i class="bi bi-info-circle"></i> Информация</div>
+            <div class="card-body">
+                <dl class="mb-0">
+                    <dt class="text-muted small">Точка доставки</dt>
+                    <dd>
+                        <a href="{% url 'locations_admin:detail' batch.location.pk %}">{{ batch.location.name }}</a>
+                    </dd>
+                    <dt class="text-muted small">Дата доставки</dt>
+                    <dd>{{ batch.delivery_date|date:"d.m.Y" }}</dd>
+                    {% if batch.note %}
+                    <dt class="text-muted small">Примечание</dt>
+                    <dd>{{ batch.note }}</dd>
+                    {% endif %}
+                    <dt class="text-muted small">Книг в партии</dt>
+                    <dd><strong>{{ items|length }}</strong></dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2">
+            <a href="{% url 'deliveries_admin:pdf' batch.pk %}" class="btn btn-outline-primary">
+                <i class="bi bi-file-pdf"></i> Скачать акт (PDF)
+            </a>
+
+            {% if not batch.is_returned %}
+            <form method="post" action="{% url 'deliveries_admin:return' batch.pk %}"
+                  onsubmit="return confirm('Отметить партию как возвращённую? Все книги будут переведены в «В библиотеке».')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning w-100">
+                    <i class="bi bi-box-arrow-in-left"></i> Отметить возвращённой
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right: book list + add form -->
+    <div class="col-lg-8">
+        {% if not batch.is_returned %}
+        <!-- Add book form -->
+        <div class="card shadow-sm mb-3 border-primary">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-plus-circle"></i> Добавить книгу по инв. номеру
+            </div>
+            <div class="card-body">
+                <form method="post" id="addBookForm" autocomplete="off">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        {{ add_form.inventory_number }}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-lg"></i> Добавить
+                        </button>
+                    </div>
+                    {% if add_form.inventory_number.errors %}
+                        {% for error in add_form.inventory_number.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </form>
+                <div class="text-muted small mt-2">
+                    <i class="bi bi-info-circle"></i>
+                    Введите инвентарный номер и нажмите Enter или кнопку «Добавить».
+                    Поддерживается USB штрих-код сканер.
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Books table -->
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-book"></i> Книги в партии
+                    <span class="badge bg-primary ms-1">{{ items|length }}</span>
+                </span>
+            </div>
+            <div class="card-body p-0">
+                {% if items %}
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Инв. №</th>
+                                <th>Название</th>
+                                <th>Автор</th>
+                                <th>Статус</th>
+                                {% if not batch.is_returned %}<th></th>{% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td class="text-muted small">{{ forloop.counter }}</td>
+                                <td class="small fw-semibold">{{ item.book.inventory_number }}</td>
+                                <td>
+                                    <a href="{% url 'catalog_admin:book_update' item.book.pk %}" class="text-decoration-none">
+                                        {{ item.book.title|truncatechars:45 }}
+                                    </a>
+                                </td>
+                                <td class="small text-muted">{{ item.book.author|truncatechars:25 }}</td>
+                                <td>
+                                    {% if item.is_returned %}
+                                        <span class="badge bg-secondary">Возвращена</span>
+                                    {% else %}
+                                        <span class="badge bg-success">На точке</span>
+                                    {% endif %}
+                                </td>
+                                {% if not batch.is_returned %}
+                                <td class="text-end">
+                                    <form method="post"
+                                          action="{% url 'deliveries_admin:remove_item' batch.pk item.pk %}"
+                                          onsubmit="return confirm('Удалить книгу из партии?')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Удалить из партии">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    Книг ещё нет. Добавьте по инвентарному номеру.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-focus the inventory number input after page load and after form submit
+document.addEventListener('DOMContentLoaded', function() {
+    const inp = document.getElementById('id_inventory_number');
+    if (inp) {
+        inp.focus();
+        inp.select();
+        // Clear field after focus so scanner input starts fresh
+        document.getElementById('addBookForm').addEventListener('submit', function() {
+            // allow submit, browser will reload and refocus
+        });
+    }
+});
+</script>
+{% endblock %}
