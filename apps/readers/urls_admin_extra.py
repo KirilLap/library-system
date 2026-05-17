@@ -1,11 +1,9 @@
 from django.urls import path
-from django.http import HttpResponse
+from . import views
 
 app_name = 'readers_admin_extra'
 
-def placeholder(request):
-    return HttpResponse('<h1>Заявки — скоро</h1>')
-
 urlpatterns = [
-    path('requests/', placeholder, name='requests'),
+    path('requests/', views.request_list, name='requests'),
+    path('requests/<int:pk>/', views.request_detail, name='request_detail'),
 ]

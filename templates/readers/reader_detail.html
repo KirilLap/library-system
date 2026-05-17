@@ -1,0 +1,115 @@
+{% extends "admin_base.html" %}
+
+{% block title %}{{ reader.full_name }}{% endblock %}
+{% block nav_readers %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3 gap-2">
+    <a href="{% url 'readers_admin:index' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="mb-0">{{ reader.full_name }}</h2>
+    {% if reader.is_blocked %}
+        <span class="badge bg-danger">Заблокирован</span>
+    {% else %}
+        <span class="badge bg-success">Активен</span>
+    {% endif %}
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><i class="bi bi-person-circle"></i> Профиль</div>
+            <div class="card-body">
+                <dl class="mb-0">
+                    <dt class="text-muted small">Имя</dt>
+                    <dd>{{ reader.user.get_full_name|default:"—" }}</dd>
+                    <dt class="text-muted small">Логин</dt>
+                    <dd>{{ reader.user.username }}</dd>
+                    {% if reader.user.email %}
+                    <dt class="text-muted small">Email</dt>
+                    <dd>{{ reader.user.email }}</dd>
+                    {% endif %}
+                    {% if reader.phone %}
+                    <dt class="text-muted small">Телефон</dt>
+                    <dd>{{ reader.phone }}</dd>
+                    {% endif %}
+                    {% if reader.address %}
+                    <dt class="text-muted small">Адрес</dt>
+                    <dd>{{ reader.address }}</dd>
+                    {% endif %}
+                    <dt class="text-muted small">Зарегистрирован</dt>
+                    <dd>{{ reader.created_at|date:"d.m.Y" }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <form method="post" action="{% url 'readers_admin:toggle_block' reader.pk %}">
+            {% csrf_token %}
+            {% if reader.is_blocked %}
+            <button type="submit" class="btn btn-success w-100">
+                <i class="bi bi-unlock"></i> Разблокировать
+            </button>
+            {% else %}
+            <button type="submit" class="btn btn-danger w-100"
+                    onclick="return confirm('Заблокировать читателя?')">
+                <i class="bi bi-slash-circle"></i> Заблокировать
+            </button>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <i class="bi bi-envelope-paper"></i> Заявки
+                <span class="badge bg-primary ms-1">{{ reader_requests|length }}</span>
+            </div>
+            <div class="card-body p-0">
+                {% if reader_requests %}
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Книга</th>
+                                <th>Дата</th>
+                                <th>Статус</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in reader_requests %}
+                            <tr>
+                                <td class="text-muted small">{{ req.pk }}</td>
+                                <td>
+                                    {% if req.book %}
+                                        {{ req.book.title|truncatechars:40 }}
+                                        <div class="text-muted small">{{ req.book.author|truncatechars:30 }}</div>
+                                    {% else %}—{% endif %}
+                                </td>
+                                <td class="small text-muted">{{ req.created_at|date:"d.m.Y" }}</td>
+                                <td>
+                                    <span class="badge bg-{{ req.get_status_badge_class }}">
+                                        {{ req.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'readers_admin_extra:request_detail' req.pk %}"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">Заявок нет</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

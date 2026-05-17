@@ -1,11 +1,10 @@
 from django.urls import path
-from django.http import HttpResponse
+from . import views
 
 app_name = 'catalog'
 
-def placeholder(request):
-    return HttpResponse('<h1>Публичный каталог — скоро</h1>')
-
 urlpatterns = [
-    path('', placeholder, name='index'),
+    path('', views.book_list, name='index'),
+    path('<int:pk>/', views.book_detail, name='detail'),
+    path('<int:pk>/request/', views.book_request, name='request'),
 ]

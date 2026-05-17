@@ -25,9 +25,18 @@
                 {% endif %}
                 {% if user.is_authenticated %}
                 <a href="/my/" class="btn btn-outline-primary" style="min-height:44px;">
-                    <i class="bi bi-person"></i> Мой кабинет
+                    <i class="bi bi-person"></i> {{ user.get_full_name|default:user.username }}
                 </a>
+                <form method="post" action="/logout/" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-secondary" style="min-height:44px;">
+                        <i class="bi bi-box-arrow-right"></i> Выйти
+                    </button>
+                </form>
                 {% else %}
+                <a href="/register/" class="btn btn-outline-primary" style="min-height:44px;">
+                    <i class="bi bi-person-plus"></i> Регистрация
+                </a>
                 <a href="/login/" class="btn btn-primary" style="min-height:44px;">
                     Войти
                 </a>
