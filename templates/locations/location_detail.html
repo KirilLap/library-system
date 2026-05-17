@@ -55,6 +55,35 @@
             </div>
         </div>
 
+        <!-- Org account card -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><i class="bi bi-building"></i> Кабинет организации</div>
+            <div class="card-body">
+                {% if location.org_account %}
+                <p class="mb-1 small">
+                    Логин: <strong>{{ location.org_account.user.username }}</strong>
+                </p>
+                <p class="text-muted small mb-2">Создан: {{ location.org_account.created_at|date:"d.m.Y" }}</p>
+                <a href="/org/" class="btn btn-sm btn-outline-primary me-2" target="_blank">
+                    <i class="bi bi-box-arrow-up-right"></i> Открыть кабинет
+                </a>
+                <form method="post" action="{% url 'organizations:account_delete' location.pk %}"
+                      class="d-inline"
+                      onsubmit="return confirm('Удалить аккаунт организации?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i> Удалить аккаунт
+                    </button>
+                </form>
+                {% else %}
+                <p class="text-muted small mb-2">Аккаунт для входа не создан.</p>
+                <a href="{% url 'organizations:account_create' location.pk %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-plus-lg"></i> Создать аккаунт
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
         <!-- QR code card -->
         <div class="card shadow-sm">
             <div class="card-header"><i class="bi bi-qr-code"></i> QR-код</div>

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <span class="navbar-brand">
+            <i class="bi bi-building"></i> {{ LIBRARY_NAME }}
+        </span>
+        {% if user.is_authenticated %}
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="text-white-50 small">
+                <i class="bi bi-geo-alt"></i>
+                {% with user.org_account as org %}{% if org %}{{ org.location.name }}{% endif %}{% endwith %}
+            </span>
+            <form method="post" action="{% url 'organizations:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-light">
+                    <i class="bi bi-box-arrow-right"></i> Выйти
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="container mt-4">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<footer class="mt-5 py-3 border-top text-center text-muted small">
+    {{ LIBRARY_NAME }}{% if LIBRARY_PHONE %} · {{ LIBRARY_PHONE }}{% endif %}
+</footer>
+{% endblock %}
