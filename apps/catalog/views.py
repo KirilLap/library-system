@@ -9,10 +9,10 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
-from apps.staff.decorators import librarian_required
-from .forms import BookForm, MARCImportForm, ExcelImportForm
+from apps.staff.decorators import librarian_required, admin_required
+from .forms import BookForm, MARCImportForm, ExcelImportForm, GenreForm, LanguageForm
 from .marc_utils import parse_marc_file
-from .models import Book
+from .models import Book, Genre, Language
 
 
 @librarian_required
@@ -50,8 +50,8 @@ def book_list(request):
         'genre_filter': genre,
         'language_filter': language,
         'status_choices': Book.STATUS_CHOICES,
-        'genre_choices': Book.GENRE_CHOICES,
-        'language_choices': Book.LANGUAGE_CHOICES,
+        'genre_choices': Genre.objects.values_list('code', 'name'),
+        'language_choices': Language.objects.values_list('code', 'name'),
         'total': qs.count(),
     })
 
@@ -62,6 +62,8 @@ def book_create(request):
         form = BookForm(request.POST, request.FILES)
         if form.is_valid():
             book = form.save()
+            if hasattr(form, 'duplicate_warning'):
+                messages.warning(request, form.duplicate_warning)
             messages.success(request, f'Книга «{book.title}» добавлена.')
             return redirect('catalog_admin:index')
     else:
@@ -79,6 +81,8 @@ def book_update(request, pk):
         form = BookForm(request.POST, request.FILES, instance=book)
         if form.is_valid():
             form.save()
+            if hasattr(form, 'duplicate_warning'):
+                messages.warning(request, form.duplicate_warning)
             messages.success(request, f'Книга «{book.title}» обновлена.')
             return redirect('catalog_admin:index')
     else:
@@ -270,8 +274,11 @@ def excel_confirm(request):
     created = updated = 0
     skipped = []
 
-    valid_genres = {k for k, _ in Book.GENRE_CHOICES}
-    valid_langs  = {k for k, _ in Book.LANGUAGE_CHOICES}
+    valid_genres = set(Genre.objects.values_list('code', flat=True))
+    valid_langs  = set(Language.objects.values_list('code', flat=True))
+    default_genre = 'OTHER' if 'OTHER' in valid_genres else (next(iter(valid_genres), ''))
+    default_lang  = 'RU'    if 'RU'    in valid_langs  else (next(iter(valid_langs),  ''))
+    duplicates = []
 
     for row in rows:
         inv = (row.get('inventory_number') or '').strip()
@@ -283,6 +290,20 @@ def excel_confirm(request):
             skipped.append({'title': f'инв. {inv}', 'reason': 'Нет названия'})
             continue
 
+        author = (row.get('author') or '').strip()
+
+        # Duplicate check: same title+author but different inventory_number
+        dupe_qs = Book.objects.filter(
+            title__iexact=title, author__iexact=author
+        ).exclude(inventory_number=inv)
+        if dupe_qs.exists():
+            dupe = dupe_qs.first()
+            duplicates.append({
+                'title': title,
+                'inv': inv,
+                'dupe_inv': dupe.inventory_number,
+            })
+
         year_raw = row.get('year')
         year = None
         if year_raw:
@@ -293,17 +314,17 @@ def excel_confirm(request):
 
         genre = (row.get('genre') or '').strip().upper()
         if genre not in valid_genres:
-            genre = 'OTHER'
+            genre = default_genre
         lang = (row.get('language') or '').strip().upper()
         if lang not in valid_langs:
-            lang = 'RU'
+            lang = default_lang
 
         try:
             _, is_created = Book.objects.update_or_create(
                 inventory_number=inv,
                 defaults={
                     'title':       title,
-                    'author':      (row.get('author') or ''),
+                    'author':      author,
                     'year':        year,
                     'publisher':   (row.get('publisher') or ''),
                     'isbn':        (row.get('isbn') or ''),
@@ -323,7 +344,70 @@ def excel_confirm(request):
         'created': created,
         'updated': updated,
         'skipped': skipped,
+        'duplicates': duplicates,
     })
+
+
+# ──────────────────────────────
+# Genre management
+# ──────────────────────────────
+
+@librarian_required
+def genre_list(request):
+    form = GenreForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        code = form.cleaned_data['code']
+        if Genre.objects.filter(code=code).exists():
+            messages.error(request, f'Жанр с кодом «{code}» уже существует.')
+        else:
+            genre = form.save()
+            messages.success(request, f'Жанр «{genre.name}» добавлен.')
+            return redirect('catalog_admin:genre_list')
+    genres = Genre.objects.all()
+    return render(request, 'catalog/genre_list.html', {'genres': genres, 'form': form})
+
+
+@librarian_required
+@require_POST
+def genre_delete(request, pk):
+    genre = get_object_or_404(Genre, pk=pk)
+    if Book.objects.filter(genre=genre.code).exists():
+        messages.error(request, f'Нельзя удалить: жанр «{genre.name}» используется в книгах.')
+    else:
+        genre.delete()
+        messages.success(request, f'Жанр «{genre.name}» удалён.')
+    return redirect('catalog_admin:genre_list')
+
+
+# ──────────────────────────────
+# Language management
+# ──────────────────────────────
+
+@librarian_required
+def language_list(request):
+    form = LanguageForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        code = form.cleaned_data['code']
+        if Language.objects.filter(code=code).exists():
+            messages.error(request, f'Язык с кодом «{code}» уже существует.')
+        else:
+            lang = form.save()
+            messages.success(request, f'Язык «{lang.name}» добавлен.')
+            return redirect('catalog_admin:language_list')
+    languages = Language.objects.all()
+    return render(request, 'catalog/language_list.html', {'languages': languages, 'form': form})
+
+
+@librarian_required
+@require_POST
+def language_delete(request, pk):
+    lang = get_object_or_404(Language, pk=pk)
+    if Book.objects.filter(language=lang.code).exists():
+        messages.error(request, f'Нельзя удалить: язык «{lang.name}» используется в книгах.')
+    else:
+        lang.delete()
+        messages.success(request, f'Язык «{lang.name}» удалён.')
+    return redirect('catalog_admin:language_list')
 
 
 def _parse_excel(file_obj):
@@ -344,6 +428,7 @@ def _parse_excel(file_obj):
             # Determine import status for preview
             inv = record.get('inventory_number', '').strip()
             title = record.get('title', '').strip()
+            author = record.get('author', '').strip()
             if not inv:
                 record['row_status'] = 'error'
                 record['row_status_text'] = 'Нет инв. номера'
@@ -353,6 +438,11 @@ def _parse_excel(file_obj):
             elif Book.objects.filter(inventory_number=inv).exists():
                 record['row_status'] = 'update'
                 record['row_status_text'] = 'Обновление'
+            elif title and author and Book.objects.filter(
+                title__iexact=title, author__iexact=author
+            ).exclude(inventory_number=inv).exists():
+                record['row_status'] = 'duplicate'
+                record['row_status_text'] = 'Возможный дубликат'
             else:
                 record['row_status'] = 'new'
                 record['row_status_text'] = 'Новая'

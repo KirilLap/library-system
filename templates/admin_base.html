@@ -11,10 +11,26 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link {% block nav_catalog %}{% endblock %}" href="/admin-panel/">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% block nav_catalog %}{% endblock %}"
+                       href="#" data-bs-toggle="dropdown">
                         <i class="bi bi-journals"></i> Каталог
                     </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/admin-panel/">
+                            <i class="bi bi-list-ul"></i> Все книги
+                        </a></li>
+                        <li><a class="dropdown-item" href="/admin-panel/catalog/add/">
+                            <i class="bi bi-plus-lg"></i> Добавить книгу
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/admin-panel/catalog/genres/">
+                            <i class="bi bi-tags"></i> Жанры
+                        </a></li>
+                        <li><a class="dropdown-item" href="/admin-panel/catalog/languages/">
+                            <i class="bi bi-translate"></i> Языки
+                        </a></li>
+                    </ul>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% block nav_locations %}{% endblock %}" href="/admin-panel/locations/">

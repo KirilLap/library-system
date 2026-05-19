@@ -1,0 +1,77 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Жанры{% endblock %}
+{% block nav_catalog %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-3">
+    <a href="{% url 'catalog_admin:index' %}" class="btn btn-sm btn-outline-secondary">← Каталог</a>
+    <h4 class="mb-0">Жанры</h4>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header fw-semibold">Добавить жанр</div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-2">
+                        <div class="col-5">
+                            <label class="form-label small fw-semibold">Код</label>
+                            {{ form.code }}
+                            <div class="form-text">Латиница, CAPS. Напр.: SCIENCE</div>
+                            {% for e in form.code.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                        </div>
+                        <div class="col-7">
+                            <label class="form-label small fw-semibold">Название</label>
+                            {{ form.name }}
+                            {% for e in form.name.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm mt-3">
+                        <i class="bi bi-plus-lg"></i> Добавить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Код</th>
+                            <th>Название</th>
+                            <th>Книг</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for genre in genres %}
+                        <tr>
+                            <td><code>{{ genre.code }}</code></td>
+                            <td>{{ genre.name }}</td>
+                            <td class="text-muted">{{ genre.code|lower }}</td>
+                            <td class="text-end">
+                                <form method="post" action="{% url 'catalog_admin:genre_delete' genre.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Удалить жанр «{{ genre.name }}»?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">Жанры не добавлены</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

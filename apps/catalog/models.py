@@ -1,23 +1,33 @@
 from django.db import models
 
 
+class Genre(models.Model):
+    code = models.CharField(max_length=30, unique=True, verbose_name='Код')
+    name = models.CharField(max_length=100, verbose_name='Название')
+
+    class Meta:
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class Language(models.Model):
+    code = models.CharField(max_length=20, unique=True, verbose_name='Код')
+    name = models.CharField(max_length=100, verbose_name='Название')
+
+    class Meta:
+        verbose_name = 'Язык'
+        verbose_name_plural = 'Языки'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
 class Book(models.Model):
-    GENRE_CHOICES = [
-        ('FICTION', 'Художественная'),
-        ('CHILDREN', 'Детская'),
-        ('EDUCATIONAL', 'Учебная'),
-        ('POETRY', 'Поэзия'),
-        ('NONFICTION', 'Документальная'),
-        ('OTHER', 'Другое'),
-    ]
-
-    LANGUAGE_CHOICES = [
-        ('RU', 'Русский'),
-        ('UZ', 'Узбекский'),
-        ('EN', 'Английский'),
-        ('OTHER', 'Другой'),
-    ]
-
     STATUS_CHOICES = [
         ('IN_LIBRARY', 'В библиотеке'),
         ('IN_DELIVERY', 'На точке'),
@@ -31,8 +41,8 @@ class Book(models.Model):
     author = models.CharField(max_length=300, verbose_name='Автор')
     year = models.IntegerField(null=True, blank=True, verbose_name='Год')
     publisher = models.CharField(max_length=300, blank=True, verbose_name='Издательство')
-    genre = models.CharField(max_length=20, choices=GENRE_CHOICES, default='OTHER', verbose_name='Жанр')
-    language = models.CharField(max_length=10, choices=LANGUAGE_CHOICES, default='RU', verbose_name='Язык')
+    genre = models.CharField(max_length=30, default='OTHER', verbose_name='Жанр')
+    language = models.CharField(max_length=20, default='RU', verbose_name='Язык')
     description = models.TextField(blank=True, verbose_name='Описание')
     isbn = models.CharField(max_length=20, blank=True, verbose_name='ISBN')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='IN_LIBRARY', verbose_name='Статус')
@@ -47,6 +57,18 @@ class Book(models.Model):
 
     def __str__(self):
         return f'{self.inventory_number} — {self.title}'
+
+    def get_genre_display(self):
+        try:
+            return Genre.objects.get(code=self.genre).name
+        except Genre.DoesNotExist:
+            return self.genre
+
+    def get_language_display(self):
+        try:
+            return Language.objects.get(code=self.language).name
+        except Language.DoesNotExist:
+            return self.language
 
     def get_status_badge_class(self):
         return {

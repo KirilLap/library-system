@@ -71,6 +71,8 @@
                     <span class="badge bg-success">{{ row.row_status_text }}</span>
                     {% elif row.row_status == 'update' %}
                     <span class="badge bg-primary">{{ row.row_status_text }}</span>
+                    {% elif row.row_status == 'duplicate' %}
+                    <span class="badge bg-warning text-dark">{{ row.row_status_text }}</span>
                     {% else %}
                     <span class="badge bg-danger">{{ row.row_status_text }}</span>
                     {% endif %}

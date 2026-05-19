@@ -15,4 +15,8 @@ urlpatterns = [
     path('catalog/import/excel/', views.excel_import, name='excel_import'),
     path('catalog/import/excel/confirm/', views.excel_confirm, name='excel_confirm'),
     path('catalog/import/excel/template/', views.excel_template_download, name='excel_template'),
+    path('catalog/genres/', views.genre_list, name='genre_list'),
+    path('catalog/genres/<int:pk>/delete/', views.genre_delete, name='genre_delete'),
+    path('catalog/languages/', views.language_list, name='language_list'),
+    path('catalog/languages/<int:pk>/delete/', views.language_delete, name='language_delete'),
 ]
