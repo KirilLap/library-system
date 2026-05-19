@@ -31,6 +31,8 @@ class Location(models.Model):
     address = models.TextField(verbose_name='Адрес')
     contact_person = models.CharField(max_length=200, blank=True, verbose_name='Контактное лицо')
     contact_phone = models.CharField(max_length=50, blank=True, verbose_name='Телефон контакта')
+    latitude = models.FloatField(null=True, blank=True, verbose_name='Широта')
+    longitude = models.FloatField(null=True, blank=True, verbose_name='Долгота')
     slug = models.SlugField(max_length=200, unique=True, blank=True, verbose_name='URL-slug')
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True, verbose_name='QR-код')
     is_active = models.BooleanField(default=True, verbose_name='Активна')

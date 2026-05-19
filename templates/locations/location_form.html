@@ -4,7 +4,7 @@
 {% block nav_locations %}active{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
+<div class="row">
     <div class="col-lg-7">
         <div class="d-flex align-items-center mb-3 gap-2">
             <a href="{% if location %}{% url 'locations_admin:detail' location.pk %}{% else %}{% url 'locations_admin:index' %}{% endif %}"
@@ -20,12 +20,12 @@
                     {% csrf_token %}
 
                     {% for field in form %}
+                    {% if field.name == 'latitude' or field.name == 'longitude' %}{% continue %}{% endif %}
                     <div class="mb-3">
                         <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
                             {{ field.label }}
                             {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
                         </label>
-
                         {% if field.name == 'is_active' %}
                         <div class="form-check">
                             {{ field }}
@@ -36,17 +36,41 @@
                         {% else %}
                             {{ field }}
                         {% endif %}
-
-                        {% if field.errors %}
-                            {% for error in field.errors %}
-                            <div class="text-danger small mt-1">{{ error }}</div>
-                            {% endfor %}
-                        {% endif %}
+                        {% for error in field.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
                         {% if field.help_text %}
                         <div class="form-text">{{ field.help_text }}</div>
                         {% endif %}
                     </div>
                     {% endfor %}
+
+                    <!-- Map picker -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-geo-alt"></i> Местоположение на карте
+                        </label>
+                        <div class="text-muted small mb-2">
+                            Кликните по карте, чтобы указать координаты точки доставки.
+                        </div>
+                        <div id="map-picker" style="height:360px;border-radius:8px;border:1px solid #dee2e6"></div>
+                        <div class="row g-2 mt-2">
+                            <div class="col-6">
+                                <label class="form-label small">Широта</label>
+                                {{ form.latitude }}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Долгота</label>
+                                {{ form.longitude }}
+                            </div>
+                        </div>
+                        {% if form.latitude.errors or form.longitude.errors %}
+                        <div class="text-danger small mt-1">Проверьте координаты.</div>
+                        {% endif %}
+                        <button type="button" id="btn-clear-coords" class="btn btn-sm btn-outline-secondary mt-2">
+                            <i class="bi bi-x-circle"></i> Убрать метку
+                        </button>
+                    </div>
 
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-primary">
@@ -61,4 +85,57 @@
         </div>
     </div>
 </div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+    var latInput = document.getElementById('{{ form.latitude.id_for_label }}');
+    var lngInput = document.getElementById('{{ form.longitude.id_for_label }}');
+
+    var initLat = parseFloat(latInput.value) || 41.2995;
+    var initLng = parseFloat(lngInput.value) || 69.2401;
+    var hasCoords = !!(parseFloat(latInput.value) && parseFloat(lngInput.value));
+
+    var map = L.map('map-picker').setView([initLat, initLng], hasCoords ? 15 : 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    var marker = null;
+
+    function placeMarker(lat, lng) {
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng], {draggable: true}).addTo(map);
+            marker.on('dragend', function (e) {
+                var pos = e.target.getLatLng();
+                setCoords(pos.lat, pos.lng);
+            });
+        }
+        setCoords(lat, lng);
+    }
+
+    function setCoords(lat, lng) {
+        latInput.value = lat.toFixed(6);
+        lngInput.value = lng.toFixed(6);
+    }
+
+    if (hasCoords) {
+        placeMarker(initLat, initLng);
+    }
+
+    map.on('click', function (e) {
+        placeMarker(e.latlng.lat, e.latlng.lng);
+    });
+
+    document.getElementById('btn-clear-coords').addEventListener('click', function () {
+        if (marker) { map.removeLayer(marker); marker = null; }
+        latInput.value = '';
+        lngInput.value = '';
+    });
+})();
+</script>
 {% endblock %}

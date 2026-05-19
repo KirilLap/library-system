@@ -8,11 +8,14 @@ class LocationForm(forms.ModelForm):
         fields = [
             'name', 'type', 'address',
             'contact_person', 'contact_phone',
+            'latitude', 'longitude',
             'is_active', 'notes',
         ]
         widgets = {
             'address': forms.Textarea(attrs={'rows': 2}),
             'notes': forms.Textarea(attrs={'rows': 2}),
+            'latitude': forms.NumberInput(attrs={'step': 'any', 'placeholder': 'Кликните по карте'}),
+            'longitude': forms.NumberInput(attrs={'step': 'any', 'placeholder': 'Кликните по карте'}),
         }
 
     def __init__(self, *args, **kwargs):

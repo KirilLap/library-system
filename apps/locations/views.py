@@ -103,8 +103,8 @@ def point_public(request, slug):
     if genre:
         books = [b for b in books if b.genre == genre]
 
-    from apps.catalog.models import Book
-    genre_choices = Book.GENRE_CHOICES
+    from apps.catalog.models import Genre
+    genre_choices = Genre.objects.values_list('code', 'name')
 
     return render(request, 'locations/point_public.html', {
         'location': location,
@@ -112,4 +112,25 @@ def point_public(request, slug):
         'q': q,
         'genre_filter': genre,
         'genre_choices': genre_choices,
+    })
+
+
+def points_map(request):
+    locations = Location.objects.filter(is_active=True)
+    points = []
+    for loc in locations:
+        if loc.latitude and loc.longitude:
+            points.append({
+                'name': loc.name,
+                'address': loc.address,
+                'slug': loc.slug,
+                'lat': loc.latitude,
+                'lng': loc.longitude,
+                'books': loc.books_count,
+                'type': loc.get_type_display(),
+            })
+    return render(request, 'locations/map.html', {
+        'points': points,
+        'total': locations.count(),
+        'mapped': len(points),
     })

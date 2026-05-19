@@ -1,0 +1,173 @@
+{% extends "public_base.html" %}
+
+{% block title %}Карта точек доставки{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0"><i class="bi bi-geo-alt"></i> Точки доставки на карте</h1>
+    <div class="text-muted small">
+        Показано на карте: <strong>{{ mapped }}</strong> из {{ total }}
+    </div>
+</div>
+
+{% if mapped == 0 %}
+<div class="alert alert-info">
+    Координаты точек ещё не указаны. Откройте точку в панели администратора и кликните по карте.
+</div>
+{% else %}
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body p-0 position-relative">
+        <div id="main-map" style="height:520px;border-radius:8px"></div>
+        <button id="btn-locate" class="btn btn-primary btn-sm position-absolute"
+                style="bottom:16px;left:50%;transform:translateX(-50%);z-index:1000;box-shadow:0 2px 8px rgba(0,0,0,.3)">
+            <i class="bi bi-crosshair"></i> Найти ближайшую точку
+        </button>
+    </div>
+</div>
+
+<div id="nearest-result" class="alert alert-success d-none">
+    <strong><i class="bi bi-check-circle"></i> Ближайшая точка:</strong>
+    <span id="nearest-name"></span> — <span id="nearest-dist"></span>
+    <a id="nearest-link" href="#" class="ms-2 btn btn-sm btn-outline-success">Перейти</a>
+</div>
+
+<div id="points-list" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mt-1"></div>
+
+{% endif %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var POINTS = [
+    {% for p in points %}
+    {
+        name: "{{ p.name|escapejs }}",
+        address: "{{ p.address|escapejs }}",
+        slug: "{{ p.slug }}",
+        lat: {{ p.lat }},
+        lng: {{ p.lng }},
+        books: {{ p.books }},
+        type: "{{ p.type|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+{% if mapped > 0 %}
+(function () {
+    if (!POINTS.length) return;
+
+    var avgLat = POINTS.reduce(function(s,p){return s+p.lat;},0)/POINTS.length;
+    var avgLng = POINTS.reduce(function(s,p){return s+p.lng;},0)/POINTS.length;
+
+    var map = L.map('main-map').setView([avgLat, avgLng], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    var markers = {};
+    var userMarker = null;
+
+    POINTS.forEach(function (p) {
+        var popup = '<strong>' + p.name + '</strong><br>'
+            + '<small class="text-muted">' + p.address + '</small><br>'
+            + (p.books ? '<span class="badge bg-primary mt-1">' + p.books + ' книг</span>' : '')
+            + '<br><a href="/p/' + p.slug + '/" class="btn btn-sm btn-outline-primary mt-2">Открыть</a>';
+        var m = L.marker([p.lat, p.lng]).addTo(map).bindPopup(popup);
+        markers[p.slug] = m;
+    });
+
+    // Render cards list
+    var list = document.getElementById('points-list');
+    POINTS.forEach(function (p) {
+        var col = document.createElement('div');
+        col.className = 'col';
+        col.innerHTML = '<div class="card h-100 shadow-sm" style="cursor:pointer" data-slug="' + p.slug + '">'
+            + '<div class="card-body">'
+            + '<h6 class="card-title mb-1">' + p.name + '</h6>'
+            + '<p class="text-muted small mb-1"><i class="bi bi-geo-alt"></i> ' + p.address + '</p>'
+            + '<p class="text-muted small mb-0"><i class="bi bi-tag"></i> ' + p.type + '</p>'
+            + '</div>'
+            + '<div class="card-footer bg-transparent d-flex justify-content-between align-items-center">'
+            + '<small class="text-muted" id="dist-' + p.slug + '"></small>'
+            + '<a href="/p/' + p.slug + '/" class="btn btn-sm btn-outline-primary">Открыть</a>'
+            + '</div></div>';
+        col.querySelector('[data-slug]').addEventListener('click', function (e) {
+            if (e.target.tagName === 'A') return;
+            map.setView([p.lat, p.lng], 16);
+            markers[p.slug].openPopup();
+        });
+        list.appendChild(col);
+    });
+
+    // Haversine distance in km
+    function haversine(lat1, lng1, lat2, lng2) {
+        var R = 6371;
+        var dLat = (lat2 - lat1) * Math.PI / 180;
+        var dLng = (lng2 - lng1) * Math.PI / 180;
+        var a = Math.sin(dLat/2) * Math.sin(dLat/2)
+              + Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180)
+              * Math.sin(dLng/2) * Math.sin(dLng/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    document.getElementById('btn-locate').addEventListener('click', function () {
+        if (!navigator.geolocation) {
+            alert('Геолокация не поддерживается вашим браузером.');
+            return;
+        }
+        var btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Определяем...';
+
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-crosshair"></i> Найти ближайшую точку';
+
+            var uLat = pos.coords.latitude;
+            var uLng = pos.coords.longitude;
+
+            if (userMarker) map.removeLayer(userMarker);
+            userMarker = L.circleMarker([uLat, uLng], {
+                radius: 8, color: '#0d6efd', fillColor: '#0d6efd', fillOpacity: 0.8
+            }).addTo(map).bindPopup('Вы здесь').openPopup();
+
+            var nearest = null;
+            var minDist = Infinity;
+            var sorted = POINTS.map(function (p) {
+                var d = haversine(uLat, uLng, p.lat, p.lng);
+                if (d < minDist) { minDist = d; nearest = p; }
+                return {p: p, d: d};
+            }).sort(function (a, b) { return a.d - b.d; });
+
+            // Update distance labels
+            sorted.forEach(function (item) {
+                var el = document.getElementById('dist-' + item.p.slug);
+                if (el) el.textContent = item.d < 1
+                    ? Math.round(item.d * 1000) + ' м'
+                    : item.d.toFixed(1) + ' км';
+            });
+
+            // Highlight nearest
+            if (nearest) {
+                var res = document.getElementById('nearest-result');
+                res.classList.remove('d-none');
+                document.getElementById('nearest-name').textContent = nearest.name;
+                document.getElementById('nearest-dist').textContent = minDist < 1
+                    ? Math.round(minDist * 1000) + ' м'
+                    : minDist.toFixed(1) + ' км';
+                document.getElementById('nearest-link').href = '/p/' + nearest.slug + '/';
+                markers[nearest.slug].openPopup();
+                map.setView([nearest.lat, nearest.lng], 15);
+            }
+
+        }, function () {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-crosshair"></i> Найти ближайшую точку';
+            alert('Не удалось получить геолокацию. Проверьте разрешение в браузере.');
+        });
+    });
+})();
+{% endif %}
+</script>
+{% endblock %}
