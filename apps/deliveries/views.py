@@ -1,18 +1,12 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 
+from apps.staff.decorators import librarian_required
 from .forms import DeliveryBatchForm, AddBookForm
 from .models import DeliveryBatch, DeliveryItem
-
-LOGIN_URL = '/django-admin/login/'
-
-
-def librarian_required(func):
-    return login_required(func, login_url=LOGIN_URL)
 
 
 # ──────────────────────────────

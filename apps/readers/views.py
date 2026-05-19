@@ -5,15 +5,9 @@ from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
+from apps.staff.decorators import librarian_required
 from .forms import ReaderRegistrationForm, StyledAuthForm, BookRequestForm, RequestStatusForm
 from .models import Reader, BookRequest
-
-LIBRARIAN_LOGIN_URL = '/django-admin/login/'
-
-
-def librarian_required(func):
-    from django.contrib.auth.decorators import login_required as _lr
-    return _lr(func, login_url=LIBRARIAN_LOGIN_URL)
 
 
 # ──────────────────────────────

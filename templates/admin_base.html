@@ -36,20 +36,33 @@
                         <i class="bi bi-inbox"></i> Заявки
                     </a>
                 </li>
+                {% if request.user.staff_profile.is_admin %}
+                <li class="nav-item">
+                    <a class="nav-link {% block nav_staff %}{% endblock %}" href="/admin-panel/staff/">
+                        <i class="bi bi-shield-lock"></i> Сотрудники
+                    </a>
+                </li>
+                {% endif %}
             </ul>
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle"></i> {{ user.get_full_name|default:user.username }}
+                        <i class="bi bi-person-circle"></i>
+                        {{ user.get_full_name|default:user.username }}
+                        {% if request.user.staff_profile.is_admin %}
+                        <span class="badge bg-danger ms-1">Админ</span>
+                        {% else %}
+                        <span class="badge bg-secondary ms-1">Библиотекарь</span>
+                        {% endif %}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="/django-admin/">Настройки</a></li>
-                        <li><hr class="dropdown-divider"></li>
                         <li>
-                            <form method="post" action="/django-admin/logout/">
+                            <form method="post" action="/admin-panel/logout/">
                                 {% csrf_token %}
-                                <button type="submit" class="dropdown-item">Выйти</button>
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right"></i> Выйти
+                                </button>
                             </form>
                         </li>
                     </ul>

@@ -1,19 +1,13 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
+from apps.staff.decorators import librarian_required
 from .forms import BookForm, MARCImportForm
 from .marc_utils import parse_marc_file
 from .models import Book
-
-LOGIN_URL = '/django-admin/login/'
-
-
-def librarian_required(func):
-    return login_required(func, login_url=LOGIN_URL)
 
 
 @librarian_required

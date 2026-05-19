@@ -1,0 +1,75 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Сотрудники{% endblock %}
+{% block nav_staff %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-people-fill"></i> Сотрудники</h4>
+    <a href="{% url 'staff:create' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i> Добавить сотрудника
+    </a>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Имя</th>
+                    <th>Логин</th>
+                    <th>Роль</th>
+                    <th>Статус</th>
+                    <th>Добавлен</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in staff %}
+                <tr class="{% if not profile.is_active %}table-secondary{% endif %}">
+                    <td>{{ profile.full_name }}</td>
+                    <td class="text-muted">{{ profile.user.username }}</td>
+                    <td>
+                        {% if profile.is_admin %}
+                        <span class="badge bg-danger">Администратор</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Библиотекарь</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if profile.is_active %}
+                        <span class="badge bg-success">Активен</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Заблокирован</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted small">{{ profile.created_at|date:"d.m.Y" }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'staff:edit' profile.pk %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        {% if profile.user != request.user %}
+                        <form method="post" action="{% url 'staff:toggle' profile.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm {% if profile.is_active %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
+                                    onclick="return confirm('{% if profile.is_active %}Заблокировать{% else %}Активировать{% endif %} сотрудника?')">
+                                {% if profile.is_active %}
+                                <i class="bi bi-lock"></i>
+                                {% else %}
+                                <i class="bi bi-unlock"></i>
+                                {% endif %}
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">Сотрудников нет</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

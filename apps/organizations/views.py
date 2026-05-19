@@ -1,20 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
+from apps.staff.decorators import librarian_required
 from .forms import OrgLoginForm, OrgAccountCreateForm
 from .models import OrgAccount
 
-LIBRARIAN_LOGIN_URL = '/django-admin/login/'
 ORG_LOGIN_URL = '/org/login/'
-
-
-def librarian_required(func):
-    from django.contrib.auth.decorators import login_required as _lr
-    return _lr(func, login_url=LIBRARIAN_LOGIN_URL)
 
 
 def org_required(func):
