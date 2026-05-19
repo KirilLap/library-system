@@ -67,12 +67,12 @@
             {% for row in preview %}
             <tr>
                 <td>
-                    {% if row._status == 'new' %}
-                    <span class="badge bg-success">{{ row._status_text }}</span>
-                    {% elif row._status == 'update' %}
-                    <span class="badge bg-primary">{{ row._status_text }}</span>
+                    {% if row.row_status == 'new' %}
+                    <span class="badge bg-success">{{ row.row_status_text }}</span>
+                    {% elif row.row_status == 'update' %}
+                    <span class="badge bg-primary">{{ row.row_status_text }}</span>
                     {% else %}
-                    <span class="badge bg-danger">{{ row._status_text }}</span>
+                    <span class="badge bg-danger">{{ row.row_status_text }}</span>
                     {% endif %}
                 </td>
                 <td><code>{{ row.inventory_number|default:"—" }}</code></td>

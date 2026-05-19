@@ -345,17 +345,17 @@ def _parse_excel(file_obj):
             inv = record.get('inventory_number', '').strip()
             title = record.get('title', '').strip()
             if not inv:
-                record['_status'] = 'error'
-                record['_status_text'] = 'Нет инв. номера'
+                record['row_status'] = 'error'
+                record['row_status_text'] = 'Нет инв. номера'
             elif not title:
-                record['_status'] = 'error'
-                record['_status_text'] = 'Нет названия'
+                record['row_status'] = 'error'
+                record['row_status_text'] = 'Нет названия'
             elif Book.objects.filter(inventory_number=inv).exists():
-                record['_status'] = 'update'
-                record['_status_text'] = 'Обновление'
+                record['row_status'] = 'update'
+                record['row_status_text'] = 'Обновление'
             else:
-                record['_status'] = 'new'
-                record['_status_text'] = 'Новая'
+                record['row_status'] = 'new'
+                record['row_status_text'] = 'Новая'
             rows.append(record)
         wb.close()
     except Exception as e:
