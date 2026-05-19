@@ -113,6 +113,7 @@
                             {{ form.description }}
                         </div>
 
+                        {% if book %}
                         <div class="col-12">
                             <label class="form-label">{{ form.cover.label }}</label>
                             {{ form.cover }}
@@ -125,6 +126,7 @@
                             </div>
                             {% endif %}
                         </div>
+                        {% endif %}
 
                     </div>
 
