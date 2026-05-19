@@ -24,6 +24,7 @@ class Book(models.Model):
         ('LOST', 'Утеряна'),
     ]
 
+    cover = models.ImageField(upload_to='covers/', blank=True, null=True, verbose_name='Обложка')
     inventory_number = models.CharField(max_length=50, unique=True, verbose_name='Инв. номер')
     barcode = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name='Штрих-код')
     title = models.CharField(max_length=500, verbose_name='Название')
@@ -53,6 +54,19 @@ class Book(models.Model):
             'IN_DELIVERY': 'primary',
             'LOST': 'danger',
         }.get(self.status, 'secondary')
+
+    _PLACEHOLDER_COLORS = [
+        '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e',
+        '#e74a3b', '#6f42c1', '#fd7e14', '#20c997',
+    ]
+
+    @property
+    def cover_placeholder_color(self):
+        return self._PLACEHOLDER_COLORS[self.pk % len(self._PLACEHOLDER_COLORS)]
+
+    @property
+    def cover_placeholder_letter(self):
+        return (self.title[0] if self.title else '?').upper()
 
     @property
     def current_location(self):

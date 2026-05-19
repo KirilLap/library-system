@@ -10,4 +10,9 @@ urlpatterns = [
     path('catalog/<int:pk>/delete/', views.book_delete, name='book_delete'),
     path('catalog/import/', views.marc_import, name='marc_import'),
     path('catalog/import/confirm/', views.marc_confirm, name='marc_confirm'),
+    path('catalog/<int:pk>/label/', views.book_label, name='book_label'),
+    path('catalog/labels/', views.book_labels_batch, name='book_labels_batch'),
+    path('catalog/import/excel/', views.excel_import, name='excel_import'),
+    path('catalog/import/excel/confirm/', views.excel_confirm, name='excel_confirm'),
+    path('catalog/import/excel/template/', views.excel_template_download, name='excel_template'),
 ]

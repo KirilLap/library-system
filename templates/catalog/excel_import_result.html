@@ -1,0 +1,56 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Результат импорта Excel{% endblock %}
+{% block nav_catalog %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3 gap-2">
+    <a href="{% url 'catalog_admin:index' %}" class="btn btn-sm btn-outline-secondary">← Каталог</a>
+    <h4 class="mb-0">Результат импорта</h4>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-auto">
+        <div class="card text-bg-success px-4 py-3 text-center">
+            <div class="fs-2 fw-bold">{{ created }}</div>
+            <div class="small">Добавлено</div>
+        </div>
+    </div>
+    <div class="col-auto">
+        <div class="card text-bg-primary px-4 py-3 text-center">
+            <div class="fs-2 fw-bold">{{ updated }}</div>
+            <div class="small">Обновлено</div>
+        </div>
+    </div>
+    <div class="col-auto">
+        <div class="card text-bg-danger px-4 py-3 text-center">
+            <div class="fs-2 fw-bold">{{ skipped|length }}</div>
+            <div class="small">Пропущено</div>
+        </div>
+    </div>
+</div>
+
+{% if skipped %}
+<h6>Пропущенные строки</h6>
+<table class="table table-sm table-bordered mb-4" style="max-width:600px">
+    <thead class="table-light">
+        <tr><th>Книга</th><th>Причина</th></tr>
+    </thead>
+    <tbody>
+        {% for s in skipped %}
+        <tr>
+            <td>{{ s.title }}</td>
+            <td class="text-danger small">{{ s.reason }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<a href="{% url 'catalog_admin:index' %}" class="btn btn-primary">
+    <i class="bi bi-journals"></i> Перейти в каталог
+</a>
+<a href="{% url 'catalog_admin:excel_import' %}" class="btn btn-outline-secondary ms-2">
+    Ещё импорт
+</a>
+{% endblock %}

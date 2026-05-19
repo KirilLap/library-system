@@ -10,16 +10,26 @@
         <span class="badge bg-secondary fs-6">{{ total }}</span>
     </h1>
     <div class="d-flex gap-2">
-        <a href="{% url 'catalog_admin:marc_import' %}" class="btn btn-outline-secondary">
-            <i class="bi bi-upload"></i> Импорт MARC
-        </a>
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-upload"></i> Импорт
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'catalog_admin:marc_import' %}">
+                    <i class="bi bi-file-earmark-binary"></i> MARC / RUSMARC
+                </a></li>
+                <li><a class="dropdown-item" href="{% url 'catalog_admin:excel_import' %}">
+                    <i class="bi bi-file-earmark-excel"></i> Excel (.xlsx)
+                </a></li>
+            </ul>
+        </div>
         <a href="{% url 'catalog_admin:book_create' %}" class="btn btn-primary">
             <i class="bi bi-plus-lg"></i> Добавить книгу
         </a>
     </div>
 </div>
 
-<form method="get" class="row g-2 mb-3">
+<form method="get" class="row g-2 mb-3" id="filter-form">
     <div class="col-md-4">
         <input type="text" name="q" value="{{ q }}" class="form-control"
                placeholder="Поиск по названию, автору, инв. номеру, штрих-коду...">
@@ -61,10 +71,22 @@
 </form>
 
 {% if page_obj.object_list %}
+
+<div class="d-flex align-items-center gap-2 mb-2" id="batch-toolbar" style="display:none!important">
+    <span class="text-muted small" id="selected-count">Выбрано: 0</span>
+    <a href="#" id="btn-print-selected" class="btn btn-sm btn-outline-secondary" target="_blank">
+        <i class="bi bi-printer"></i> Печать этикеток
+    </a>
+    <button type="button" class="btn btn-sm btn-link text-muted" id="btn-deselect-all">Снять выбор</button>
+</div>
+
 <div class="table-responsive">
     <table class="table table-hover table-sm align-middle">
         <thead class="table-light">
             <tr>
+                <th style="width:36px">
+                    <input type="checkbox" id="check-all" class="form-check-input" title="Выбрать все">
+                </th>
                 <th>Инв. номер</th>
                 <th>Название</th>
                 <th>Автор</th>
@@ -79,6 +101,9 @@
         <tbody>
             {% for book in page_obj %}
             <tr>
+                <td>
+                    <input type="checkbox" class="form-check-input book-check" value="{{ book.pk }}">
+                </td>
                 <td><code class="text-dark">{{ book.inventory_number }}</code></td>
                 <td>{{ book.title|truncatechars:55 }}</td>
                 <td class="text-muted">{{ book.author|truncatechars:35 }}</td>
@@ -147,4 +172,53 @@
     {% endif %}
 </div>
 {% endif %}
+
+<script>
+(function () {
+    var checkAll = document.getElementById('check-all');
+    var toolbar  = document.getElementById('batch-toolbar');
+    var countEl  = document.getElementById('selected-count');
+    var printBtn = document.getElementById('btn-print-selected');
+    var deselectBtn = document.getElementById('btn-deselect-all');
+    var labelUrl = '{% url "catalog_admin:book_labels_batch" %}';
+
+    function getChecked() {
+        return Array.from(document.querySelectorAll('.book-check:checked'));
+    }
+
+    function update() {
+        var checked = getChecked();
+        if (checked.length > 0) {
+            toolbar.style.removeProperty('display');
+            countEl.textContent = 'Выбрано: ' + checked.length;
+            var ids = checked.map(function (c) { return 'ids=' + c.value; }).join('&');
+            printBtn.href = labelUrl + '?' + ids;
+        } else {
+            toolbar.style.display = 'none';
+        }
+        checkAll.indeterminate = checked.length > 0 &&
+            checked.length < document.querySelectorAll('.book-check').length;
+        checkAll.checked = checked.length > 0 &&
+            checked.length === document.querySelectorAll('.book-check').length;
+    }
+
+    document.querySelectorAll('.book-check').forEach(function (cb) {
+        cb.addEventListener('change', update);
+    });
+
+    checkAll.addEventListener('change', function () {
+        document.querySelectorAll('.book-check').forEach(function (cb) {
+            cb.checked = checkAll.checked;
+        });
+        update();
+    });
+
+    deselectBtn.addEventListener('click', function () {
+        document.querySelectorAll('.book-check').forEach(function (cb) {
+            cb.checked = false;
+        });
+        update();
+    });
+})();
+</script>
 {% endblock %}
