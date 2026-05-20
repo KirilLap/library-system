@@ -3,7 +3,7 @@ from django.db import models
 
 
 class OrgAccount(models.Model):
-    """Login account for an organization / delivery point."""
+    """Shared anonymous login account for an organization / delivery point."""
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='org_account')
     location = models.OneToOneField(
@@ -19,3 +19,26 @@ class OrgAccount(models.Model):
 
     def __str__(self):
         return f'{self.location.name} ({self.user.username})'
+
+
+class LocationWorker(models.Model):
+    """Personal worker account tied to a delivery point."""
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='worker_profile')
+    location = models.ForeignKey(
+        'locations.Location', on_delete=models.CASCADE,
+        related_name='workers', verbose_name='Точка'
+    )
+    is_active = models.BooleanField(default=True, verbose_name='Активен')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Работник точки'
+        verbose_name_plural = 'Работники точек'
+
+    def __str__(self):
+        return f'{self.user.get_full_name() or self.user.username} ({self.location.name})'
+
+    @property
+    def full_name(self):
+        return self.user.get_full_name() or self.user.username

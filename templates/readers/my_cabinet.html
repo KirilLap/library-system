@@ -3,6 +3,16 @@
 {% block title %}Мой кабинет{% endblock %}
 
 {% block content %}
+
+{% if has_worker_profile %}
+<div class="alert alert-primary d-flex align-items-center justify-content-between mb-3 py-2">
+    <span><i class="bi bi-person-badge"></i> У вас есть доступ к кабинету работника</span>
+    <a href="{% url 'organizations:worker_cabinet' %}" class="btn btn-sm btn-primary">
+        Кабинет работника <i class="bi bi-arrow-right"></i>
+    </a>
+</div>
+{% endif %}
+
 <div class="row g-4">
     <!-- Profile -->
     <div class="col-lg-4">
@@ -22,9 +32,14 @@
                     <dt class="text-muted small">Телефон</dt>
                     <dd>{{ reader.phone }}</dd>
                     {% endif %}
-                    {% if reader.address %}
-                    <dt class="text-muted small">Адрес</dt>
-                    <dd>{{ reader.address }}</dd>
+                    {% if reader.affiliated_location %}
+                    <dt class="text-muted small">Прикреплённая точка</dt>
+                    <dd>
+                        <i class="bi bi-geo-alt"></i>
+                        <a href="/p/{{ reader.affiliated_location.slug }}/" class="text-decoration-none">
+                            {{ reader.affiliated_location.name }}
+                        </a>
+                    </dd>
                     {% endif %}
                     <dt class="text-muted small">Читатель с</dt>
                     <dd>{{ reader.created_at|date:"d.m.Y" }}</dd>
@@ -38,8 +53,88 @@
         </div>
     </div>
 
-    <!-- Requests -->
+    <!-- Right column -->
     <div class="col-lg-8">
+
+        <!-- Active loans -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="bi bi-book-half"></i> Книги на руках
+                    <span class="badge bg-primary ms-1">{{ active_loans|length }}</span>
+                </span>
+                {% if not reader.is_blocked %}
+                <a href="{% url 'main:take_book' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus-lg"></i> Взять книгу
+                </a>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                {% if active_loans %}
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Книга</th>
+                                <th>Точка</th>
+                                <th>Взята</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for loan in active_loans %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold small">{{ loan.book.title|truncatechars:40 }}</div>
+                                    <div class="text-muted small">{{ loan.book.author|truncatechars:30 }}</div>
+                                </td>
+                                <td class="small">
+                                    {% if loan.issued_by %}
+                                        <span class="badge bg-secondary" title="Закрытая точка">
+                                            <i class="bi bi-building"></i> {{ loan.location.name|truncatechars:20 }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark border">
+                                            <i class="bi bi-geo-alt"></i> {{ loan.location.name|truncatechars:20 }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted">{{ loan.issued_at|date:"d.m.Y" }}</td>
+                                <td>
+                                    {% if not loan.issued_by %}
+                                    <!-- Open point: reader can self-return -->
+                                    <form method="post" action="{% url 'main:return_loan' loan.pk %}"
+                                          onsubmit="return confirm('Отметить книгу «{{ loan.book.title|truncatechars:30 }}» как возвращённую?')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Вернуть">
+                                            <i class="bi bi-arrow-return-left"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <!-- Closed point: return via worker -->
+                                    <span class="text-muted small" title="Возврат оформляет работник точки">
+                                        <i class="bi bi-person-badge"></i>
+                                    </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-book" style="opacity:.3;"></i>
+                    Книг на руках нет.
+                    {% if not reader.is_blocked %}
+                    <a href="{% url 'main:take_book' %}">Взять книгу</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Requests -->
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-envelope-paper"></i> Мои заявки
@@ -106,6 +201,7 @@
                 {% endif %}
             </div>
         </div>
+
     </div>
 </div>
 {% endblock %}

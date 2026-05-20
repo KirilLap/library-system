@@ -1,0 +1,49 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Добавить работника — {{ location.name }}{% endblock %}
+{% block nav_locations %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3 gap-2">
+    <a href="{% url 'locations_admin:detail' location.pk %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="mb-0">Добавить работника</h2>
+    <span class="text-muted">— {{ location.name }}</span>
+</div>
+
+<div class="row">
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                            {{ field.label }}
+                            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        {{ field }}
+                        {% for error in field.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-plus"></i> Создать аккаунт
+                        </button>
+                        <a href="{% url 'locations_admin:detail' location.pk %}" class="btn btn-outline-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="alert alert-info mt-3 small">
+            <i class="bi bi-info-circle"></i>
+            Работник сможет войти через <strong>/login/</strong> и попадёт в кабинет работника.
+            Также автоматически создаётся профиль читателя.
+        </div>
+    </div>
+</div>
+{% endblock %}

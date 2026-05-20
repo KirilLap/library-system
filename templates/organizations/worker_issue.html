@@ -1,0 +1,87 @@
+{% extends "public_base.html" %}
+
+{% block title %}Выдать книгу — {{ location.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3 gap-2">
+    <a href="{% url 'organizations:worker_cabinet' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="h4 mb-0">Выдать книгу</h2>
+    <span class="badge bg-secondary">{{ location.name }}</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header"><i class="bi bi-upc-scan"></i> Шаг 1 — Найти книгу по инв. номеру</div>
+            <div class="card-body">
+                <form method="post" id="lookup-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="lookup_book">
+                    <div class="input-group">
+                        <input type="text" name="inventory_number" id="inv-input"
+                               value="{{ inv_value }}"
+                               class="form-control form-control-lg"
+                               placeholder="Инвентарный номер…"
+                               autofocus autocomplete="off">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Найти
+                        </button>
+                    </div>
+                    <div class="form-text">Введите номер с этикетки книги или отсканируйте штрих-код.</div>
+                </form>
+
+                {% if error %}
+                <div class="alert alert-danger mt-3 mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+                </div>
+                {% endif %}
+
+                {% if book %}
+                <div class="alert alert-success mt-3 mb-0">
+                    <strong><i class="bi bi-check-circle"></i> Книга найдена:</strong>
+                    <div class="mt-1">{{ book.title }}</div>
+                    <div class="text-muted small">{{ book.author }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if book %}
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header"><i class="bi bi-person-check"></i> Шаг 2 — Выбрать читателя</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="issue">
+                    <input type="hidden" name="inventory_number" value="{{ book.inventory_number }}">
+
+                    {% if readers %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Читатель точки</label>
+                        <select name="reader_pk" class="form-select" required>
+                            <option value="">— выберите читателя —</option>
+                            {% for r in readers %}
+                            <option value="{{ r.pk }}">{{ r.full_name }} ({{ r.user.username }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-check-lg"></i> Оформить выдачу
+                    </button>
+                    {% else %}
+                    <p class="text-muted small mb-3">На этой точке ещё нет зарегистрированных читателей.</p>
+                    <a href="{% url 'organizations:worker_register_reader' %}" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-person-plus"></i> Зарегистрировать читателя
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

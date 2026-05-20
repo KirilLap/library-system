@@ -85,11 +85,6 @@
                     <span class="badge bg-light text-dark border mt-auto align-self-start">{{ book.get_genre_display }}</span>
                     {% endif %}
                 </div>
-                {% if book.inventory_number %}
-                <div class="card-footer bg-transparent text-muted small">
-                    Инв. № {{ book.inventory_number }}
-                </div>
-                {% endif %}
             </div>
         </div>
         {% endfor %}

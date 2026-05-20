@@ -84,6 +84,49 @@
             </div>
         </div>
 
+        <!-- Workers card -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-person-badge"></i> Работники точки</span>
+                <a href="{% url 'organizations:worker_add' location.pk %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-plus-lg"></i> Добавить
+                </a>
+            </div>
+            <div class="card-body p-0">
+                {% if location.workers.exists %}
+                <ul class="list-group list-group-flush">
+                    {% for worker in location.workers.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                        <div>
+                            <div class="small fw-semibold">{{ worker.full_name }}</div>
+                            <div class="text-muted" style="font-size:0.78rem;">{{ worker.user.username }}</div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            {% if worker.is_active %}
+                                <span class="badge bg-success">Активен</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Неактивен</span>
+                            {% endif %}
+                            <form method="post" action="{% url 'organizations:worker_toggle' worker.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                        title="{% if worker.is_active %}Деактивировать{% else %}Активировать{% endif %}">
+                                    {% if worker.is_active %}<i class="bi bi-lock"></i>{% else %}<i class="bi bi-unlock"></i>{% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center py-3 text-muted small">
+                    Работников нет.
+                    <a href="{% url 'organizations:worker_add' location.pk %}">Добавить</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
         <!-- QR code card -->
         <div class="card shadow-sm">
             <div class="card-header"><i class="bi bi-qr-code"></i> QR-код</div>

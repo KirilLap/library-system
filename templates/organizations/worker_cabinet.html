@@ -1,0 +1,104 @@
+{% extends "public_base.html" %}
+
+{% block title %}Кабинет работника — {{ location.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3 gap-2">
+    <h1 class="h4 mb-0">
+        <i class="bi bi-person-badge"></i> Кабинет работника
+    </h1>
+    <span class="badge bg-secondary">{{ location.name }}</span>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3">
+        <a href="{% url 'organizations:worker_issue' %}" class="card text-decoration-none shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <i class="bi bi-book-half text-primary" style="font-size:2rem;"></i>
+                <div class="fw-semibold mt-2">Выдать книгу</div>
+                <div class="text-muted small">Оформить выдачу читателю</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <a href="{% url 'organizations:worker_return' %}" class="card text-decoration-none shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <i class="bi bi-arrow-return-left text-success" style="font-size:2rem;"></i>
+                <div class="fw-semibold mt-2">Принять возврат</div>
+                <div class="text-muted small">{{ active_loans|length }} книг на руках</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <a href="{% url 'organizations:worker_readers' %}" class="card text-decoration-none shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <i class="bi bi-people text-info" style="font-size:2rem;"></i>
+                <div class="fw-semibold mt-2">Читатели</div>
+                <div class="text-muted small">Список и регистрация</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <a href="/my/" class="card text-decoration-none shadow-sm h-100">
+            <div class="card-body text-center py-4">
+                <i class="bi bi-person-circle text-secondary" style="font-size:2rem;"></i>
+                <div class="fw-semibold mt-2">Мой кабинет</div>
+                <div class="text-muted small">Личные книги и заявки</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-list-check"></i> Книги на руках
+            <span class="badge bg-primary ms-1">{{ active_loans|length }}</span>
+        </span>
+        <a href="{% url 'organizations:worker_issue' %}" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-lg"></i> Выдать
+        </a>
+    </div>
+    <div class="card-body p-0">
+        {% if active_loans %}
+        <div class="table-responsive">
+            <table class="table table-sm mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Книга</th>
+                        <th>Читатель</th>
+                        <th>Дата выдачи</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for loan in active_loans %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold small">{{ loan.book.title|truncatechars:40 }}</div>
+                            <div class="text-muted small">{{ loan.book.author|truncatechars:30 }}</div>
+                        </td>
+                        <td class="small">
+                            {% if loan.reader %}{{ loan.reader.full_name }}{% else %}<span class="text-muted">—</span>{% endif %}
+                        </td>
+                        <td class="small text-muted">{{ loan.issued_at|date:"d.m.Y" }}</td>
+                        <td>
+                            <form method="post" action="{% url 'organizations:worker_return' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="loan_pk" value="{{ loan.pk }}">
+                                <button type="submit" class="btn btn-sm btn-outline-success"
+                                        onclick="return confirm('Принять возврат книги «{{ loan.book.title|truncatechars:30 }}»?')">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted">Книг на руках нет.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

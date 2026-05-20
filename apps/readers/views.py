@@ -3,11 +3,12 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from apps.staff.decorators import librarian_required
 from .forms import ReaderRegistrationForm, StyledAuthForm, BookRequestForm, RequestStatusForm
-from .models import Reader, BookRequest
+from .models import Reader, BookRequest, Loan
 
 
 # ──────────────────────────────
@@ -37,8 +38,13 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            next_url = request.GET.get('next') or 'main:my'
-            return redirect(next_url)
+            next_url = request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            # Redirect workers to their cabinet
+            if hasattr(user, 'worker_profile') and user.worker_profile.is_active:
+                return redirect('organizations:worker_cabinet')
+            return redirect('main:my')
     else:
         form = StyledAuthForm(request)
     return render(request, 'readers/login.html', {'form': form})
@@ -63,10 +69,68 @@ def my_cabinet(request):
         return redirect('main:home')
 
     requests_qs = reader.requests.select_related('book').order_by('-created_at')
+    active_loans = reader.active_loans
     return render(request, 'readers/my_cabinet.html', {
         'reader': reader,
         'requests': requests_qs,
+        'active_loans': active_loans,
+        'has_worker_profile': hasattr(request.user, 'worker_profile'),
     })
+
+
+@login_required(login_url='/login/')
+def take_book(request):
+    try:
+        reader = request.user.reader_profile
+    except Reader.DoesNotExist:
+        messages.error(request, 'Профиль читателя не найден.')
+        return redirect('main:home')
+
+    if reader.is_blocked:
+        messages.error(request, 'Ваш аккаунт заблокирован.')
+        return redirect('main:my')
+
+    error = None
+    book = None
+
+    if request.method == 'POST':
+        inv = request.POST.get('inventory_number', '').strip()
+        from apps.catalog.models import Book
+        try:
+            book = Book.objects.get(inventory_number=inv)
+            location = book.current_location
+            if location is None:
+                error = 'Эта книга сейчас в библиотеке, а не на точке доставки.'
+                book = None
+            elif Loan.objects.filter(book=book, is_returned=False).exists():
+                error = 'Эта книга уже числится у другого читателя.'
+                book = None
+            else:
+                Loan.objects.create(book=book, location=location, reader=reader)
+                messages.success(request, f'Книга «{book.title}» отмечена как взятая. Приятного чтения!')
+                return redirect('main:my')
+        except Book.DoesNotExist:
+            error = f'Книга с инвентарным номером «{inv}» не найдена. Проверьте номер на этикетке книги.'
+
+    return render(request, 'readers/take_book.html', {
+        'reader': reader,
+        'error': error,
+    })
+
+
+@login_required(login_url='/login/')
+@require_POST
+def return_loan(request, pk):
+    try:
+        reader = request.user.reader_profile
+    except Reader.DoesNotExist:
+        raise Http404
+    loan = get_object_or_404(Loan, pk=pk, reader=reader, is_returned=False)
+    loan.is_returned = True
+    loan.returned_at = timezone.now()
+    loan.save()
+    messages.success(request, f'Книга «{loan.book.title}» отмечена как возвращённая. Спасибо!')
+    return redirect('main:my')
 
 
 @login_required(login_url='/login/')
