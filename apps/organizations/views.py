@@ -166,7 +166,9 @@ def worker_issue(request):
             try:
                 book = Book.objects.get(inventory_number=inv)
                 reader = get_object_or_404(Reader, pk=reader_pk)
-                if book.current_location != location:
+                if reader.is_blocked:
+                    error = f'Читатель {reader.full_name} заблокирован — выдача книг ему запрещена.'
+                elif book.current_location != location:
                     error = 'Книга не на вашей точке.'
                 elif Loan.objects.filter(book=book, is_returned=False).exists():
                     error = 'Книга уже выдана.'

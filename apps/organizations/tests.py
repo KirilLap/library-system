@@ -93,6 +93,17 @@ class WorkerIssueTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Loan.objects.filter(book=book).count(), 1)
 
+    def test_cannot_issue_to_blocked_reader(self):
+        self.reader.is_blocked = True
+        self.reader.save()
+        book = make_book('INV-504')
+        deliver_book(book, self.location)
+        response = self.client.post(reverse('organizations:worker_issue'), {
+            'action': 'issue', 'inventory_number': 'INV-504', 'reader_pk': str(self.reader.pk),
+        })
+        self.assertContains(response, 'заблокирован')
+        self.assertEqual(Loan.objects.filter(book=book).count(), 0)
+
     def test_non_worker_cannot_access(self):
         outsider = User.objects.create_user(username='outsider', password='pass12345')
         self.client.force_login(outsider)
