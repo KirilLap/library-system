@@ -38,6 +38,24 @@
             <span class="badge bg-light text-dark border fs-6">{{ book.get_language_display }}</span>
         </div>
 
+        {% if location %}
+        <div class="alert {% if location.is_open %}alert-success{% else %}alert-warning{% endif %} d-flex align-items-center gap-2">
+            {% if location.is_open %}
+                <i class="bi bi-geo-alt-fill fs-5"></i>
+                <div>
+                    Книга на точке <strong>{{ location.name }}</strong> — можно прийти и взять самостоятельно.
+                    <a href="/p/{{ location.slug }}/" class="d-block small">Адрес и подробности →</a>
+                </div>
+            {% else %}
+                <i class="bi bi-lock-fill fs-5"></i>
+                <div>
+                    Книга на закрытой точке <strong>{{ location.name }}</strong> ({{ location.get_type_display }}) —
+                    доступна только там, выдаёт работник точки.
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
         <dl class="row">
             {% if book.year %}
             <dt class="col-sm-3 text-muted">Год издания</dt>

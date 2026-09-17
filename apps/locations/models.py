@@ -47,6 +47,13 @@ class Location(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def is_open(self):
+        """Открытая точка (махалля) — читатель может прийти и взять книгу сам.
+        Остальные типы (школа/организация/другое) — закрытые: доступны только
+        своим (ученикам/сотрудникам), выдачу там оформляет работник точки."""
+        return self.type == 'MAHALLA'
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = self._make_unique_slug()

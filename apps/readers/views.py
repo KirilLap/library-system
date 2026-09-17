@@ -88,6 +88,17 @@ def my_cabinet(request):
         .select_related('book', 'location')
         .order_by('-issued_at')
     )
+
+    # Открытые точки (махалля) с книгами и координатами — для поиска ближайшей.
+    from apps.locations.models import Location
+    open_points = [
+        {'name': loc.name, 'slug': loc.slug, 'address': loc.address, 'lat': loc.latitude, 'lng': loc.longitude, 'books': loc.books_count}
+        for loc in Location.objects.filter(
+            is_active=True, type='MAHALLA', latitude__isnull=False, longitude__isnull=False
+        )
+    ]
+    open_points = [p for p in open_points if p['books']]
+
     return render(request, 'readers/my_cabinet.html', {
         'reader': reader,
         'requests': requests_qs,
@@ -95,6 +106,7 @@ def my_cabinet(request):
         'loan_history': loan_history,
         'has_worker_profile': hasattr(request.user, 'worker_profile'),
         'phone_missing': not reader.phone,
+        'open_points': open_points,
     })
 
 

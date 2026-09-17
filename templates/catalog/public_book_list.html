@@ -11,7 +11,7 @@
 </div>
 
 <!-- Filters -->
-<form method="get" class="row g-2 mb-4">
+<form method="get" class="row g-2 mb-2">
     <div class="col-sm-5">
         <div class="input-group">
             <span class="input-group-text"><i class="bi bi-search"></i></span>
@@ -44,11 +44,30 @@
     </div>
     <div class="col-sm-1 d-flex gap-1">
         <button class="btn btn-primary flex-grow-1" type="submit"><i class="bi bi-funnel"></i></button>
-        {% if q or genre_filter or lang_filter or status_filter %}
+        {% if q or genre_filter or lang_filter or status_filter or location_filter or sort %}
         <a href="/catalog/" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
         {% endif %}
     </div>
+    <div class="col-sm-3">
+        <select name="location" class="form-select">
+            <option value="">Точка — любая</option>
+            {% for loc in location_choices %}
+            <option value="{{ loc.pk }}" {% if location_filter == loc.pk|stringformat:"s" %}selected{% endif %}>
+                {% if not loc.is_open %}🔒 {% endif %}{{ loc.name }} ({{ loc.books_count }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-sm-3">
+        <select name="sort" class="form-select">
+            <option value="" {% if not sort %}selected{% endif %}>Сортировка: по названию</option>
+            <option value="location" {% if sort == 'location' %}selected{% endif %}>Сортировка: по точке</option>
+        </select>
+    </div>
 </form>
+<p class="text-muted small mb-3">
+    <i class="bi bi-lock"></i> — закрытая точка (школа/организация): книгу выдаёт работник точки, не самообслуживание.
+</p>
 
 <p class="text-muted small mb-3">Найдено: <strong>{{ books|length }}</strong></p>
 
@@ -84,7 +103,14 @@
                 {% if book.status == 'IN_LIBRARY' %}
                     <span class="badge bg-success">В библиотеке</span>
                 {% elif book.status == 'IN_DELIVERY' %}
+                    {% if book.current_location_name %}
+                    <span class="badge bg-primary">
+                        {% if book.current_location_type != 'MAHALLA' %}<i class="bi bi-lock-fill"></i>{% endif %}
+                        {{ book.current_location_name }}
+                    </span>
+                    {% else %}
                     <span class="badge bg-primary">На точке</span>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
@@ -95,7 +121,7 @@
 <div class="text-center py-5 text-muted">
     <i class="bi bi-book" style="font-size:3rem;opacity:.3;"></i>
     <p class="mt-3">
-        {% if q or genre_filter or lang_filter or status_filter %}
+        {% if q or genre_filter or lang_filter or status_filter or location_filter or sort %}
             Ничего не найдено. <a href="/catalog/">Сбросить фильтры</a>
         {% else %}
             Каталог пока пуст.

@@ -19,6 +19,7 @@
             <i class="bi bi-geo-alt"></i> {{ location.address }}
             {% if location.get_type_display %}&nbsp;·&nbsp;<span class="badge bg-secondary">{{ location.get_type_display }}</span>{% endif %}
         </p>
+        {% load l10n %}
         {% if location.latitude and location.longitude %}
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
         <div id="point-map" style="height:220px;border-radius:8px;border:1px solid #dee2e6" class="mb-2"></div>
@@ -26,11 +27,11 @@
         <script>
         (function(){
             var map = L.map('point-map', {zoomControl:true, scrollWheelZoom:false})
-                       .setView([{{ location.latitude }}, {{ location.longitude }}], 16);
+                       .setView([{{ location.latitude|unlocalize }}, {{ location.longitude|unlocalize }}], 16);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }).addTo(map);
-            L.marker([{{ location.latitude }}, {{ location.longitude }}])
+            L.marker([{{ location.latitude|unlocalize }}, {{ location.longitude|unlocalize }}])
              .addTo(map)
              .bindPopup('<strong>{{ location.name|escapejs }}</strong>').openPopup();
         })();

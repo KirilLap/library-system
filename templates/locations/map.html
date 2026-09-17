@@ -38,6 +38,7 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% load l10n %}
 <script>
 var POINTS = [
     {% for p in points %}
@@ -45,8 +46,8 @@ var POINTS = [
         name: "{{ p.name|escapejs }}",
         address: "{{ p.address|escapejs }}",
         slug: "{{ p.slug }}",
-        lat: {{ p.lat }},
-        lng: {{ p.lng }},
+        lat: {{ p.lat|unlocalize }},
+        lng: {{ p.lng|unlocalize }},
         books: {{ p.books }},
         type: "{{ p.type|escapejs }}"
     }{% if not forloop.last %},{% endif %}

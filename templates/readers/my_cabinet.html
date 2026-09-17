@@ -16,6 +16,18 @@
 </div>
 {% endif %}
 
+{% if open_points %}
+<div class="card shadow-sm mb-3" id="nearest-point-card">
+    <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2 py-2">
+        <span><i class="bi bi-geo-alt"></i> Не знаете, куда пойти за книгой?</span>
+        <button id="btn-find-nearest" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-crosshair"></i> Показать ближайшую открытую точку
+        </button>
+    </div>
+    <div id="nearest-point-result" class="d-none card-body border-top py-2"></div>
+</div>
+{% endif %}
+
 {% if has_worker_profile %}
 <div class="alert alert-primary d-flex align-items-center justify-content-between mb-3 py-2">
     <span><i class="bi bi-person-badge"></i> У вас есть доступ к кабинету работника</span>
@@ -296,5 +308,77 @@
         </table>
     </div>
 </div>
+{% endif %}
+
+{% if open_points %}
+{% load l10n %}
+<script>
+(function () {
+    var OPEN_POINTS = [
+        {% for p in open_points %}
+        {
+            name: "{{ p.name|escapejs }}",
+            slug: "{{ p.slug }}",
+            address: "{{ p.address|escapejs }}",
+            lat: {{ p.lat|unlocalize }},
+            lng: {{ p.lng|unlocalize }},
+            books: {{ p.books }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    function haversine(lat1, lng1, lat2, lng2) {
+        var R = 6371;
+        var dLat = (lat2 - lat1) * Math.PI / 180;
+        var dLng = (lng2 - lng1) * Math.PI / 180;
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+              + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
+              * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    var btn = document.getElementById('btn-find-nearest');
+    var result = document.getElementById('nearest-point-result');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+        if (!navigator.geolocation) {
+            result.className = 'card-body border-top py-2 text-danger small';
+            result.textContent = 'Геолокация не поддерживается вашим браузером.';
+            return;
+        }
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Определяем...';
+
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-crosshair"></i> Показать ближайшую открытую точку';
+
+            var uLat = pos.coords.latitude;
+            var uLng = pos.coords.longitude;
+            var nearest = null;
+            var minDist = Infinity;
+            OPEN_POINTS.forEach(function (p) {
+                var d = haversine(uLat, uLng, p.lat, p.lng);
+                if (d < minDist) { minDist = d; nearest = p; }
+            });
+
+            var distText = minDist < 1 ? Math.round(minDist * 1000) + ' м' : minDist.toFixed(1) + ' км';
+            result.className = 'card-body border-top py-2';
+            result.innerHTML = '<i class="bi bi-geo-alt-fill text-success"></i> Ближайшая: '
+                + '<strong>' + nearest.name + '</strong> (' + distText + ', книг: ' + nearest.books + ')'
+                + '<div class="text-muted small">' + nearest.address + '</div>'
+                + '<a href="/p/' + nearest.slug + '/" class="btn btn-sm btn-outline-success mt-2">Открыть точку</a>';
+            result.classList.remove('d-none');
+        }, function () {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-crosshair"></i> Показать ближайшую открытую точку';
+            result.className = 'card-body border-top py-2 text-danger small';
+            result.textContent = 'Не удалось получить геолокацию. Проверьте разрешение в браузере.';
+            result.classList.remove('d-none');
+        });
+    });
+})();
+</script>
 {% endif %}
 {% endblock %}

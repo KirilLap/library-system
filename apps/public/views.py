@@ -8,11 +8,26 @@ from apps.catalog.models import Book, Genre, Language
 
 
 def book_list(request):
-    books = Book.objects.exclude(status='LOST')
+    from django.db.models import OuterRef, Subquery
+    from apps.deliveries.models import DeliveryItem
+    from apps.locations.models import Location
+
+    current_item = DeliveryItem.objects.filter(
+        book=OuterRef('pk'), is_returned=False
+    ).order_by('-added_at')
+
+    books = Book.objects.exclude(status='LOST').annotate(
+        current_location_id=Subquery(current_item.values('batch__location_id')[:1]),
+        current_location_name=Subquery(current_item.values('batch__location__name')[:1]),
+        current_location_type=Subquery(current_item.values('batch__location__type')[:1]),
+    )
+
     q = request.GET.get('q', '').strip()
     genre = request.GET.get('genre', '')
     language = request.GET.get('lang', '')
     status_filter = request.GET.get('status', '')
+    location_filter = request.GET.get('location', '')
+    sort = request.GET.get('sort', '')
 
     if q:
         from django.db.models import Q
@@ -23,8 +38,13 @@ def book_list(request):
         books = books.filter(language=language)
     if status_filter:
         books = books.filter(status=status_filter)
+    if location_filter:
+        books = books.filter(current_location_id=location_filter)
 
-    books = books.order_by('title')
+    if sort == 'location':
+        books = books.order_by('current_location_name', 'title')
+    else:
+        books = books.order_by('title')
 
     return render(request, 'catalog/public_book_list.html', {
         'books': books,
@@ -32,9 +52,12 @@ def book_list(request):
         'genre_filter': genre,
         'lang_filter': language,
         'status_filter': status_filter,
+        'location_filter': location_filter,
+        'sort': sort,
         'genre_choices': Genre.objects.all(),
         'language_choices': Language.objects.all(),
         'status_choices': [('IN_LIBRARY', 'В библиотеке'), ('IN_DELIVERY', 'На точке')],
+        'location_choices': Location.objects.filter(is_active=True),
     })
 
 
@@ -58,6 +81,7 @@ def book_detail(request, pk):
 
     return render(request, 'catalog/public_book_detail.html', {
         'book': book,
+        'location': book.current_location,
         'reader': reader,
         'existing_request': existing_request,
         'form': form,
