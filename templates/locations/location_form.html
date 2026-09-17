@@ -20,7 +20,7 @@
                     {% csrf_token %}
 
                     {% for field in form %}
-                    {% if field.name == 'latitude' or field.name == 'longitude' %}{% continue %}{% endif %}
+                    {% if field.name == 'latitude' or field.name == 'longitude' %}{% else %}
                     <div class="mb-3">
                         <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
                             {{ field.label }}
@@ -36,6 +36,12 @@
                         {% else %}
                             {{ field }}
                         {% endif %}
+                        {% if field.name == 'address' %}
+                        <button type="button" id="btn-geocode-address" class="btn btn-sm btn-outline-primary mt-2">
+                            <i class="bi bi-search"></i> Найти на карте по этому адресу
+                        </button>
+                        <div id="geocode-status" class="small mt-1"></div>
+                        {% endif %}
                         {% for error in field.errors %}
                         <div class="text-danger small mt-1">{{ error }}</div>
                         {% endfor %}
@@ -43,6 +49,7 @@
                         <div class="form-text">{{ field.help_text }}</div>
                         {% endif %}
                     </div>
+                    {% endif %}
                     {% endfor %}
 
                     <!-- Map picker -->
@@ -105,7 +112,9 @@
 
     var marker = null;
 
-    function placeMarker(lat, lng) {
+    // Двигает/создаёт маркер на карте, но не трогает значения полей ввода —
+    // используется при ручном вводе координат, чтобы не мешать набору текста.
+    function moveMarkerTo(lat, lng, pan) {
         if (marker) {
             marker.setLatLng([lat, lng]);
         } else {
@@ -115,6 +124,15 @@
                 setCoords(pos.lat, pos.lng);
             });
         }
+        if (pan) {
+            map.setView([lat, lng], Math.max(map.getZoom(), 15));
+        }
+    }
+
+    // Клик по карте / перетаскивание / поиск по адресу: двигаем маркер и
+    // сразу перезаписываем поля координат.
+    function placeMarker(lat, lng) {
+        moveMarkerTo(lat, lng, false);
         setCoords(lat, lng);
     }
 
@@ -131,11 +149,66 @@
         placeMarker(e.latlng.lat, e.latlng.lng);
     });
 
+    // Ручной ввод координат в поля: как только оба значения — валидные
+    // числа, переставляем маркер на карте на введённую точку.
+    function onManualCoordsChange() {
+        var lat = parseFloat(latInput.value);
+        var lng = parseFloat(lngInput.value);
+        if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+            moveMarkerTo(lat, lng, true);
+        }
+    }
+    latInput.addEventListener('change', onManualCoordsChange);
+    lngInput.addEventListener('change', onManualCoordsChange);
+
     document.getElementById('btn-clear-coords').addEventListener('click', function () {
         if (marker) { map.removeLayer(marker); marker = null; }
         latInput.value = '';
         lngInput.value = '';
     });
+
+    var geocodeBtn = document.getElementById('btn-geocode-address');
+    var geocodeStatus = document.getElementById('geocode-status');
+    var addressField = document.getElementById('{{ form.address.id_for_label }}');
+
+    if (geocodeBtn && addressField) {
+        geocodeBtn.addEventListener('click', function () {
+            var query = addressField.value.trim();
+            if (!query) {
+                geocodeStatus.className = 'small mt-1 text-danger';
+                geocodeStatus.textContent = 'Сначала укажите адрес.';
+                return;
+            }
+
+            geocodeBtn.disabled = true;
+            geocodeStatus.className = 'small mt-1 text-muted';
+            geocodeStatus.textContent = 'Ищем на карте…';
+
+            var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(query);
+
+            fetch(url, {headers: {'Accept-Language': 'ru'}})
+                .then(function (r) { return r.json(); })
+                .then(function (results) {
+                    geocodeBtn.disabled = false;
+                    if (!results.length) {
+                        geocodeStatus.className = 'small mt-1 text-danger';
+                        geocodeStatus.textContent = 'Ничего не найдено. Уточните адрес или укажите точку кликом по карте.';
+                        return;
+                    }
+                    var lat = parseFloat(results[0].lat);
+                    var lng = parseFloat(results[0].lon);
+                    map.setView([lat, lng], 16);
+                    placeMarker(lat, lng);
+                    geocodeStatus.className = 'small mt-1 text-success';
+                    geocodeStatus.textContent = 'Найдено: ' + results[0].display_name;
+                })
+                .catch(function () {
+                    geocodeBtn.disabled = false;
+                    geocodeStatus.className = 'small mt-1 text-danger';
+                    geocodeStatus.textContent = 'Не удалось выполнить поиск. Проверьте интернет-соединение.';
+                });
+        });
+    }
 })();
 </script>
 {% endblock %}

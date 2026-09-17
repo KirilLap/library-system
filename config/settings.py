@@ -94,3 +94,10 @@ SITE_URL = 'http://127.0.0.1:8000'
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/my/'
+
+# Django's SecurityMiddleware default ('same-origin') strips the Referer header
+# on requests to OpenStreetMap tile servers, which then reject them as
+# policy-violating ("App is not following the tile usage policy"). Send only
+# the origin cross-site — enough to identify the app to OSM, without leaking
+# full page paths.
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
