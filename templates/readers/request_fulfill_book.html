@@ -1,0 +1,162 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Выполнить заявку #{{ req.pk }}{% endblock %}
+{% block nav_requests %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4 gap-2">
+    <a href="{% url 'readers_admin_extra:request_detail' req.pk %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="mb-0">Выполнить заявку #{{ req.pk }}</h2>
+    <span class="badge bg-{{ req.get_status_badge_class }}">{{ req.get_status_display }}</span>
+</div>
+
+<!-- Инфо о заявке -->
+<div class="alert alert-light border mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-4">
+            <div class="text-muted small">Читатель</div>
+            <div class="fw-semibold">{{ req.reader.full_name }}</div>
+            {% if req.reader.phone %}
+            <a href="tel:{{ req.reader.phone }}" class="small text-muted">
+                <i class="bi bi-telephone"></i> {{ req.reader.phone }}
+            </a>
+            {% endif %}
+        </div>
+        <div class="col-md-4">
+            <div class="text-muted small">Запрошенная книга</div>
+            {% if req.requested_title %}
+                <div class="fw-semibold">{{ req.requested_title }}</div>
+                <div class="text-muted small">{{ req.requested_author }}</div>
+            {% elif req.book %}
+                <div class="fw-semibold">{{ req.book.title }}</div>
+                <div class="text-muted small">{{ req.book.author }}</div>
+            {% else %}
+                <span class="text-muted">—</span>
+            {% endif %}
+        </div>
+        <div class="col-md-4">
+            <div class="text-muted small">Желаемая точка</div>
+            {% if req.preferred_location %}
+                <i class="bi bi-geo-alt text-primary"></i> {{ req.preferred_location.name }}
+            {% else %}
+                <span class="text-muted">не указана</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+
+    <!-- Шаг 1: Найти существующую книгу -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-primary bg-opacity-10 fw-semibold">
+                <i class="bi bi-search"></i> Вариант 1 — Найти в каталоге
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Если книга уже добавлена в каталог — найдите её здесь.</p>
+
+                <form method="get" class="mb-3">
+                    <input type="hidden" name="pk" value="{{ req.pk }}">
+                    <div class="input-group">
+                        <input type="text" name="search" value="{{ search_q }}"
+                               class="form-control" placeholder="Название или автор…">
+                        <button class="btn btn-outline-primary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                {% if search_q %}
+                    {% if found_books %}
+                    <div class="list-group">
+                        {% for book in found_books %}
+                        <form method="post" class="list-group-item list-group-item-action p-0">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="select">
+                            <input type="hidden" name="book_id" value="{{ book.pk }}">
+                            <div class="d-flex align-items-center gap-3 p-3">
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold">{{ book.title }}</div>
+                                    <div class="text-muted small">
+                                        {{ book.author }}
+                                        &nbsp;·&nbsp; Инв. {{ book.inventory_number }}
+                                        &nbsp;·&nbsp;
+                                        {% if book.status == 'IN_LIBRARY' %}
+                                            <span class="text-success">В библиотеке</span>
+                                        {% elif book.status == 'IN_DELIVERY' %}
+                                            <span class="text-primary">На точке</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-success flex-shrink-0">
+                                    <i class="bi bi-check-lg"></i> Выбрать
+                                </button>
+                            </div>
+                        </form>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-3">
+                        <i class="bi bi-search" style="font-size:2rem;opacity:.3"></i>
+                        <div class="mt-2">Ничего не найдено по «{{ search_q }}»</div>
+                        <div class="small mt-1">Добавьте книгу через форму справа →</div>
+                    </div>
+                    {% endif %}
+                {% else %}
+                <div class="text-center text-muted py-3 small">
+                    Введите название или автора для поиска
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Шаг 2: Создать новую книгу -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-success bg-opacity-10 fw-semibold">
+                <i class="bi bi-plus-circle"></i> Вариант 2 — Добавить новую книгу
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">
+                    Поля заполнены из заявки читателя. Укажите инвентарный номер купленного экземпляра.
+                </p>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create">
+
+                    {% for field in form %}
+                    {% if field.name == 'cover' or field.name == 'cover_clear' %}{% else %}
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold small mb-1">
+                            {{ field.label }}
+                            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small mb-1">Ответ читателю</label>
+                        <textarea name="librarian_note" rows="2" class="form-control"
+                                  placeholder="Мы приобрели эту книгу специально для вас!">{{ req.librarian_note }}</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-bag-check"></i> Добавить книгу и выполнить заявку
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

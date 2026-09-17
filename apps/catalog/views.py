@@ -24,8 +24,7 @@ def book_list(request):
         qs = qs.filter(
             Q(title__icontains=q) |
             Q(author__icontains=q) |
-            Q(inventory_number__icontains=q) |
-            Q(barcode__icontains=q)
+            Q(inventory_number__icontains=q)
         )
 
     status = request.GET.get('status', '')

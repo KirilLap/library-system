@@ -5,12 +5,15 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2><i class="bi bi-inbox"></i> Заявки читателей</h2>
+    <h2 class="mb-0"><i class="bi bi-inbox"></i> Заявки читателей</h2>
+    {% if pending_count %}
+    <span class="badge bg-danger fs-6">{{ pending_count }} новых</span>
+    {% endif %}
 </div>
 
-<form method="get" class="mb-3 d-flex gap-2 flex-wrap">
-    <select name="status" class="form-select" style="max-width:200px;"
-            onchange="this.form.submit()">
+<!-- Фильтры -->
+<form method="get" class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+    <select name="status" class="form-select" style="max-width:180px;" onchange="this.form.submit()">
         <option value="">— Все статусы —</option>
         {% for code, label in status_choices %}
         <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ label }}</option>
@@ -28,36 +31,103 @@
             <tr>
                 <th>#</th>
                 <th>Читатель</th>
-                <th>Книга</th>
+                <th>Книга / Запрос</th>
+                <th>Точка</th>
                 <th>Дата</th>
                 <th>Статус</th>
-                <th></th>
+                <th class="text-end">Действия</th>
             </tr>
         </thead>
         <tbody>
             {% for req in requests %}
-            <tr>
+            <tr class="{% if req.status == 'PENDING' %}table-warning{% elif req.status == 'PURCHASING' %}table-info{% endif %}">
                 <td class="text-muted small">{{ req.pk }}</td>
+
                 <td>
-                    <a href="{% url 'readers_admin:detail' req.reader.pk %}" class="text-decoration-none">
+                    <a href="{% url 'readers_admin:detail' req.reader.pk %}" class="text-decoration-none fw-semibold">
                         {{ req.reader.full_name }}
                     </a>
+                    {% if req.reader.phone %}
+                    <div class="small">
+                        <a href="tel:{{ req.reader.phone }}" class="text-muted text-decoration-none">
+                            <i class="bi bi-telephone"></i> {{ req.reader.phone }}
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="text-danger small"><i class="bi bi-telephone-x"></i> нет телефона</div>
+                    {% endif %}
                 </td>
+
                 <td>
                     {% if req.book %}
                         <a href="/catalog/{{ req.book.pk }}/" class="text-decoration-none">
-                            {{ req.book.title|truncatechars:40 }}
+                            {{ req.book.title|truncatechars:35 }}
                         </a>
-                        <div class="text-muted small">{{ req.book.author|truncatechars:30 }}</div>
-                    {% else %}—{% endif %}
+                        <div class="text-muted small">{{ req.book.author|truncatechars:25 }}</div>
+                        <div class="small">
+                            {% if req.book.status == 'IN_LIBRARY' %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle">В библиотеке</span>
+                            {% elif req.book.status == 'IN_DELIVERY' %}
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">На точке</span>
+                            {% endif %}
+                        </div>
+                    {% elif req.requested_title %}
+                        <span class="fw-semibold">{{ req.requested_title|truncatechars:35 }}</span>
+                        {% if req.requested_author %}
+                        <div class="text-muted small">{{ req.requested_author|truncatechars:25 }}</div>
+                        {% endif %}
+                        <span class="badge bg-warning text-dark">не из каталога</span>
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
                 </td>
-                <td class="small text-muted">{{ req.created_at|date:"d.m.Y" }}</td>
+
+                <td class="small">
+                    {% if req.preferred_location %}
+                        <i class="bi bi-geo-alt text-primary"></i> {{ req.preferred_location.name|truncatechars:20 }}
+                    {% else %}
+                        <span class="text-muted">не указана</span>
+                    {% endif %}
+                </td>
+
+                <td class="small text-muted text-nowrap">{{ req.created_at|date:"d.m.Y" }}</td>
+
                 <td>
                     <span class="badge bg-{{ req.get_status_badge_class }}">{{ req.get_status_display }}</span>
                 </td>
-                <td>
+
+                <td class="text-end text-nowrap">
+                    {% if req.status == 'PENDING' %}
+                    <form method="post" action="{% url 'readers_admin_extra:request_approve' req.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'readers_admin_extra:requests' %}">
+                        <button class="btn btn-sm btn-success" title="Одобрить">
+                            <i class="bi bi-check-lg"></i>
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'readers_admin_extra:request_purchasing' req.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'readers_admin_extra:requests' %}">
+                        <button class="btn btn-sm btn-info text-white" title="Закупаем">
+                            <i class="bi bi-cart3"></i>
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'readers_admin_extra:request_reject' req.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'readers_admin_extra:requests' %}">
+                        <button class="btn btn-sm btn-danger" title="Отклонить"
+                                onclick="return confirm('Отклонить заявку #{{ req.pk }}?')">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </form>
+                    {% elif req.status == 'PURCHASING' or req.status == 'APPROVED' %}
+                    <a href="{% url 'readers_admin_extra:request_fulfill_with_book' req.pk %}"
+                       class="btn btn-sm btn-success" title="Привязать книгу и выполнить">
+                        <i class="bi bi-bag-check"></i>
+                    </a>
+                    {% endif %}
                     <a href="{% url 'readers_admin_extra:request_detail' req.pk %}"
-                       class="btn btn-sm btn-outline-secondary">
+                       class="btn btn-sm btn-outline-secondary" title="Подробнее">
                         <i class="bi bi-eye"></i>
                     </a>
                 </td>
@@ -68,8 +138,10 @@
 </div>
 {% else %}
 <div class="text-center py-5 text-muted">
-    <i class="bi bi-inbox" style="font-size:3rem;"></i>
-    <p class="mt-3">Заявок нет.</p>
+    <i class="bi bi-inbox" style="font-size:3rem;opacity:.3"></i>
+    <p class="mt-3">
+        {% if status_filter %}Заявок с таким статусом нет.{% else %}Заявок пока нет.{% endif %}
+    </p>
 </div>
 {% endif %}
 {% endblock %}

@@ -60,7 +60,38 @@
     </div>
 
     <div class="col-lg-8">
-        <div class="card shadow-sm">
+
+        <!-- Книги на руках -->
+        {% if active_loans %}
+        <div class="card shadow-sm mb-3 border-primary">
+            <div class="card-header bg-primary bg-opacity-10">
+                <i class="bi bi-book-half"></i> Сейчас на руках
+                <span class="badge bg-primary ms-1">{{ active_loans|length }}</span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr><th>Книга</th><th>Точка</th><th>Взята</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for loan in active_loans %}
+                        <tr>
+                            <td>
+                                <div class="fw-semibold small">{{ loan.book.title|truncatechars:40 }}</div>
+                                <div class="text-muted small">{{ loan.book.author|truncatechars:30 }}</div>
+                            </td>
+                            <td class="small text-muted">{{ loan.location.name|truncatechars:20 }}</td>
+                            <td class="small text-muted text-nowrap">{{ loan.issued_at|date:"d.m.Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Заявки -->
+        <div class="card shadow-sm mb-3">
             <div class="card-header">
                 <i class="bi bi-envelope-paper"></i> Заявки
                 <span class="badge bg-primary ms-1">{{ reader_requests|length }}</span>
@@ -110,6 +141,48 @@
                 {% endif %}
             </div>
         </div>
+
+        <!-- История займов -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <i class="bi bi-clock-history"></i> История чтения
+                <span class="badge bg-secondary ms-1">{{ loan_history|length }}</span>
+            </div>
+            <div class="card-body p-0">
+                {% if loan_history %}
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Книга</th>
+                                <th>Точка</th>
+                                <th>Взята</th>
+                                <th>Возвращена</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for loan in loan_history %}
+                            <tr>
+                                <td>
+                                    <div class="small fw-semibold">{{ loan.book.title|truncatechars:40 }}</div>
+                                    <div class="text-muted small">{{ loan.book.author|truncatechars:30 }}</div>
+                                </td>
+                                <td class="small text-muted">{{ loan.location.name|truncatechars:20 }}</td>
+                                <td class="small text-muted text-nowrap">{{ loan.issued_at|date:"d.m.Y" }}</td>
+                                <td class="small text-muted text-nowrap">
+                                    {{ loan.returned_at|date:"d.m.Y"|default:"—" }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-3 text-muted small">История пуста</div>
+                {% endif %}
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}

@@ -5,6 +5,9 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0"><i class="bi bi-journals"></i> Каталог книг</h1>
+    <a href="/catalog/request/free/" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-envelope-plus"></i> Нет нужной книги? Запросить
+    </a>
 </div>
 
 <!-- Filters -->
@@ -18,16 +21,16 @@
     <div class="col-sm-2">
         <select name="genre" class="form-select">
             <option value="">Жанр</option>
-            {% for code, label in genre_choices %}
-            <option value="{{ code }}" {% if genre_filter == code %}selected{% endif %}>{{ label }}</option>
+            {% for g in genre_choices %}
+            <option value="{{ g.code }}" {% if genre_filter == g.code %}selected{% endif %}>{{ g.name }}</option>
             {% endfor %}
         </select>
     </div>
     <div class="col-sm-2">
         <select name="lang" class="form-select">
             <option value="">Язык</option>
-            {% for code, label in language_choices %}
-            <option value="{{ code }}" {% if lang_filter == code %}selected{% endif %}>{{ label }}</option>
+            {% for l in language_choices %}
+            <option value="{{ l.code }}" {% if lang_filter == l.code %}selected{% endif %}>{{ l.name }}</option>
             {% endfor %}
         </select>
     </div>

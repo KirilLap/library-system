@@ -55,6 +55,11 @@ class Book(models.Model):
         verbose_name_plural = 'Книги'
         ordering = ['inventory_number']
 
+    def save(self, *args, **kwargs):
+        # Штрих-код всегда равен инвентарному номеру
+        self.barcode = self.inventory_number or None
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f'{self.inventory_number} — {self.title}'
 

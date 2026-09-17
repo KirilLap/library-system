@@ -1,0 +1,225 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-speedometer2"></i> Главная панель</h4>
+</div>
+
+<!-- Статистика -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card text-white bg-primary h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="fs-2 fw-bold">{{ stats.books_total }}</div>
+                        <div class="small">Книг всего</div>
+                    </div>
+                    <i class="bi bi-journals fs-2 opacity-50"></i>
+                </div>
+                <div class="mt-2 small opacity-75">
+                    В библиотеке: {{ stats.books_in_library }}
+                </div>
+            </div>
+            <a href="/admin-panel/catalog/" class="card-footer text-white text-decoration-none small">
+                Открыть каталог <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card text-white bg-warning h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="fs-2 fw-bold">{{ stats.books_in_delivery }}</div>
+                        <div class="small">В доставке</div>
+                    </div>
+                    <i class="bi bi-truck fs-2 opacity-50"></i>
+                </div>
+                <div class="mt-2 small opacity-75">
+                    Активных партий: {{ stats.batches_active }}
+                </div>
+            </div>
+            <a href="/admin-panel/deliveries/" class="card-footer text-white text-decoration-none small">
+                Все партии <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card text-white bg-success h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="fs-2 fw-bold">{{ stats.readers_total }}</div>
+                        <div class="small">Читателей</div>
+                    </div>
+                    <i class="bi bi-people fs-2 opacity-50"></i>
+                </div>
+                <div class="mt-2 small opacity-75">
+                    Займов активных: {{ stats.loans_active }}
+                </div>
+            </div>
+            <a href="/admin-panel/readers/" class="card-footer text-white text-decoration-none small">
+                Все читатели <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card h-100 {% if stats.requests_pending > 0 %}text-white bg-danger{% else %}text-white bg-secondary{% endif %}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="fs-2 fw-bold">{{ stats.requests_pending }}</div>
+                        <div class="small">Новых заявок</div>
+                    </div>
+                    <i class="bi bi-inbox fs-2 opacity-50"></i>
+                </div>
+                <div class="mt-2 small opacity-75">
+                    Точек доставки: {{ stats.locations_total }}
+                </div>
+            </div>
+            <a href="/admin-panel/requests/" class="card-footer text-white text-decoration-none small">
+                Все заявки <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Таблицы -->
+<div class="row g-3">
+
+    <!-- Активные партии -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-truck"></i> Активные партии</span>
+                <a href="/admin-panel/deliveries/" class="btn btn-sm btn-outline-secondary">Все</a>
+            </div>
+            <div class="card-body p-0">
+                {% if active_batches %}
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Точка</th>
+                            <th>Дата</th>
+                            <th class="text-end">Книг</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for batch in active_batches %}
+                        <tr>
+                            <td>
+                                <a href="/admin-panel/deliveries/{{ batch.pk }}/" class="text-decoration-none">
+                                    {{ batch.location.name }}
+                                </a>
+                            </td>
+                            <td class="text-muted small">{{ batch.delivery_date|date:"d.m.Y" }}</td>
+                            <td class="text-end">
+                                <span class="badge bg-warning text-dark">{{ batch.items.count }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-truck fs-3"></i>
+                    <div class="mt-2">Нет активных партий</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Ожидающие заявки -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="bi bi-inbox"></i> Заявки на рассмотрении
+                    {% if stats.requests_pending > 0 %}
+                    <span class="badge bg-danger ms-1">{{ stats.requests_pending }}</span>
+                    {% endif %}
+                </span>
+                <a href="/admin-panel/requests/" class="btn btn-sm btn-outline-secondary">Все</a>
+            </div>
+            <div class="card-body p-0">
+                {% if pending_requests %}
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Читатель</th>
+                            <th>Книга</th>
+                            <th class="text-end">Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in pending_requests %}
+                        <tr>
+                            <td class="small">{{ req.reader.user.get_full_name|default:req.reader.user.username }}</td>
+                            <td class="small text-truncate" style="max-width:160px">{{ req.book.title }}</td>
+                            <td class="text-end text-muted small">{{ req.created_at|date:"d.m" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-inbox fs-3"></i>
+                    <div class="mt-2">Нет новых заявок</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Активные займы -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-book"></i> Книги на руках у читателей ({{ stats.loans_active }})</span>
+                <a href="/admin-panel/readers/" class="btn btn-sm btn-outline-secondary">Читатели</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_loans %}
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Книга</th>
+                            <th>Читатель</th>
+                            <th>Точка</th>
+                            <th class="text-end">Выдана</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for loan in recent_loans %}
+                        <tr>
+                            <td>{{ loan.book.title }}</td>
+                            <td class="small">
+                                {% if loan.reader %}
+                                    {{ loan.reader.user.get_full_name|default:loan.reader.user.username }}
+                                {% else %}
+                                    <span class="text-muted">Анонимный</span>
+                                {% endif %}
+                            </td>
+                            <td class="small text-muted">{{ loan.location.name|default:"—" }}</td>
+                            <td class="text-end text-muted small">{{ loan.issued_at|date:"d.m.Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-book fs-3"></i>
+                    <div class="mt-2">Нет активных займов</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

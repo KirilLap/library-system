@@ -3,9 +3,58 @@ from django.contrib.auth import login, logout
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from .decorators import admin_required
+from .decorators import admin_required, librarian_required
 from .forms import StaffCreateForm, StaffEditForm, StaffInitForm, StaffLoginForm
 from .models import StaffProfile
+
+
+@librarian_required
+def dashboard(request):
+    from apps.catalog.models import Book
+    from apps.deliveries.models import DeliveryBatch
+    from apps.locations.models import Location
+    from apps.readers.models import Reader, BookRequest, Loan
+
+    stats = {
+        'books_total': Book.objects.count(),
+        'books_in_library': Book.objects.filter(status='IN_LIBRARY').count(),
+        'books_in_delivery': Book.objects.filter(status='IN_DELIVERY').count(),
+        'books_lost': Book.objects.filter(status='LOST').count(),
+        'locations_total': Location.objects.filter(is_active=True).count(),
+        'batches_active': DeliveryBatch.objects.filter(is_returned=False).count(),
+        'readers_total': Reader.objects.count(),
+        'requests_pending': BookRequest.objects.filter(status='PENDING').count(),
+        'loans_active': Loan.objects.filter(is_returned=False).count(),
+    }
+
+    active_batches = (
+        DeliveryBatch.objects
+        .filter(is_returned=False)
+        .select_related('location')
+        .prefetch_related('items')
+        .order_by('-delivery_date')[:10]
+    )
+
+    pending_requests = (
+        BookRequest.objects
+        .filter(status='PENDING')
+        .select_related('reader__user', 'book')
+        .order_by('created_at')[:10]
+    )
+
+    recent_loans = (
+        Loan.objects
+        .filter(is_returned=False)
+        .select_related('book', 'reader__user', 'location')
+        .order_by('-issued_at')[:10]
+    )
+
+    return render(request, 'staff/dashboard.html', {
+        'stats': stats,
+        'active_batches': active_batches,
+        'pending_requests': pending_requests,
+        'recent_loans': recent_loans,
+    })
 
 
 def init_view(request):

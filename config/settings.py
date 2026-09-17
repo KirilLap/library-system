@@ -10,7 +10,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-change-me')
 
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 LIBRARY_NAME = os.getenv('LIBRARY_NAME', 'Библиотека')
 LIBRARY_PHONE = os.getenv('LIBRARY_PHONE', '')

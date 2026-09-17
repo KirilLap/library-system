@@ -4,6 +4,18 @@
 
 {% block content %}
 
+{% if phone_missing %}
+<div class="alert alert-warning d-flex align-items-center justify-content-between mb-3 py-2">
+    <span>
+        <i class="bi bi-telephone-x"></i>
+        <strong>Укажите номер телефона</strong> — без него нельзя брать книги и подавать заявки
+    </span>
+    <a href="/my/profile/" class="btn btn-sm btn-warning">
+        <i class="bi bi-pencil"></i> Указать телефон
+    </a>
+</div>
+{% endif %}
+
 {% if has_worker_profile %}
 <div class="alert alert-primary d-flex align-items-center justify-content-between mb-3 py-2">
     <span><i class="bi bi-person-badge"></i> У вас есть доступ к кабинету работника</span>
@@ -17,7 +29,12 @@
     <!-- Profile -->
     <div class="col-lg-4">
         <div class="card shadow-sm">
-            <div class="card-header"><i class="bi bi-person-circle"></i> Мой профиль</div>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-person-circle"></i> Мой профиль</span>
+                <a href="/my/profile/" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                </a>
+            </div>
             <div class="card-body">
                 <dl class="mb-0">
                     <dt class="text-muted small">Имя</dt>
@@ -151,6 +168,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Книга</th>
+                                <th>Точка</th>
                                 <th>Дата</th>
                                 <th>Статус</th>
                                 <th>Ответ библиотеки</th>
@@ -162,18 +180,42 @@
                             <tr>
                                 <td>
                                     {% if req.book %}
-                                    <a href="/catalog/{{ req.book.pk }}/" class="text-decoration-none">
+                                    <a href="/catalog/{{ req.book.pk }}/" class="text-decoration-none fw-semibold">
                                         {{ req.book.title|truncatechars:40 }}
                                     </a>
                                     <div class="text-muted small">{{ req.book.author|truncatechars:30 }}</div>
+                                    {% if req.status == 'FULFILLED' %}
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle small">
+                                        <i class="bi bi-bag-check"></i> приобретена для вас
+                                    </span>
+                                    {% endif %}
+                                    {% elif req.requested_title %}
+                                    <div class="fw-semibold small">{{ req.requested_title|truncatechars:40 }}</div>
+                                    {% if req.requested_author %}
+                                    <div class="text-muted small">{{ req.requested_author|truncatechars:30 }}</div>
+                                    {% endif %}
+                                    {% if req.status != 'FULFILLED' %}
+                                    <span class="badge bg-light text-secondary border small">не из каталога</span>
+                                    {% endif %}
                                     {% else %}
                                     <span class="text-muted">—</span>
                                     {% endif %}
                                 </td>
+                                <td class="small text-muted">
+                                    {% if req.preferred_location %}
+                                        <i class="bi bi-geo-alt"></i> {{ req.preferred_location.name|truncatechars:20 }}
+                                    {% else %}—{% endif %}
+                                </td>
                                 <td class="small text-muted">{{ req.created_at|date:"d.m.Y" }}</td>
                                 <td>
                                     <span class="badge bg-{{ req.get_status_badge_class }}">
-                                        {{ req.get_status_display }}
+                                        {% if req.status == 'PURCHASING' %}
+                                            🛒 {{ req.get_status_display }}
+                                        {% elif req.status == 'FULFILLED' %}
+                                            📍 {{ req.get_status_display }}
+                                        {% else %}
+                                            {{ req.get_status_display }}
+                                        {% endif %}
                                     </span>
                                 </td>
                                 <td class="small text-muted">{{ req.librarian_note|default:"—"|truncatechars:40 }}</td>
@@ -204,4 +246,55 @@
 
     </div>
 </div>
+
+<!-- История займов -->
+{% if loan_history %}
+<div class="card shadow-sm mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-clock-history"></i> История чтения</span>
+        <span class="badge bg-secondary">{{ loan_history|length }}</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Книга</th>
+                    <th>Точка</th>
+                    <th>Взята</th>
+                    <th>Возвращена</th>
+                    <th>Дней</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loan in loan_history %}
+                <tr>
+                    <td>
+                        <a href="/catalog/{{ loan.book.pk }}/" class="text-decoration-none fw-semibold">
+                            {{ loan.book.title|truncatechars:45 }}
+                        </a>
+                        <div class="text-muted small">{{ loan.book.author|truncatechars:35 }}</div>
+                    </td>
+                    <td class="small text-muted">
+                        <i class="bi bi-geo-alt"></i> {{ loan.location.name|truncatechars:20 }}
+                    </td>
+                    <td class="small text-muted text-nowrap">{{ loan.issued_at|date:"d.m.Y" }}</td>
+                    <td class="small text-muted text-nowrap">
+                        {% if loan.returned_at %}
+                            {{ loan.returned_at|date:"d.m.Y" }}
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="small text-center">
+                        {% if loan.returned_at %}
+                            {% with days=loan.returned_at|timeuntil:loan.issued_at %}
+                            <span class="badge bg-light text-dark border">{{ days }}</span>
+                            {% endwith %}
+                        {% else %}—{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

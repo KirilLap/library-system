@@ -2,7 +2,9 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
-from apps.catalog.models import Book
+from django.contrib.auth.decorators import login_required
+
+from apps.catalog.models import Book, Genre, Language
 
 
 def book_list(request):
@@ -13,8 +15,8 @@ def book_list(request):
     status_filter = request.GET.get('status', '')
 
     if q:
-        books = books.filter(title__icontains=q) | Book.objects.filter(author__icontains=q)
-        books = books.exclude(status='LOST')
+        from django.db.models import Q
+        books = books.filter(Q(title__icontains=q) | Q(author__icontains=q))
     if genre:
         books = books.filter(genre=genre)
     if language:
@@ -30,8 +32,8 @@ def book_list(request):
         'genre_filter': genre,
         'lang_filter': language,
         'status_filter': status_filter,
-        'genre_choices': Book.GENRE_CHOICES,
-        'language_choices': Book.LANGUAGE_CHOICES,
+        'genre_choices': Genre.objects.all(),
+        'language_choices': Language.objects.all(),
         'status_choices': [('IN_LIBRARY', 'В библиотеке'), ('IN_DELIVERY', 'На точке')],
     })
 
@@ -79,6 +81,10 @@ def book_request(request, pk):
         messages.error(request, 'Ваш аккаунт заблокирован. Обратитесь в библиотеку.')
         return redirect('catalog:detail', pk=pk)
 
+    if not reader.phone:
+        messages.warning(request, 'Укажите номер телефона перед тем, как подавать заявки.')
+        return redirect('main:edit_profile')
+
     from apps.readers.models import BookRequest
     from apps.readers.forms import BookRequestForm
 
@@ -95,3 +101,37 @@ def book_request(request, pk):
         req.save()
         messages.success(request, f'Заявка на «{book.title}» отправлена! Мы свяжемся с вами.')
     return redirect('catalog:detail', pk=pk)
+
+
+@login_required(login_url='/login/')
+def free_book_request(request):
+    """Заявка на книгу, которой нет в каталоге."""
+    try:
+        reader = request.user.reader_profile
+    except Exception:
+        messages.error(request, 'Профиль читателя не найден.')
+        return redirect('catalog:index')
+
+    if reader.is_blocked:
+        messages.error(request, 'Ваш аккаунт заблокирован. Обратитесь в библиотеку.')
+        return redirect('catalog:index')
+
+    if not reader.phone:
+        messages.warning(request, 'Укажите номер телефона перед тем, как подавать заявки.')
+        return redirect('main:edit_profile')
+
+    from apps.readers.forms import FreeBookRequestForm
+    from apps.readers.models import BookRequest
+
+    if request.method == 'POST':
+        form = FreeBookRequestForm(request.POST)
+        if form.is_valid():
+            req = form.save(commit=False)
+            req.reader = reader
+            req.save()
+            messages.success(request, f'Заявка на книгу «{req.requested_title}» отправлена! Библиотекарь рассмотрит её.')
+            return redirect('main:my')
+    else:
+        form = FreeBookRequestForm()
+
+    return render(request, 'catalog/free_book_request.html', {'form': form})

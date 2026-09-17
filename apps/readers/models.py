@@ -66,17 +66,34 @@ class Loan(models.Model):
 
 class BookRequest(models.Model):
     STATUS_CHOICES = [
-        ('PENDING', 'Новая'),
-        ('APPROVED', 'Одобрена'),
-        ('REJECTED', 'Отклонена'),
-        ('FULFILLED', 'Выдана'),
-        ('CANCELLED', 'Отменена'),
+        ('PENDING',    'Новая'),
+        ('APPROVED',   'Одобрена'),
+        ('PURCHASING', 'Закупается'),
+        ('FULFILLED',  'Выполнена'),
+        ('REJECTED',   'Отклонена'),
+        ('CANCELLED',  'Отменена'),
     ]
+
+    # Финальные статусы — изменение запрещено
+    FINAL_STATUSES = {'FULFILLED', 'REJECTED', 'CANCELLED'}
+
+    # Допустимые переходы статусов
+    ALLOWED_TRANSITIONS = {
+        'PENDING':    ['APPROVED', 'PURCHASING', 'REJECTED'],
+        'APPROVED':   ['PURCHASING', 'FULFILLED', 'REJECTED'],
+        'PURCHASING': ['FULFILLED', 'REJECTED'],
+    }
 
     reader = models.ForeignKey(Reader, on_delete=models.CASCADE, related_name='requests', verbose_name='Читатель')
     book = models.ForeignKey(
         'catalog.Book', on_delete=models.SET_NULL, null=True, blank=True,
-        related_name='requests', verbose_name='Книга'
+        related_name='requests', verbose_name='Книга из каталога'
+    )
+    requested_title = models.CharField(max_length=500, blank=True, verbose_name='Название (не из каталога)')
+    requested_author = models.CharField(max_length=300, blank=True, verbose_name='Автор (не из каталога)')
+    preferred_location = models.ForeignKey(
+        'locations.Location', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='book_requests', verbose_name='Желаемая точка получения'
     )
     message = models.TextField(blank=True, verbose_name='Сообщение читателя')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING', verbose_name='Статус')
@@ -95,9 +112,18 @@ class BookRequest(models.Model):
 
     def get_status_badge_class(self):
         return {
-            'PENDING': 'warning',
-            'APPROVED': 'primary',
-            'REJECTED': 'danger',
-            'FULFILLED': 'success',
-            'CANCELLED': 'secondary',
+            'PENDING':    'warning',
+            'APPROVED':   'primary',
+            'PURCHASING': 'info',
+            'FULFILLED':  'success',
+            'REJECTED':   'danger',
+            'CANCELLED':  'secondary',
         }.get(self.status, 'secondary')
+
+    @property
+    def is_final(self):
+        return self.status in self.FINAL_STATUSES
+
+    @property
+    def allowed_next_statuses(self):
+        return self.ALLOWED_TRANSITIONS.get(self.status, [])

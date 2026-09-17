@@ -10,7 +10,8 @@ class ReaderRegistrationForm(forms.Form):
     last_name = forms.CharField(max_length=150, label='Фамилия')
     username = forms.CharField(max_length=150, label='Логин')
     email = forms.EmailField(required=False, label='Email')
-    phone = forms.CharField(max_length=50, required=False, label='Телефон')
+    phone = forms.CharField(max_length=50, required=True, label='Номер телефона',
+                            widget=forms.TextInput(attrs={'placeholder': '+998 90 123 45 67'}))
     address = forms.CharField(required=False, label='Адрес', widget=forms.Textarea(attrs={'rows': 2}))
     password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
@@ -63,18 +64,106 @@ class StyledAuthForm(AuthenticationForm):
         self.fields['password'].label = 'Пароль'
 
 
+class ReaderProfileForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=150, label='Имя', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    last_name = forms.CharField(max_length=150, label='Фамилия', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(required=False, label='Email', widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = Reader
+        fields = ['phone', 'address']
+        widgets = {
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+998 90 123 45 67'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+        }
+        labels = {
+            'phone': 'Номер телефона',
+            'address': 'Адрес',
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        self.fields['phone'].required = True
+        if self.user:
+            self.fields['first_name'].initial = self.user.first_name
+            self.fields['last_name'].initial = self.user.last_name
+            self.fields['email'].initial = self.user.email
+
+    def save(self, commit=True):
+        reader = super().save(commit=commit)
+        if self.user:
+            self.user.first_name = self.cleaned_data['first_name']
+            self.user.last_name = self.cleaned_data['last_name']
+            self.user.email = self.cleaned_data.get('email', '')
+            self.user.save()
+        return reader
+
+
 class BookRequestForm(forms.ModelForm):
     class Meta:
         model = BookRequest
-        fields = ['message']
+        fields = ['preferred_location', 'message']
         widgets = {
+            'preferred_location': forms.Select(attrs={'class': 'form-select'}),
             'message': forms.Textarea(attrs={
-                'rows': 3,
+                'rows': 2,
                 'class': 'form-control',
                 'placeholder': 'Необязательное сообщение для библиотекаря…',
             }),
         }
-        labels = {'message': 'Сообщение (необязательно)'}
+        labels = {
+            'preferred_location': 'Где забрать книгу',
+            'message': 'Сообщение (необязательно)',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from apps.locations.models import Location
+        self.fields['preferred_location'].queryset = Location.objects.filter(is_active=True)
+        self.fields['preferred_location'].empty_label = '— Уточнит библиотекарь —'
+        self.fields['preferred_location'].required = False
+
+
+class FreeBookRequestForm(forms.ModelForm):
+    class Meta:
+        model = BookRequest
+        fields = ['requested_title', 'requested_author', 'preferred_location', 'message']
+        widgets = {
+            'requested_title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Например: Гарри Поттер и философский камень',
+            }),
+            'requested_author': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Например: Дж. К. Роулинг',
+            }),
+            'preferred_location': forms.Select(attrs={'class': 'form-select'}),
+            'message': forms.Textarea(attrs={
+                'rows': 2,
+                'class': 'form-control',
+                'placeholder': 'Дополнительная информация (необязательно)',
+            }),
+        }
+        labels = {
+            'requested_title': 'Название книги',
+            'requested_author': 'Автор',
+            'preferred_location': 'Где забрать книгу',
+            'message': 'Комментарий',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from apps.locations.models import Location
+        self.fields['preferred_location'].queryset = Location.objects.filter(is_active=True)
+        self.fields['preferred_location'].empty_label = '— Уточнит библиотекарь —'
+        self.fields['preferred_location'].required = False
+
+    def clean_requested_title(self):
+        title = self.cleaned_data.get('requested_title', '').strip()
+        if not title:
+            raise forms.ValidationError('Укажите название книги.')
+        return title
 
 
 class RequestStatusForm(forms.ModelForm):
