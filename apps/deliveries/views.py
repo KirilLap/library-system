@@ -166,9 +166,12 @@ def batch_delete(request, pk):
 
         from apps.catalog.models import Book
         not_returned_ids = list(batch.items.filter(is_returned=False).values_list('book_id', flat=True))
+        location_name = batch.location.name
         batch.delete()
         Book.objects.filter(pk__in=not_returned_ids).update(status='IN_LIBRARY')
         messages.success(request, f'Партия #{pk} удалена.')
+        from apps.staff.models import ActionLog
+        ActionLog.log(request.user, f'Удалил партию #{pk} (точка «{location_name}»)')
         return redirect('deliveries_admin:index')
 
     return render(request, 'deliveries/batch_confirm_delete.html', {

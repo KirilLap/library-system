@@ -243,6 +243,10 @@ def reader_toggle_block(request, pk):
     reader.save()
     action = 'заблокирован' if reader.is_blocked else 'разблокирован'
     messages.success(request, f'Читатель {reader.full_name} {action}.')
+
+    from apps.staff.models import ActionLog
+    ActionLog.log(request.user, f'{action.capitalize()} читатель «{reader.full_name}»')
+
     return redirect('readers_admin:detail', pk=pk)
 
 
@@ -263,6 +267,10 @@ def reader_delete(request, pk):
         name = reader.full_name
         reader.user.delete()  # каскадно удалит и профиль читателя, и его заявки
         messages.success(request, f'Читатель {name} удалён.')
+
+        from apps.staff.models import ActionLog
+        ActionLog.log(request.user, f'Удалил читателя «{name}»')
+
         return redirect('readers_admin:index')
 
     return render(request, 'readers/reader_confirm_delete.html', {
@@ -283,12 +291,19 @@ def _change_request_status(request, pk, new_status, success_msg):
     elif new_status not in req.allowed_next_statuses:
         messages.error(request, f'Переход из «{req.get_status_display()}» в этот статус недопустим.')
     else:
+        old_status_display = req.get_status_display()
         req.status = new_status
         note = request.POST.get('librarian_note', '').strip()
         if note:
             req.librarian_note = note
         req.save()
         messages.success(request, success_msg)
+
+        from apps.staff.models import ActionLog
+        ActionLog.log(
+            request.user,
+            f'Заявка #{req.pk} ({req.reader.full_name}): «{old_status_display}» → «{req.get_status_display()}»',
+        )
     next_url = request.POST.get('next') or 'readers_admin_extra:requests'
     # Если next_url — имя URL-паттерна, делаем redirect по имени
     if next_url.startswith('/'):
@@ -377,6 +392,11 @@ def request_fulfill_with_book(request, pk):
                     request,
                     f'Заявка выполнена! Книга «{book.title}» привязана к заявке.'
                 )
+                from apps.staff.models import ActionLog
+                ActionLog.log(
+                    request.user,
+                    f'Заявка #{req.pk} ({req.reader.full_name}): выполнена, привязана книга «{book.title}»',
+                )
                 return redirect('readers_admin_extra:request_detail', pk=pk)
             except Book.DoesNotExist:
                 messages.error(request, 'Книга не найдена.')
@@ -395,6 +415,11 @@ def request_fulfill_with_book(request, pk):
                 messages.success(
                     request,
                     f'Книга «{book.title}» добавлена в каталог и привязана к заявке!'
+                )
+                from apps.staff.models import ActionLog
+                ActionLog.log(
+                    request.user,
+                    f'Заявка #{req.pk} ({req.reader.full_name}): выполнена, добавлена новая книга «{book.title}»',
                 )
                 return redirect('readers_admin_extra:request_detail', pk=pk)
 

@@ -77,12 +77,21 @@ def book_create(request):
 def book_update(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
+        old_status = book.status
+        old_status_display = book.get_status_display()
         form = BookForm(request.POST, request.FILES, instance=book)
         if form.is_valid():
             form.save()
             if hasattr(form, 'duplicate_warning'):
                 messages.warning(request, form.duplicate_warning)
             messages.success(request, f'Книга «{book.title}» обновлена.')
+            if book.status != old_status:
+                from apps.staff.models import ActionLog
+                ActionLog.log(
+                    request.user,
+                    f'Книга «{book.title}» (инв. {book.inventory_number}): статус '
+                    f'«{old_status_display}» → «{book.get_status_display()}»',
+                )
             return redirect('catalog_admin:index')
     else:
         form = BookForm(instance=book)
@@ -99,8 +108,11 @@ def book_delete(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
         title = book.title
+        inv = book.inventory_number
         book.delete()
         messages.success(request, f'Книга «{title}» удалена.')
+        from apps.staff.models import ActionLog
+        ActionLog.log(request.user, f'Удалил книгу «{title}» (инв. {inv})')
         return redirect('catalog_admin:index')
     return render(request, 'catalog/book_confirm_delete.html', {'book': book})
 

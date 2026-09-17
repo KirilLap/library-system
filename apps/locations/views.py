@@ -100,6 +100,8 @@ def location_delete(request, pk):
             messages.error(request, f'Нельзя удалить точку «{name}»: есть связанные записи о выдаче книг.')
             return redirect('locations_admin:detail', pk=pk)
         messages.success(request, f'Точка «{name}» удалена.')
+        from apps.staff.models import ActionLog
+        ActionLog.log(request.user, f'Удалил точку «{name}»')
         return redirect('locations_admin:index')
 
     return render(request, 'locations/location_confirm_delete.html', {

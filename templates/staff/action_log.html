@@ -1,0 +1,65 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Журнал действий{% endblock %}
+{% block nav_staff %}active{% endblock %}
+
+{% block content %}
+<h4 class="mb-3"><i class="bi bi-journal-text"></i> Журнал действий сотрудников</h4>
+
+{% if page_obj.object_list %}
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:160px;">Когда</th>
+                    <th style="width:200px;">Сотрудник</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in page_obj %}
+                <tr>
+                    <td class="small text-muted text-nowrap">{{ log.created_at|date:"d.m.Y H:i" }}</td>
+                    <td class="small">
+                        {% if log.actor %}
+                            {{ log.actor.get_full_name|default:log.actor.username }}
+                        {% else %}
+                            <span class="text-muted">Система</span>
+                        {% endif %}
+                    </td>
+                    <td class="small">{{ log.action }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav aria-label="Страницы" class="mt-3">
+    <ul class="pagination pagination-sm">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">← Назад</a>
+        </li>
+        {% endif %}
+        <li class="page-item disabled">
+            <span class="page-link">Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+        </li>
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Вперёд →</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center text-muted py-5">
+    <i class="bi bi-journal-text fs-1" style="opacity:.3"></i>
+    <p class="mt-3">Журнал пока пуст.</p>
+</div>
+{% endif %}
+{% endblock %}

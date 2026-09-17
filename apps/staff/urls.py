@@ -6,6 +6,8 @@ app_name = 'staff'
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
+    path('stats/', views.stats_view, name='stats'),
+    path('log/', views.action_log_view, name='action_log'),
     path('init/', views.init_view, name='init'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),

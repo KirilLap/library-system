@@ -57,6 +57,81 @@ def dashboard(request):
     })
 
 
+@librarian_required
+def stats_view(request):
+    from django.db.models import Count
+    from django.db.models.functions import TruncWeek
+    from django.utils import timezone
+    import datetime
+
+    from apps.readers.models import Loan, BookRequest
+
+    try:
+        days = int(request.GET.get('days', 30))
+    except ValueError:
+        days = 30
+    days = days if days in (7, 30, 90, 365) else 30
+    since = timezone.now() - datetime.timedelta(days=days)
+
+    loans_in_period = Loan.objects.filter(issued_at__gte=since)
+    returns_in_period = Loan.objects.filter(is_returned=True, returned_at__gte=since)
+    requests_in_period = BookRequest.objects.filter(created_at__gte=since)
+
+    period_stats = {
+        'loans_issued': loans_in_period.count(),
+        'loans_returned': returns_in_period.count(),
+        'requests_created': requests_in_period.count(),
+        'requests_fulfilled': requests_in_period.filter(status='FULFILLED').count(),
+    }
+
+    top_genres = (
+        loans_in_period
+        .values('book__genre')
+        .annotate(n=Count('id'))
+        .order_by('-n')[:8]
+    )
+    from apps.catalog.models import Genre
+    genre_names = dict(Genre.objects.values_list('code', 'name'))
+    top_genres = [
+        {'name': genre_names.get(g['book__genre'], g['book__genre'] or '—'), 'count': g['n']}
+        for g in top_genres
+    ]
+
+    top_books = (
+        loans_in_period
+        .values('book__id', 'book__title', 'book__author')
+        .annotate(n=Count('id'))
+        .order_by('-n')[:10]
+    )
+
+    top_locations = (
+        loans_in_period
+        .values('location__id', 'location__name')
+        .annotate(n=Count('id'))
+        .order_by('-n')[:10]
+    )
+
+    weekly = (
+        loans_in_period
+        .annotate(week=TruncWeek('issued_at'))
+        .values('week')
+        .annotate(n=Count('id'))
+        .order_by('week')
+    )
+    weekly_labels = [w['week'].strftime('%d.%m') for w in weekly]
+    weekly_counts = [w['n'] for w in weekly]
+
+    return render(request, 'staff/stats.html', {
+        'days': days,
+        'period_stats': period_stats,
+        'top_genres': top_genres,
+        'top_books': top_books,
+        'top_locations': top_locations,
+        'weekly_labels': weekly_labels,
+        'weekly_counts': weekly_counts,
+    })
+
+
 def init_view(request):
     if StaffProfile.objects.filter(role=StaffProfile.ROLE_ADMIN).exists():
         return redirect('/admin-panel/login/')
@@ -93,6 +168,17 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('/admin-panel/login/')
+
+
+@admin_required
+def action_log_view(request):
+    from django.core.paginator import Paginator
+    from .models import ActionLog
+
+    logs = ActionLog.objects.select_related('actor')
+    paginator = Paginator(logs, 50)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'staff/action_log.html', {'page_obj': page_obj})
 
 
 @admin_required

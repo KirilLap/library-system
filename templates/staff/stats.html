@@ -1,0 +1,164 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Статистика{% endblock %}
+{% block nav_stats %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h4 class="mb-0"><i class="bi bi-bar-chart"></i> Статистика</h4>
+    <div class="btn-group">
+        <a href="?days=7" class="btn btn-sm {% if days == 7 %}btn-primary{% else %}btn-outline-primary{% endif %}">7 дней</a>
+        <a href="?days=30" class="btn btn-sm {% if days == 30 %}btn-primary{% else %}btn-outline-primary{% endif %}">30 дней</a>
+        <a href="?days=90" class="btn btn-sm {% if days == 90 %}btn-primary{% else %}btn-outline-primary{% endif %}">90 дней</a>
+        <a href="?days=365" class="btn btn-sm {% if days == 365 %}btn-primary{% else %}btn-outline-primary{% endif %}">Год</a>
+    </div>
+</div>
+
+<!-- Карточки -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="fs-2 fw-bold">{{ period_stats.loans_issued }}</div>
+                <div class="small text-muted">Выдано книг</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="fs-2 fw-bold">{{ period_stats.loans_returned }}</div>
+                <div class="small text-muted">Возвращено книг</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="fs-2 fw-bold">{{ period_stats.requests_created }}</div>
+                <div class="small text-muted">Новых заявок</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="fs-2 fw-bold">{{ period_stats.requests_fulfilled }}</div>
+                <div class="small text-muted">Заявок выполнено</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- График по неделям -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header"><i class="bi bi-graph-up"></i> Выдачи книг по неделям</div>
+    <div class="card-body">
+        {% if weekly_labels %}
+        <canvas id="loansChart" height="80"></canvas>
+        {% else %}
+        <div class="text-center text-muted py-4">Нет данных о выдачах за этот период</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Топ жанров -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-tags"></i> Популярные жанры</div>
+            <div class="card-body p-0">
+                {% if top_genres %}
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        {% for g in top_genres %}
+                        <tr>
+                            <td>{{ g.name }}</td>
+                            <td class="text-end"><span class="badge bg-primary">{{ g.count }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center text-muted py-4">Нет данных</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Топ книг -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-book"></i> Популярные книги</div>
+            <div class="card-body p-0">
+                {% if top_books %}
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        {% for b in top_books %}
+                        <tr>
+                            <td>
+                                <div class="small fw-semibold">{{ b.book__title|truncatechars:35 }}</div>
+                                <div class="text-muted" style="font-size:0.78rem;">{{ b.book__author|truncatechars:25 }}</div>
+                            </td>
+                            <td class="text-end align-middle"><span class="badge bg-primary">{{ b.n }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center text-muted py-4">Нет данных</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Активность по точкам -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-geo-alt"></i> Активность по точкам</div>
+            <div class="card-body p-0">
+                {% if top_locations %}
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        {% for l in top_locations %}
+                        <tr>
+                            <td>{{ l.location__name|default:"—" }}</td>
+                            <td class="text-end"><span class="badge bg-primary">{{ l.n }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center text-muted py-4">Нет данных</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if weekly_labels %}
+{{ weekly_labels|json_script:"weekly-labels" }}
+{{ weekly_counts|json_script:"weekly-counts" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+var weeklyLabels = JSON.parse(document.getElementById('weekly-labels').textContent);
+var weeklyCounts = JSON.parse(document.getElementById('weekly-counts').textContent);
+new Chart(document.getElementById('loansChart'), {
+    type: 'bar',
+    data: {
+        labels: weeklyLabels,
+        datasets: [{
+            label: 'Выдано книг',
+            data: weeklyCounts,
+            backgroundColor: '#0d6efd'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

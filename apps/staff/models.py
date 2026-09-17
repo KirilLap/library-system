@@ -30,3 +30,35 @@ class StaffProfile(models.Model):
     @property
     def full_name(self):
         return self.user.get_full_name() or self.user.username
+
+
+class ActionLog(models.Model):
+    """Журнал действий сотрудников — кто и что изменил."""
+
+    actor = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='action_logs', verbose_name='Сотрудник',
+    )
+    action = models.CharField(max_length=500, verbose_name='Действие')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Когда')
+
+    class Meta:
+        verbose_name = 'Запись журнала'
+        verbose_name_plural = 'Журнал действий'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        who = self.actor.get_full_name() or self.actor.username if self.actor else 'Система'
+        return f'{who}: {self.action}'
+
+    @staticmethod
+    def log(user, action):
+        """Записать действие сотрудника. Не бросает исключений — журнал не
+        должен ронять основную операцию, если вдруг что-то пойдёт не так."""
+        try:
+            ActionLog.objects.create(
+                actor=user if getattr(user, 'is_authenticated', False) else None,
+                action=action,
+            )
+        except Exception:
+            pass

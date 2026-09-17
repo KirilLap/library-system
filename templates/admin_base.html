@@ -52,11 +52,25 @@
                         <i class="bi bi-inbox"></i> Заявки
                     </a>
                 </li>
-                {% if request.user.staff_profile.is_admin %}
                 <li class="nav-item">
-                    <a class="nav-link {% block nav_staff %}{% endblock %}" href="/admin-panel/staff/">
+                    <a class="nav-link {% block nav_stats %}{% endblock %}" href="/admin-panel/stats/">
+                        <i class="bi bi-bar-chart"></i> Статистика
+                    </a>
+                </li>
+                {% if request.user.staff_profile.is_admin %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% block nav_staff %}{% endblock %}"
+                       href="#" data-bs-toggle="dropdown">
                         <i class="bi bi-shield-lock"></i> Сотрудники
                     </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/admin-panel/staff/">
+                            <i class="bi bi-people"></i> Все сотрудники
+                        </a></li>
+                        <li><a class="dropdown-item" href="/admin-panel/log/">
+                            <i class="bi bi-journal-text"></i> Журнал действий
+                        </a></li>
+                    </ul>
                 </li>
                 {% endif %}
             </ul>
