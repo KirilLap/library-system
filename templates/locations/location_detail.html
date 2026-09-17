@@ -22,9 +22,14 @@
         <div class="card shadow-sm mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-info-circle"></i> Информация</span>
-                <a href="{% url 'locations_admin:update' location.pk %}" class="btn btn-sm btn-outline-secondary">
-                    <i class="bi bi-pencil"></i> Изменить
-                </a>
+                <span>
+                    <a href="{% url 'locations_admin:update' location.pk %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-pencil"></i> Изменить
+                    </a>
+                    <a href="{% url 'locations_admin:delete' location.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </span>
             </div>
             <div class="card-body">
                 <dl class="mb-0">

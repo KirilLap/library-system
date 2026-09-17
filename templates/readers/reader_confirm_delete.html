@@ -1,0 +1,36 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Удалить читателя{% endblock %}
+{% block nav_readers %}active{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-7">
+        <h1 class="h4 mb-3">Удалить читателя</h1>
+
+        {% if has_loans %}
+        <div class="alert alert-danger">
+            <p class="mb-1"><strong>Нельзя удалить</strong> — у читателя есть история выдач книг.</p>
+            <p class="mb-0">Используйте блокировку, чтобы читатель не мог брать книги и подавать заявки,
+                но история выдач сохранилась.</p>
+        </div>
+        <a href="{% url 'readers_admin:detail' reader.pk %}" class="btn btn-outline-secondary">Назад</a>
+        {% else %}
+        <div class="alert alert-danger">
+            <p class="mb-1">Вы действительно хотите удалить читателя?</p>
+            <p class="mb-0"><strong>{{ reader.full_name }}</strong> ({{ reader.user.username }})</p>
+        </div>
+        <p class="text-muted small">
+            Будет удалён аккаунт читателя и вся история его заявок. Это необратимо.
+        </p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Да, удалить читателя
+            </button>
+            <a href="{% url 'readers_admin:detail' reader.pk %}" class="btn btn-outline-secondary ms-2">Отмена</a>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

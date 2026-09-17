@@ -246,6 +246,31 @@ def reader_toggle_block(request, pk):
     return redirect('readers_admin:detail', pk=pk)
 
 
+@librarian_required
+def reader_delete(request, pk):
+    reader = get_object_or_404(Reader.objects.select_related('user'), pk=pk)
+    has_loans = reader.loans.exists()
+
+    if request.method == 'POST':
+        if has_loans:
+            messages.error(
+                request,
+                f'Нельзя удалить читателя {reader.full_name}: есть история выдач книг. '
+                f'Используйте блокировку вместо удаления.'
+            )
+            return redirect('readers_admin:detail', pk=pk)
+
+        name = reader.full_name
+        reader.user.delete()  # каскадно удалит и профиль читателя, и его заявки
+        messages.success(request, f'Читатель {name} удалён.')
+        return redirect('readers_admin:index')
+
+    return render(request, 'readers/reader_confirm_delete.html', {
+        'reader': reader,
+        'has_loans': has_loans,
+    })
+
+
 # ──────────────────────────────
 # Admin: requests
 # ──────────────────────────────

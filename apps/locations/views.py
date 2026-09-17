@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.db.models import ProtectedError
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -73,6 +74,37 @@ def location_detail(request, pk):
         'books': books,
         'history': history,
         'q': q,
+    })
+
+
+@librarian_required
+def location_delete(request, pk):
+    location = get_object_or_404(Location, pk=pk)
+    has_batches = location.batches.exists()
+
+    if request.method == 'POST':
+        if has_batches:
+            messages.error(
+                request,
+                f'Нельзя удалить точку «{location.name}»: есть история партий доставки. '
+                f'Деактивируйте точку вместо удаления.'
+            )
+            return redirect('locations_admin:detail', pk=pk)
+
+        name = location.name
+        if hasattr(location, 'org_account'):
+            location.org_account.user.delete()
+        try:
+            location.delete()
+        except ProtectedError:
+            messages.error(request, f'Нельзя удалить точку «{name}»: есть связанные записи о выдаче книг.')
+            return redirect('locations_admin:detail', pk=pk)
+        messages.success(request, f'Точка «{name}» удалена.')
+        return redirect('locations_admin:index')
+
+    return render(request, 'locations/location_confirm_delete.html', {
+        'location': location,
+        'has_batches': has_batches,
     })
 
 

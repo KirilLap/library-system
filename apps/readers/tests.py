@@ -304,5 +304,40 @@ class CancelRequestTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
+@override_settings(MEDIA_ROOT=_MEDIA_ROOT)
+class ReaderDeleteTests(TestCase):
+    def setUp(self):
+        self.librarian = make_librarian()
+        self.client.force_login(self.librarian)
+
+    def test_delete_reader_without_loan_history(self):
+        reader = make_reader('reader1')
+        user_pk = reader.user_id
+        response = self.client.post(reverse('readers_admin:delete', args=[reader.pk]))
+        self.assertRedirects(response, reverse('readers_admin:index'))
+        self.assertFalse(Reader.objects.filter(pk=reader.pk).exists())
+        self.assertFalse(User.objects.filter(pk=user_pk).exists())
+
+    def test_delete_reader_removes_their_requests(self):
+        reader = make_reader('reader1')
+        BookRequest.objects.create(reader=reader, requested_title='Книга')
+        self.client.post(reverse('readers_admin:delete', args=[reader.pk]))
+        self.assertEqual(BookRequest.objects.count(), 0)
+
+    def test_cannot_delete_reader_with_loan_history(self):
+        location = make_location()
+        reader = make_reader('reader1')
+        book = make_book('INV-800')
+        deliver_book(book, location)
+        Loan.objects.create(book=book, location=location, reader=reader, is_returned=True)
+
+        response = self.client.get(reverse('readers_admin:delete', args=[reader.pk]))
+        self.assertContains(response, 'Нельзя удалить')
+
+        response = self.client.post(reverse('readers_admin:delete', args=[reader.pk]))
+        self.assertRedirects(response, reverse('readers_admin:detail', args=[reader.pk]))
+        self.assertTrue(Reader.objects.filter(pk=reader.pk).exists())
+
+
 def tearDownModule():
     shutil.rmtree(_MEDIA_ROOT, ignore_errors=True)

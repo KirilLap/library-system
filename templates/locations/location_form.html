@@ -145,7 +145,19 @@
         placeMarker(initLat, initLng);
     }
 
+    // Защита от случайной перестановки точки при перетаскивании карты:
+    // после начала перетаскивания карты игнорируем следующий click ещё
+    // некоторое время — иначе браузер иногда генерирует click сразу после
+    // отпускания кнопки мыши/пальца, даже если пользователь просто двигал
+    // карту, а не ставил точку.
+    var mapWasDragged = false;
+    map.on('dragstart', function () { mapWasDragged = true; });
+    map.on('dragend', function () {
+        setTimeout(function () { mapWasDragged = false; }, 200);
+    });
+
     map.on('click', function (e) {
+        if (mapWasDragged) return;
         placeMarker(e.latlng.lat, e.latlng.lng);
     });
 

@@ -9,5 +9,6 @@ urlpatterns = [
     path('<int:pk>/', views.batch_detail, name='detail'),
     path('<int:pk>/remove/<int:item_pk>/', views.batch_remove_item, name='remove_item'),
     path('<int:pk>/return/', views.batch_return, name='return'),
+    path('<int:pk>/delete/', views.batch_delete, name='delete'),
     path('<int:pk>/pdf/', views.batch_pdf, name='pdf'),
 ]

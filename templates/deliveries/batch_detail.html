@@ -53,6 +53,9 @@
                 </button>
             </form>
             {% endif %}
+            <a href="{% url 'deliveries_admin:delete' batch.pk %}" class="btn btn-outline-danger">
+                <i class="bi bi-trash"></i> Удалить партию
+            </a>
         </div>
     </div>
 

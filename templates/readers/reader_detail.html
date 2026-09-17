@@ -57,6 +57,9 @@
             </button>
             {% endif %}
         </form>
+        <a href="{% url 'readers_admin:delete' reader.pk %}" class="btn btn-outline-danger w-100 mt-2">
+            <i class="bi bi-trash"></i> Удалить читателя
+        </a>
     </div>
 
     <div class="col-lg-8">

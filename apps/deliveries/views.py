@@ -146,6 +146,38 @@ def batch_return(request, pk):
 
 
 # ──────────────────────────────
+# Delete batch
+# ──────────────────────────────
+
+@librarian_required
+def batch_delete(request, pk):
+    batch = get_object_or_404(DeliveryBatch.objects.select_related('location'), pk=pk)
+
+    from apps.readers.models import Loan
+    book_ids = list(batch.items.values_list('book_id', flat=True))
+    active_loans = Loan.objects.filter(
+        book_id__in=book_ids, is_returned=False
+    ).select_related('book', 'reader__user')
+
+    if request.method == 'POST':
+        if active_loans.exists():
+            messages.error(request, 'Нельзя удалить партию: часть книг сейчас на руках у читателей.')
+            return redirect('deliveries_admin:detail', pk=pk)
+
+        from apps.catalog.models import Book
+        not_returned_ids = list(batch.items.filter(is_returned=False).values_list('book_id', flat=True))
+        batch.delete()
+        Book.objects.filter(pk__in=not_returned_ids).update(status='IN_LIBRARY')
+        messages.success(request, f'Партия #{pk} удалена.')
+        return redirect('deliveries_admin:index')
+
+    return render(request, 'deliveries/batch_confirm_delete.html', {
+        'batch': batch,
+        'active_loans': active_loans,
+    })
+
+
+# ──────────────────────────────
 # PDF act download
 # ──────────────────────────────
 
