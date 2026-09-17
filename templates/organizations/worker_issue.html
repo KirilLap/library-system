@@ -25,11 +25,12 @@
                                class="form-control form-control-lg"
                                placeholder="Инвентарный номер…"
                                autofocus autocomplete="off">
+                        {% include "includes/barcode_scanner.html" with target_input_id="inv-input" %}
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-search"></i> Найти
                         </button>
                     </div>
-                    <div class="form-text">Введите номер с этикетки книги или отсканируйте штрих-код.</div>
+                    <div class="form-text">Введите номер с этикетки книги, отсканируйте штрих-код или камерой.</div>
                 </form>
 
                 {% if error %}

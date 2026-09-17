@@ -1,0 +1,86 @@
+{% comment %}
+Кнопка «Сканировать» + модалка с камерой для заполнения поля инв. номера.
+Использование: {% include "includes/barcode_scanner.html" with target_input_id="id_inventory_number" %}
+Считывает и штрих-код CODE128 (текущие этикетки книг), и QR — на случай будущих QR-этикеток.
+Требует HTTPS или localhost — иначе браузер не даст доступ к камере.
+{% endcomment %}
+<button type="button" class="btn btn-outline-secondary" id="scan-btn-{{ target_input_id }}" title="Сканировать камерой">
+    <i class="bi bi-camera"></i>
+</button>
+
+<div class="modal fade" id="scan-modal-{{ target_input_id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h6 class="modal-title">Наведите камеру на штрих-код книги</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="scan-reader-{{ target_input_id }}"></div>
+                <div id="scan-error-{{ target_input_id }}" class="text-danger small mt-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+(function () {
+    var targetId = "{{ target_input_id }}";
+    var scanBtn = document.getElementById('scan-btn-' + targetId);
+    var modalEl = document.getElementById('scan-modal-' + targetId);
+    var readerElId = 'scan-reader-' + targetId;
+    var errorEl = document.getElementById('scan-error-' + targetId);
+    if (!scanBtn || !modalEl) return;
+
+    var modal = null;
+    var scanner = null;
+    var stopping = false;
+
+    function stopScanner() {
+        if (scanner && !stopping) {
+            stopping = true;
+            scanner.stop().then(function () {
+                scanner.clear();
+                scanner = null;
+                stopping = false;
+            }).catch(function () { stopping = false; });
+        }
+    }
+
+    scanBtn.addEventListener('click', function () {
+        if (!modal) {
+            modal = new bootstrap.Modal(modalEl);
+        }
+        errorEl.textContent = '';
+        modal.show();
+    });
+
+    modalEl.addEventListener('shown.bs.modal', function () {
+        scanner = new Html5Qrcode(readerElId);
+        var config = {
+            fps: 10,
+            qrbox: { width: 250, height: 150 },
+            formatsToSupport: [
+                Html5QrcodeSupportedFormats.CODE_128,
+                Html5QrcodeSupportedFormats.QR_CODE,
+                Html5QrcodeSupportedFormats.EAN_13,
+            ],
+        };
+        scanner.start({ facingMode: 'environment' }, config, function (decodedText) {
+            var input = document.getElementById(targetId);
+            if (input) {
+                input.value = decodedText.trim();
+                input.dispatchEvent(new Event('change'));
+                input.focus();
+            }
+            modal.hide();
+        }, function () { /* обычные неудачные кадры — игнорируем */ })
+        .catch(function (err) {
+            errorEl.textContent = 'Не удалось включить камеру. Проверьте разрешение в браузере или введите номер вручную.';
+        });
+    });
+
+    modalEl.addEventListener('hidden.bs.modal', stopScanner);
+})();
+</script>

@@ -23,12 +23,15 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Инвентарный номер</label>
-                        <input type="text" name="inventory_number"
-                               class="form-control form-control-lg {% if error %}is-invalid{% endif %}"
-                               placeholder="Например: КН-00123"
-                               autofocus autocomplete="off">
+                        <div class="input-group">
+                            <input type="text" name="inventory_number" id="id_inventory_number"
+                                   class="form-control form-control-lg {% if error %}is-invalid{% endif %}"
+                                   placeholder="Например: КН-00123"
+                                   autofocus autocomplete="off">
+                            {% include "includes/barcode_scanner.html" with target_input_id="id_inventory_number" %}
+                        </div>
                         {% if error %}
-                        <div class="invalid-feedback">{{ error }}</div>
+                        <div class="invalid-feedback d-block">{{ error }}</div>
                         {% endif %}
                     </div>
                     <button type="submit" class="btn btn-primary w-100">
