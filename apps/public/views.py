@@ -64,8 +64,13 @@ def book_list(request):
 def book_detail(request, pk):
     book = get_object_or_404(Book.objects.exclude(status='LOST'), pk=pk)
 
+    from apps.readers.models import Loan
+    is_loaned = Loan.objects.filter(book=book, is_returned=False).exists()
+
     reader = None
     existing_request = None
+    my_queue_entry = None
+    queue_count = 0
     if request.user.is_authenticated:
         try:
             reader = request.user.reader_profile
@@ -73,8 +78,11 @@ def book_detail(request, pk):
             existing_request = BookRequest.objects.filter(
                 reader=reader, book=book, status__in=['PENDING', 'APPROVED']
             ).first()
+            my_queue_entry = book.queue_entries.filter(reader=reader).first()
         except Exception:
             pass
+    if is_loaned:
+        queue_count = book.queue_entries.count()
 
     from apps.readers.forms import BookRequestForm
     form = BookRequestForm()
@@ -85,6 +93,9 @@ def book_detail(request, pk):
         'reader': reader,
         'existing_request': existing_request,
         'form': form,
+        'is_loaned': is_loaned,
+        'my_queue_entry': my_queue_entry,
+        'queue_count': queue_count,
     })
 
 
@@ -159,3 +170,50 @@ def free_book_request(request):
         form = FreeBookRequestForm()
 
     return render(request, 'catalog/free_book_request.html', {'form': form})
+
+
+@login_required(login_url='/login/')
+@require_POST
+def book_queue_join(request, pk):
+    book = get_object_or_404(Book.objects.exclude(status='LOST'), pk=pk)
+
+    try:
+        reader = request.user.reader_profile
+    except Exception:
+        messages.error(request, 'Профиль читателя не найден.')
+        return redirect('catalog:detail', pk=pk)
+
+    if reader.is_blocked:
+        messages.error(request, 'Ваш аккаунт заблокирован. Обратитесь в библиотеку.')
+        return redirect('catalog:detail', pk=pk)
+
+    if not reader.phone:
+        messages.warning(request, 'Укажите номер телефона перед тем, как вставать в очередь.')
+        return redirect('main:edit_profile')
+
+    from apps.readers.models import Loan, BookQueue
+
+    if not Loan.objects.filter(book=book, is_returned=False).exists():
+        messages.warning(request, 'Эта книга сейчас доступна — очередь не нужна, оформите заявку.')
+        return redirect('catalog:detail', pk=pk)
+
+    _, created = BookQueue.objects.get_or_create(book=book, reader=reader)
+    if created:
+        messages.success(request, f'Вы встали в очередь на «{book.title}».')
+    else:
+        messages.info(request, 'Вы уже в очереди на эту книгу.')
+    return redirect('catalog:detail', pk=pk)
+
+
+@login_required(login_url='/login/')
+@require_POST
+def book_queue_leave(request, pk):
+    from apps.readers.models import BookQueue
+    try:
+        reader = request.user.reader_profile
+    except Exception:
+        return redirect('catalog:detail', pk=pk)
+
+    BookQueue.objects.filter(book_id=pk, reader=reader).delete()
+    messages.success(request, 'Вы вышли из очереди.')
+    return redirect('catalog:detail', pk=pk)

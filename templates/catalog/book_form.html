@@ -21,6 +21,25 @@
         </div>
         {% endif %}
 
+        {% if book and book.queue_entries.all %}
+        <div class="alert {% if book.status == 'IN_LIBRARY' %}alert-warning{% else %}alert-light border{% endif %}">
+            <i class="bi bi-hourglass-split"></i>
+            <strong>В очереди на эту книгу: {{ book.queue_entries.count }}</strong>
+            {% if book.status == 'IN_LIBRARY' %}— книга свободна, свяжитесь с читателями:{% endif %}
+            <ul class="mb-0 mt-1">
+                {% for entry in book.queue_entries.all %}
+                <li>
+                    {{ entry.reader.full_name }}
+                    {% if entry.reader.phone %}
+                    — <a href="tel:{{ entry.reader.phone }}">{{ entry.reader.phone }}</a>
+                    {% endif %}
+                    <span class="text-muted small">(с {{ entry.created_at|date:"d.m.Y" }})</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
         {% if book %}
         <div class="card mb-3">
             <div class="card-body d-flex align-items-center gap-3">

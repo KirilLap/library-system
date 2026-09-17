@@ -1,10 +1,12 @@
 """Тесты страницы статистики и журнала действий сотрудников."""
+import datetime
 import shutil
 import tempfile
 
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from apps.catalog.models import Book
 from apps.deliveries.models import DeliveryBatch, DeliveryItem
@@ -76,6 +78,28 @@ class StatsViewTests(TestCase):
         response = self.client.get(reverse('staff:stats'), {'days': 'garbage'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['days'], 30)
+
+
+@override_settings(MEDIA_ROOT=_MEDIA_ROOT)
+class DashboardOverdueTests(TestCase):
+    def setUp(self):
+        self.admin = make_admin()
+        self.client.force_login(self.admin)
+
+    def test_dashboard_flags_overdue_loan(self):
+        from django.conf import settings
+        location = make_location()
+        book = make_book('INV-902')
+        deliver_book(book, location)
+        reader = make_reader('reader1')
+        loan = Loan.objects.create(book=book, location=location, reader=reader)
+        Loan.objects.filter(pk=loan.pk).update(
+            issued_at=timezone.now() - datetime.timedelta(days=settings.LOAN_PERIOD_DAYS + 1)
+        )
+
+        response = self.client.get(reverse('staff:dashboard'))
+        self.assertEqual(response.context['stats']['loans_overdue'], 1)
+        self.assertContains(response, 'Просроченные займы')
 
 
 @override_settings(MEDIA_ROOT=_MEDIA_ROOT)

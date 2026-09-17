@@ -2,12 +2,14 @@
 Тесты жизненного цикла: заявка → одобрение/закупка → выполнение,
 и самостоятельная выдача/возврат книги читателем (открытые точки).
 """
+import datetime
 import shutil
 import tempfile
 
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from apps.catalog.models import Book
 from apps.deliveries.models import DeliveryBatch, DeliveryItem
@@ -302,6 +304,47 @@ class CancelRequestTests(TestCase):
         req = BookRequest.objects.create(reader=other_reader, requested_title='Книга')
         response = self.client.post(reverse('main:cancel_request', args=[req.pk]))
         self.assertEqual(response.status_code, 404)
+
+
+@override_settings(MEDIA_ROOT=_MEDIA_ROOT)
+class LoanOverdueTests(TestCase):
+    def setUp(self):
+        self.location = make_location()
+        self.reader = make_reader('reader1')
+        self.book = make_book('INV-1000')
+        deliver_book(self.book, self.location)
+
+    def test_fresh_loan_is_not_overdue(self):
+        loan = Loan.objects.create(book=self.book, location=self.location, reader=self.reader)
+        self.assertFalse(loan.is_overdue)
+        self.assertEqual(loan.days_held, 0)
+
+    def test_old_unreturned_loan_is_overdue(self):
+        from django.conf import settings
+        loan = Loan.objects.create(book=self.book, location=self.location, reader=self.reader)
+        Loan.objects.filter(pk=loan.pk).update(
+            issued_at=timezone.now() - datetime.timedelta(days=settings.LOAN_PERIOD_DAYS + 5)
+        )
+        loan.refresh_from_db()
+        self.assertTrue(loan.is_overdue)
+        self.assertEqual(loan.days_held, settings.LOAN_PERIOD_DAYS + 5)
+
+    def test_returned_loan_is_never_overdue(self):
+        loan = Loan.objects.create(
+            book=self.book, location=self.location, reader=self.reader, is_returned=True,
+        )
+        Loan.objects.filter(pk=loan.pk).update(
+            issued_at=timezone.now() - datetime.timedelta(days=9999)
+        )
+        loan.refresh_from_db()
+        self.assertFalse(loan.is_overdue)
+
+    def test_my_cabinet_shows_overdue_reminder(self):
+        loan = Loan.objects.create(book=self.book, location=self.location, reader=self.reader)
+        Loan.objects.filter(pk=loan.pk).update(issued_at=timezone.now() - datetime.timedelta(days=40))
+        self.client.force_login(self.reader.user)
+        response = self.client.get(reverse('main:my'))
+        self.assertContains(response, 'Пора вернуть книгу')
 
 
 @override_settings(MEDIA_ROOT=_MEDIA_ROOT)

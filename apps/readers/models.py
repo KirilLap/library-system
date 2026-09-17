@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 
 class Reader(models.Model):
@@ -62,6 +63,16 @@ class Loan(models.Model):
     def __str__(self):
         reader_str = str(self.reader) if self.reader else 'Аноним'
         return f'{self.book.title} → {reader_str}'
+
+    @property
+    def days_held(self):
+        end = self.returned_at or timezone.now()
+        return (end - self.issued_at).days
+
+    @property
+    def is_overdue(self):
+        from django.conf import settings
+        return not self.is_returned and self.days_held > settings.LOAN_PERIOD_DAYS
 
 
 class BookRequest(models.Model):
@@ -127,3 +138,31 @@ class BookRequest(models.Model):
     @property
     def allowed_next_statuses(self):
         return self.ALLOWED_TRANSITIONS.get(self.status, [])
+
+
+class BookQueue(models.Model):
+    """Очередь на книгу, которая сейчас на руках у другого читателя."""
+
+    book = models.ForeignKey(
+        'catalog.Book', on_delete=models.CASCADE, related_name='queue_entries', verbose_name='Книга'
+    )
+    reader = models.ForeignKey(
+        Reader, on_delete=models.CASCADE, related_name='queue_entries', verbose_name='Читатель'
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Встал в очередь')
+
+    class Meta:
+        verbose_name = 'Очередь на книгу'
+        verbose_name_plural = 'Очереди на книги'
+        ordering = ['created_at']
+        unique_together = [('book', 'reader')]
+
+    def __str__(self):
+        return f'{self.reader.full_name} → «{self.book.title}»'
+
+    @property
+    def position(self):
+        """Место читателя в очереди (1 — следующий)."""
+        return BookQueue.objects.filter(
+            book_id=self.book_id, created_at__lt=self.created_at
+        ).count() + 1

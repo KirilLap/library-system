@@ -82,6 +82,8 @@ def my_cabinet(request):
 
     requests_qs = reader.requests.select_related('book', 'preferred_location').order_by('-created_at')
     active_loans = reader.active_loans
+    overdue_loans = [loan for loan in active_loans if loan.is_overdue]
+    queue_entries = reader.queue_entries.select_related('book').order_by('created_at')
     loan_history = (
         reader.loans
         .filter(is_returned=True)
@@ -103,6 +105,8 @@ def my_cabinet(request):
         'reader': reader,
         'requests': requests_qs,
         'active_loans': active_loans,
+        'overdue_loans': overdue_loans,
+        'queue_entries': queue_entries,
         'loan_history': loan_history,
         'has_worker_profile': hasattr(request.user, 'worker_profile'),
         'phone_missing': not reader.phone,

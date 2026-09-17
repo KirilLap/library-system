@@ -74,17 +74,22 @@
             <div class="card-body p-0">
                 <table class="table table-sm mb-0 align-middle">
                     <thead class="table-light">
-                        <tr><th>Книга</th><th>Точка</th><th>Взята</th></tr>
+                        <tr><th>Книга</th><th>Точка</th><th>Взята</th><th></th></tr>
                     </thead>
                     <tbody>
                         {% for loan in active_loans %}
-                        <tr>
+                        <tr{% if loan.is_overdue %} class="table-danger"{% endif %}>
                             <td>
                                 <div class="fw-semibold small">{{ loan.book.title|truncatechars:40 }}</div>
                                 <div class="text-muted small">{{ loan.book.author|truncatechars:30 }}</div>
                             </td>
                             <td class="small text-muted">{{ loan.location.name|truncatechars:20 }}</td>
                             <td class="small text-muted text-nowrap">{{ loan.issued_at|date:"d.m.Y" }}</td>
+                            <td class="small">
+                                {% if loan.is_overdue %}
+                                <span class="badge bg-danger">Просрочено, {{ loan.days_held }} дн.</span>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

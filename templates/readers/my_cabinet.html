@@ -4,6 +4,15 @@
 
 {% block content %}
 
+{% if overdue_loans %}
+<div class="alert alert-danger mb-3 py-2">
+    <i class="bi bi-exclamation-triangle"></i>
+    {% if overdue_loans|length == 1 %}<strong>Пора вернуть книгу:</strong>{% else %}<strong>Пора вернуть книги:</strong>{% endif %}
+    {% for loan in overdue_loans %}«{{ loan.book.title }}» (у вас {{ loan.days_held }} дн.){% if not forloop.last %}, {% endif %}{% endfor %}.
+    {% if overdue_loans|length == 1 %}Пожалуйста, верните её как можно скорее.{% else %}Пожалуйста, верните их как можно скорее.{% endif %}
+</div>
+{% endif %}
+
 {% if phone_missing %}
 <div class="alert alert-warning d-flex align-items-center justify-content-between mb-3 py-2">
     <span>
@@ -112,10 +121,13 @@
                         </thead>
                         <tbody>
                             {% for loan in active_loans %}
-                            <tr>
+                            <tr{% if loan.is_overdue %} class="table-danger"{% endif %}>
                                 <td>
                                     <div class="fw-semibold small">{{ loan.book.title|truncatechars:40 }}</div>
                                     <div class="text-muted small">{{ loan.book.author|truncatechars:30 }}</div>
+                                    {% if loan.is_overdue %}
+                                    <span class="badge bg-danger small">Просрочено, {{ loan.days_held }} дн.</span>
+                                    {% endif %}
                                 </td>
                                 <td class="small">
                                     {% if loan.issued_by %}
@@ -255,6 +267,44 @@
                 {% endif %}
             </div>
         </div>
+
+        <!-- Очередь -->
+        {% if queue_entries %}
+        <div class="card shadow-sm mt-4">
+            <div class="card-header">
+                <span><i class="bi bi-hourglass-split"></i> Моя очередь
+                    <span class="badge bg-primary ms-1">{{ queue_entries|length }}</span>
+                </span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr><th>Книга</th><th>Место в очереди</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in queue_entries %}
+                        <tr>
+                            <td>
+                                <a href="/catalog/{{ entry.book.pk }}/" class="text-decoration-none fw-semibold small">
+                                    {{ entry.book.title|truncatechars:40 }}
+                                </a>
+                            </td>
+                            <td><span class="badge bg-secondary">{{ entry.position }}</span></td>
+                            <td>
+                                <form method="post" action="{% url 'catalog:queue_leave' entry.book.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Выйти из очереди">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
 
     </div>
 </div>

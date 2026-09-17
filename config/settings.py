@@ -15,6 +15,9 @@ ALLOWED_HOSTS = ['*']
 LIBRARY_NAME = os.getenv('LIBRARY_NAME', 'Библиотека')
 LIBRARY_PHONE = os.getenv('LIBRARY_PHONE', '')
 
+# Сколько дней читатель может держать книгу, прежде чем она считается просроченной.
+LOAN_PERIOD_DAYS = int(os.getenv('LOAN_PERIOD_DAYS', 30))
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

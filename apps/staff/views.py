@@ -15,6 +15,11 @@ def dashboard(request):
     from apps.locations.models import Location
     from apps.readers.models import Reader, BookRequest, Loan
 
+    from django.conf import settings
+    from django.utils import timezone
+    import datetime
+    overdue_since = timezone.now() - datetime.timedelta(days=settings.LOAN_PERIOD_DAYS)
+
     stats = {
         'books_total': Book.objects.count(),
         'books_in_library': Book.objects.filter(status='IN_LIBRARY').count(),
@@ -25,7 +30,15 @@ def dashboard(request):
         'readers_total': Reader.objects.count(),
         'requests_pending': BookRequest.objects.filter(status='PENDING').count(),
         'loans_active': Loan.objects.filter(is_returned=False).count(),
+        'loans_overdue': Loan.objects.filter(is_returned=False, issued_at__lt=overdue_since).count(),
     }
+
+    overdue_loans = (
+        Loan.objects
+        .filter(is_returned=False, issued_at__lt=overdue_since)
+        .select_related('book', 'reader__user', 'location')
+        .order_by('issued_at')[:10]
+    )
 
     active_batches = (
         DeliveryBatch.objects
@@ -54,6 +67,7 @@ def dashboard(request):
         'active_batches': active_batches,
         'pending_requests': pending_requests,
         'recent_loans': recent_loans,
+        'overdue_loans': overdue_loans,
     })
 
 
