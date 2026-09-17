@@ -10,4 +10,7 @@ urlpatterns = [
     path('<int:pk>/edit/', views.location_update, name='update'),
     path('<int:pk>/delete/', views.location_delete, name='delete'),
     path('<int:pk>/qr/', views.location_qr_download, name='qr_download'),
+    path('types/', views.location_type_list, name='type_list'),
+    path('types/<int:pk>/edit/', views.location_type_update, name='type_update'),
+    path('types/<int:pk>/delete/', views.location_type_delete, name='type_delete'),
 ]

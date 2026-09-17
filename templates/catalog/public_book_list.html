@@ -103,9 +103,9 @@
                 {% if book.status == 'IN_LIBRARY' %}
                     <span class="badge bg-success">В библиотеке</span>
                 {% elif book.status == 'IN_DELIVERY' %}
-                    {% if book.current_location_name %}
+                    {% if book.current_location_name and book.current_location_is_public %}
                     <span class="badge bg-primary">
-                        {% if book.current_location_type != 'MAHALLA' %}<i class="bi bi-lock-fill"></i>{% endif %}
+                        {% if book.current_location_type not in open_type_codes %}<i class="bi bi-lock-fill"></i>{% endif %}
                         {{ book.current_location_name }}
                     </span>
                     {% else %}

@@ -173,5 +173,54 @@ class BookQueueTests(TestCase):
         self.assertContains(response, 'Встать в очередь')
 
 
+@override_settings(MEDIA_ROOT=_MEDIA_ROOT)
+class HiddenLocationCatalogTests(TestCase):
+    """Скрытые (is_public=False) библиопункты не должны раскрываться в каталоге."""
+
+    def setUp(self):
+        self.hidden = make_location(name='Секретная точка', is_public=False)
+        self.visible = make_location(name='Открытая точка', is_public=True)
+        self.book_hidden = make_book('INV-1200')
+        deliver_book(self.book_hidden, self.hidden)
+        self.book_visible = make_book('INV-1201')
+        deliver_book(self.book_visible, self.visible)
+
+    def test_hidden_location_name_not_shown_on_card(self):
+        response = self.client.get(reverse('catalog:index'))
+        self.assertNotContains(response, 'Секретная точка')
+        self.assertContains(response, 'Открытая точка')
+
+    def test_hidden_location_not_in_filter_dropdown(self):
+        response = self.client.get(reverse('catalog:index'))
+        self.assertNotContains(response, f'value="{self.hidden.pk}"')
+        self.assertContains(response, f'value="{self.visible.pk}"')
+
+    def test_filtering_by_hidden_location_id_returns_nothing(self):
+        response = self.client.get(reverse('catalog:index'), {'location': self.hidden.pk})
+        self.assertNotContains(response, self.book_hidden.title)
+
+    def test_hidden_location_not_shown_on_book_detail(self):
+        response = self.client.get(reverse('catalog:detail', args=[self.book_hidden.pk]))
+        self.assertNotContains(response, 'Секретная точка')
+
+    def test_visible_location_shown_on_book_detail(self):
+        response = self.client.get(reverse('catalog:detail', args=[self.book_visible.pk]))
+        self.assertContains(response, 'Открытая точка')
+
+    def test_hidden_location_excluded_from_public_map(self):
+        self.hidden.latitude, self.hidden.longitude = 39.6, 66.9
+        self.hidden.save()
+        self.visible.latitude, self.visible.longitude = 39.6, 66.9
+        self.visible.save()
+        response = self.client.get(reverse('locations_public:map'))
+        self.assertNotContains(response, 'Секретная точка')
+        self.assertContains(response, 'Открытая точка')
+
+    def test_hidden_location_still_reachable_by_direct_qr_link(self):
+        response = self.client.get(f'/p/{self.hidden.slug}/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Секретная точка')
+
+
 def tearDownModule():
     shutil.rmtree(_MEDIA_ROOT, ignore_errors=True)

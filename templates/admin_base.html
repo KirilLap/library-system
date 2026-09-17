@@ -32,10 +32,25 @@
                         </a></li>
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% block nav_locations %}{% endblock %}" href="/admin-panel/locations/">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% block nav_locations %}{% endblock %}"
+                       href="#" data-bs-toggle="dropdown">
                         <i class="bi bi-geo-alt"></i> Библиопункты
                     </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/admin-panel/locations/">
+                            <i class="bi bi-list-ul"></i> Все библиопункты
+                        </a></li>
+                        <li><a class="dropdown-item" href="/admin-panel/locations/add/">
+                            <i class="bi bi-plus-lg"></i> Добавить библиопункт
+                        </a></li>
+                        {% if request.user.staff_profile.is_admin %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/admin-panel/locations/types/">
+                            <i class="bi bi-tags"></i> Типы библиопунктов
+                        </a></li>
+                        {% endif %}
+                    </ul>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% block nav_deliveries %}{% endblock %}" href="/admin-panel/deliveries/">

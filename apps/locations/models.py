@@ -18,16 +18,30 @@ def _translit(text):
     return slugify(result)
 
 
-class Location(models.Model):
-    TYPE_CHOICES = [
-        ('MAHALLA', 'Махалля'),
-        ('SCHOOL', 'Школа'),
-        ('ORGANIZATION', 'Организация'),
-        ('OTHER', 'Другое'),
-    ]
+class LocationType(models.Model):
+    """Настраиваемый тип библиопункта (Махалля, Школа, Детский сад, ...)."""
 
+    code = models.CharField(max_length=30, unique=True, verbose_name='Код')
+    name = models.CharField(max_length=100, verbose_name='Название')
+    is_open = models.BooleanField(
+        default=False,
+        verbose_name='Открытый тип',
+        help_text='Читатель может прийти и взять книгу сам (как в махалле). '
+                   'Если не отмечено — точка закрытая: выдачу оформляет работник.',
+    )
+
+    class Meta:
+        verbose_name = 'Тип библиопункта'
+        verbose_name_plural = 'Типы библиопунктов'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class Location(models.Model):
     name = models.CharField(max_length=300, verbose_name='Название')
-    type = models.CharField(max_length=20, choices=TYPE_CHOICES, verbose_name='Тип')
+    type = models.CharField(max_length=30, verbose_name='Тип')
     address = models.TextField(verbose_name='Адрес')
     contact_person = models.CharField(max_length=200, blank=True, verbose_name='Контактное лицо')
     contact_phone = models.CharField(max_length=50, blank=True, verbose_name='Телефон контакта')
@@ -36,6 +50,13 @@ class Location(models.Model):
     slug = models.SlugField(max_length=200, unique=True, blank=True, verbose_name='URL-slug')
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True, verbose_name='QR-код')
     is_active = models.BooleanField(default=True, verbose_name='Активна')
+    is_public = models.BooleanField(
+        default=True,
+        verbose_name='Показывать в публичном каталоге',
+        help_text='Если выключено — библиопункт не появляется на карте, в фильтре каталога '
+                   'и в бейджах книг (книга просто покажется «в библиопункте», без названия). '
+                   'Страница по QR-коду продолжит работать напрямую.',
+    )
     notes = models.TextField(blank=True, verbose_name='Заметки')
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -47,12 +68,21 @@ class Location(models.Model):
     def __str__(self):
         return self.name
 
+    def get_type_display(self):
+        try:
+            return LocationType.objects.get(code=self.type).name
+        except LocationType.DoesNotExist:
+            return self.type
+
     @property
     def is_open(self):
-        """Открытый библиопункт (махалля) — читатель может прийти и взять книгу сам.
-        Остальные типы (школа/организация/другое) — закрытые: доступны только
-        своим (ученикам/сотрудникам), выдачу там оформляет работник библиопункта."""
-        return self.type == 'MAHALLA'
+        """Открытый библиопункт — читатель может прийти и взять книгу сам.
+        Закрытые точки доступны только своим (ученикам/сотрудникам), выдачу
+        там оформляет работник библиопункта. Определяется настраиваемым типом."""
+        try:
+            return LocationType.objects.get(code=self.type).is_open
+        except LocationType.DoesNotExist:
+            return False
 
     def save(self, *args, **kwargs):
         if not self.slug:

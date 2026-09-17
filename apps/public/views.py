@@ -10,7 +10,9 @@ from apps.catalog.models import Book, Genre, Language
 def book_list(request):
     from django.db.models import OuterRef, Subquery
     from apps.deliveries.models import DeliveryItem
-    from apps.locations.models import Location
+    from apps.locations.models import Location, LocationType
+
+    open_type_codes = list(LocationType.objects.filter(is_open=True).values_list('code', flat=True))
 
     current_item = DeliveryItem.objects.filter(
         book=OuterRef('pk'), is_returned=False
@@ -20,6 +22,7 @@ def book_list(request):
         current_location_id=Subquery(current_item.values('batch__location_id')[:1]),
         current_location_name=Subquery(current_item.values('batch__location__name')[:1]),
         current_location_type=Subquery(current_item.values('batch__location__type')[:1]),
+        current_location_is_public=Subquery(current_item.values('batch__location__is_public')[:1]),
     )
 
     q = request.GET.get('q', '').strip()
@@ -39,7 +42,11 @@ def book_list(request):
     if status_filter:
         books = books.filter(status=status_filter)
     if location_filter:
-        books = books.filter(current_location_id=location_filter)
+        if Location.objects.filter(pk=location_filter, is_public=True).exists():
+            books = books.filter(current_location_id=location_filter)
+        else:
+            # Несуществующая или скрытая точка — для публики её как будто нет.
+            books = books.none()
 
     if sort == 'location':
         books = books.order_by('current_location_name', 'title')
@@ -57,7 +64,8 @@ def book_list(request):
         'genre_choices': Genre.objects.all(),
         'language_choices': Language.objects.all(),
         'status_choices': [('IN_LIBRARY', 'В библиотеке'), ('IN_DELIVERY', 'В библиопункте')],
-        'location_choices': Location.objects.filter(is_active=True),
+        'location_choices': Location.objects.filter(is_active=True, is_public=True),
+        'open_type_codes': open_type_codes,
     })
 
 
@@ -87,9 +95,12 @@ def book_detail(request, pk):
     from apps.readers.forms import BookRequestForm
     form = BookRequestForm()
 
+    current_location = book.current_location
+    visible_location = current_location if current_location and current_location.is_public else None
+
     return render(request, 'catalog/public_book_detail.html', {
         'book': book,
-        'location': book.current_location,
+        'location': visible_location,
         'reader': reader,
         'existing_request': existing_request,
         'form': form,

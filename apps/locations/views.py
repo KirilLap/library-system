@@ -3,9 +3,9 @@ from django.db.models import ProtectedError
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
-from apps.staff.decorators import librarian_required
-from .forms import LocationForm
-from .models import Location
+from apps.staff.decorators import admin_required, librarian_required
+from .forms import LocationForm, LocationTypeForm
+from .models import Location, LocationType
 
 
 # ──────────────────────────────
@@ -122,6 +122,57 @@ def location_qr_download(request, pk):
 
 
 # ──────────────────────────────
+# Admin: location types (только администратор)
+# ──────────────────────────────
+
+@admin_required
+def location_type_list(request):
+    form = LocationTypeForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        code = form.cleaned_data['code']
+        if LocationType.objects.filter(code=code).exists():
+            messages.error(request, f'Тип с кодом «{code}» уже существует.')
+        else:
+            lt = form.save()
+            messages.success(request, f'Тип «{lt.name}» добавлен.')
+            return redirect('locations_admin:type_list')
+    types = LocationType.objects.all()
+    return render(request, 'locations/type_list.html', {'types': types, 'form': form})
+
+
+@admin_required
+def location_type_update(request, pk):
+    lt = get_object_or_404(LocationType, pk=pk)
+    if request.method == 'POST':
+        form = LocationTypeForm(request.POST, instance=lt)
+        if form.is_valid():
+            code = form.cleaned_data['code']
+            if LocationType.objects.filter(code=code).exclude(pk=lt.pk).exists():
+                messages.error(request, f'Тип с кодом «{code}» уже существует.')
+            else:
+                form.save()
+                messages.success(request, f'Тип «{lt.name}» обновлён.')
+                return redirect('locations_admin:type_list')
+    else:
+        form = LocationTypeForm(instance=lt)
+    return render(request, 'locations/type_form.html', {'form': form, 'location_type': lt})
+
+
+@admin_required
+def location_type_delete(request, pk):
+    lt = get_object_or_404(LocationType, pk=pk)
+    if request.method == 'POST':
+        if Location.objects.filter(type=lt.code).exists():
+            messages.error(request, f'Нельзя удалить: тип «{lt.name}» используется в библиопунктах.')
+        else:
+            name = lt.name
+            lt.delete()
+            messages.success(request, f'Тип «{name}» удалён.')
+        return redirect('locations_admin:type_list')
+    return redirect('locations_admin:type_list')
+
+
+# ──────────────────────────────
 # Public view
 # ──────────────────────────────
 
@@ -150,7 +201,7 @@ def point_public(request, slug):
 
 
 def points_map(request):
-    locations = Location.objects.filter(is_active=True)
+    locations = Location.objects.filter(is_active=True, is_public=True)
     points = []
     for loc in locations:
         if loc.latitude and loc.longitude:

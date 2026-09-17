@@ -91,12 +91,14 @@ def my_cabinet(request):
         .order_by('-issued_at')
     )
 
-    # Открытые библиопункты (махалля) с книгами и координатами — для поиска ближайшего.
-    from apps.locations.models import Location
+    # Открытые библиопункты (тип с is_open=True) с книгами и координатами — для поиска ближайшего.
+    from apps.locations.models import Location, LocationType
+    open_type_codes = LocationType.objects.filter(is_open=True).values_list('code', flat=True)
     open_points = [
         {'name': loc.name, 'slug': loc.slug, 'address': loc.address, 'lat': loc.latitude, 'lng': loc.longitude, 'books': loc.books_count}
         for loc in Location.objects.filter(
-            is_active=True, type='MAHALLA', latitude__isnull=False, longitude__isnull=False
+            is_active=True, is_public=True, type__in=open_type_codes,
+            latitude__isnull=False, longitude__isnull=False,
         )
     ]
     open_points = [p for p in open_points if p['books']]

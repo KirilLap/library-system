@@ -68,6 +68,11 @@
                     {% else %}
                         <span class="badge bg-secondary">Неактивна</span>
                     {% endif %}
+                    {% if not loc.is_public %}
+                        <span class="badge bg-warning text-dark" title="Не отображается в публичном каталоге">
+                            <i class="bi bi-eye-slash"></i> Скрыт
+                        </span>
+                    {% endif %}
                 </td>
                 <td class="text-end">
                     <a href="{% url 'locations_admin:update' loc.pk %}" class="btn btn-sm btn-outline-secondary" title="Редактировать">
