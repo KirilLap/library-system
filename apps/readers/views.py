@@ -91,7 +91,7 @@ def my_cabinet(request):
         .order_by('-issued_at')
     )
 
-    # Открытые точки (махалля) с книгами и координатами — для поиска ближайшей.
+    # Открытые библиопункты (махалля) с книгами и координатами — для поиска ближайшего.
     from apps.locations.models import Location
     open_points = [
         {'name': loc.name, 'slug': loc.slug, 'address': loc.address, 'lat': loc.latitude, 'lng': loc.longitude, 'books': loc.books_count}
@@ -159,7 +159,7 @@ def take_book(request):
             book = Book.objects.get(inventory_number=inv)
             location = book.current_location
             if location is None:
-                error = 'Эта книга сейчас в библиотеке, а не на точке доставки.'
+                error = 'Эта книга сейчас в библиотеке, а не в библиопункте.'
                 book = None
             elif Loan.objects.filter(book=book, is_returned=False).exists():
                 error = 'Эта книга уже числится у другого читателя.'

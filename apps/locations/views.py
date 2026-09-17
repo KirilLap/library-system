@@ -30,13 +30,13 @@ def location_create(request):
         form = LocationForm(request.POST)
         if form.is_valid():
             location = form.save()
-            messages.success(request, f'Точка «{location.name}» создана. QR-код сгенерирован.')
+            messages.success(request, f'Библиопункт «{location.name}» создан. QR-код сгенерирован.')
             return redirect('locations_admin:detail', pk=location.pk)
     else:
         form = LocationForm()
     return render(request, 'locations/location_form.html', {
         'form': form,
-        'title': 'Добавить точку доставки',
+        'title': 'Добавить библиопункт',
     })
 
 
@@ -47,7 +47,7 @@ def location_update(request, pk):
         form = LocationForm(request.POST, instance=location)
         if form.is_valid():
             form.save()
-            messages.success(request, f'Точка «{location.name}» обновлена.')
+            messages.success(request, f'Библиопункт «{location.name}» обновлён.')
             return redirect('locations_admin:detail', pk=location.pk)
     else:
         form = LocationForm(instance=location)
@@ -86,8 +86,8 @@ def location_delete(request, pk):
         if has_batches:
             messages.error(
                 request,
-                f'Нельзя удалить точку «{location.name}»: есть история партий доставки. '
-                f'Деактивируйте точку вместо удаления.'
+                f'Нельзя удалить библиопункт «{location.name}»: есть история партий доставки. '
+                f'Деактивируйте библиопункт вместо удаления.'
             )
             return redirect('locations_admin:detail', pk=pk)
 
@@ -97,11 +97,11 @@ def location_delete(request, pk):
         try:
             location.delete()
         except ProtectedError:
-            messages.error(request, f'Нельзя удалить точку «{name}»: есть связанные записи о выдаче книг.')
+            messages.error(request, f'Нельзя удалить библиопункт «{name}»: есть связанные записи о выдаче книг.')
             return redirect('locations_admin:detail', pk=pk)
-        messages.success(request, f'Точка «{name}» удалена.')
+        messages.success(request, f'Библиопункт «{name}» удалён.')
         from apps.staff.models import ActionLog
-        ActionLog.log(request.user, f'Удалил точку «{name}»')
+        ActionLog.log(request.user, f'Удалил библиопункт «{name}»')
         return redirect('locations_admin:index')
 
     return render(request, 'locations/location_confirm_delete.html', {
@@ -114,7 +114,7 @@ def location_delete(request, pk):
 def location_qr_download(request, pk):
     location = get_object_or_404(Location, pk=pk)
     if not location.qr_code:
-        messages.error(request, 'QR-код не найден. Попробуйте сохранить точку заново.')
+        messages.error(request, 'QR-код не найден. Попробуйте сохранить библиопункт заново.')
         return redirect('locations_admin:detail', pk=pk)
     response = HttpResponse(location.qr_code.read(), content_type='image/png')
     response['Content-Disposition'] = f'attachment; filename="qr_{location.slug}.png"'

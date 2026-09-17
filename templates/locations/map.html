@@ -1,10 +1,10 @@
 {% extends "public_base.html" %}
 
-{% block title %}Карта точек доставки{% endblock %}
+{% block title %}Карта библиопунктов{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h4 mb-0"><i class="bi bi-geo-alt"></i> Точки доставки на карте</h1>
+    <h1 class="h4 mb-0"><i class="bi bi-geo-alt"></i> Библиопункты на карте</h1>
     <div class="text-muted small">
         Показано на карте: <strong>{{ mapped }}</strong> из {{ total }}
     </div>
@@ -12,7 +12,7 @@
 
 {% if mapped == 0 %}
 <div class="alert alert-info">
-    Координаты точек ещё не указаны. Откройте точку в панели администратора и кликните по карте.
+    Координаты библиопунктов ещё не указаны. Откройте библиопункт в панели администратора и кликните по карте.
 </div>
 {% else %}
 
@@ -21,13 +21,13 @@
         <div id="main-map" style="height:520px;border-radius:8px"></div>
         <button id="btn-locate" class="btn btn-primary btn-sm position-absolute"
                 style="bottom:16px;left:50%;transform:translateX(-50%);z-index:1000;box-shadow:0 2px 8px rgba(0,0,0,.3)">
-            <i class="bi bi-crosshair"></i> Найти ближайшую точку
+            <i class="bi bi-crosshair"></i> Найти ближайший библиопункт
         </button>
     </div>
 </div>
 
 <div id="nearest-result" class="alert alert-success d-none">
-    <strong><i class="bi bi-check-circle"></i> Ближайшая точка:</strong>
+    <strong><i class="bi bi-check-circle"></i> Ближайший библиопункт:</strong>
     <span id="nearest-name"></span> — <span id="nearest-dist"></span>
     <a id="nearest-link" href="#" class="ms-2 btn btn-sm btn-outline-success">Перейти</a>
 </div>
@@ -123,7 +123,7 @@ var POINTS = [
 
         navigator.geolocation.getCurrentPosition(function (pos) {
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-crosshair"></i> Найти ближайшую точку';
+            btn.innerHTML = '<i class="bi bi-crosshair"></i> Найти ближайший библиопункт';
 
             var uLat = pos.coords.latitude;
             var uLng = pos.coords.longitude;
@@ -164,7 +164,7 @@ var POINTS = [
 
         }, function () {
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-crosshair"></i> Найти ближайшую точку';
+            btn.innerHTML = '<i class="bi bi-crosshair"></i> Найти ближайший библиопункт';
             alert('Не удалось получить геолокацию. Проверьте разрешение в браузере.');
         });
     });

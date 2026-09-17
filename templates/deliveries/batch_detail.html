@@ -12,7 +12,7 @@
     {% if batch.is_returned %}
         <span class="badge bg-secondary fs-6">Возвращена {{ batch.returned_date|date:"d.m.Y" }}</span>
     {% else %}
-        <span class="badge bg-success fs-6">На точке</span>
+        <span class="badge bg-success fs-6">В библиопункте</span>
     {% endif %}
 </div>
 
@@ -23,7 +23,7 @@
             <div class="card-header"><i class="bi bi-info-circle"></i> Информация</div>
             <div class="card-body">
                 <dl class="mb-0">
-                    <dt class="text-muted small">Точка доставки</dt>
+                    <dt class="text-muted small">Библиопункт</dt>
                     <dd>
                         <a href="{% url 'locations_admin:detail' batch.location.pk %}">{{ batch.location.name }}</a>
                     </dd>
@@ -128,7 +128,7 @@
                                     {% if item.is_returned %}
                                         <span class="badge bg-secondary">Возвращена</span>
                                     {% else %}
-                                        <span class="badge bg-success">На точке</span>
+                                        <span class="badge bg-success">В библиопункте</span>
                                     {% endif %}
                                 </td>
                                 {% if not batch.is_returned %}

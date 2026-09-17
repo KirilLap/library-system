@@ -1,4 +1,4 @@
-"""Тесты выдачи/возврата книг работником закрытой точки (школа/организация)."""
+"""Тесты выдачи/возврата книг работником закрытого библиопункта (школа/организация)."""
 import shutil
 import tempfile
 
@@ -67,7 +67,7 @@ class WorkerIssueTests(TestCase):
         response = self.client.post(reverse('organizations:worker_issue'), {
             'action': 'lookup_book', 'inventory_number': 'INV-501',
         })
-        self.assertContains(response, 'не находится на вашей точке')
+        self.assertContains(response, 'не находится в вашем библиопункте')
 
     def test_issue_creates_loan_with_issued_by(self):
         book = make_book('INV-502')

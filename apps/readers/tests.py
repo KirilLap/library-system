@@ -1,6 +1,6 @@
 """
 Тесты жизненного цикла: заявка → одобрение/закупка → выполнение,
-и самостоятельная выдача/возврат книги читателем (открытые точки).
+и самостоятельная выдача/возврат книги читателем (открытые библиопункты).
 """
 import datetime
 import shutil
@@ -44,7 +44,7 @@ def make_librarian(username='librarian'):
 
 
 def deliver_book(book, location):
-    """Отправляет книгу на точку (переводит в IN_DELIVERY)."""
+    """Отправляет книгу в библиопункт (переводит в IN_DELIVERY)."""
     batch = DeliveryBatch.objects.create(location=location)
     DeliveryItem.objects.create(batch=batch, book=book)
     Book.objects.filter(pk=book.pk).update(status='IN_DELIVERY')
@@ -183,7 +183,7 @@ class LibrarianRequestManagementTests(TestCase):
 
 @override_settings(MEDIA_ROOT=_MEDIA_ROOT)
 class TakeBookTests(TestCase):
-    """Самостоятельная выдача книги читателем по инв. номеру (открытая точка)."""
+    """Самостоятельная выдача книги читателем по инв. номеру (открытый библиопункт)."""
 
     def setUp(self):
         self.location = make_location()

@@ -148,7 +148,7 @@ def worker_issue(request):
                 book = Book.objects.get(inventory_number=inv)
                 # Verify it's at this location
                 if book.current_location != location:
-                    error = f'Книга «{book.title}» не находится на вашей точке.'
+                    error = f'Книга «{book.title}» не находится в вашем библиопункте.'
                     book = None
                 else:
                     from apps.readers.models import Loan
@@ -169,7 +169,7 @@ def worker_issue(request):
                 if reader.is_blocked:
                     error = f'Читатель {reader.full_name} заблокирован — выдача книг ему запрещена.'
                 elif book.current_location != location:
-                    error = 'Книга не на вашей точке.'
+                    error = 'Книга не в вашем библиопункте.'
                 elif Loan.objects.filter(book=book, is_returned=False).exists():
                     error = 'Книга уже выдана.'
                 else:
@@ -256,7 +256,7 @@ def worker_register_reader(request):
             Reader.objects.filter(user=user).update(affiliated_location=location)
             messages.success(
                 request,
-                f'Читатель «{user.get_full_name() or user.username}» зарегистрирован и прикреплён к точке «{location.name}».'
+                f'Читатель «{user.get_full_name() or user.username}» зарегистрирован и прикреплён к библиопункту «{location.name}».'
             )
             return redirect('organizations:worker_readers')
     else:
@@ -279,7 +279,7 @@ def org_account_create(request, location_pk):
     location = get_object_or_404(Location, pk=location_pk)
 
     if hasattr(location, 'org_account'):
-        messages.warning(request, 'У этой точки уже есть аккаунт организации.')
+        messages.warning(request, 'У этого библиопункта уже есть аккаунт организации.')
         return redirect('locations_admin:detail', pk=location_pk)
 
     if request.method == 'POST':
@@ -292,7 +292,7 @@ def org_account_create(request, location_pk):
             OrgAccount.objects.create(user=user, location=location)
             messages.success(
                 request,
-                f'Аккаунт «{user.username}» создан и привязан к точке «{location.name}».'
+                f'Аккаунт «{user.username}» создан и привязан к библиопункту «{location.name}».'
             )
             return redirect('locations_admin:detail', pk=location_pk)
     else:
@@ -340,7 +340,7 @@ def worker_add(request, location_pk):
             Reader.objects.create(user=user, affiliated_location=location)
             messages.success(
                 request,
-                f'Работник «{worker.full_name}» добавлен к точке «{location.name}».'
+                f'Работник «{worker.full_name}» добавлен к библиопункту «{location.name}».'
             )
             return redirect('locations_admin:detail', pk=location_pk)
     else:

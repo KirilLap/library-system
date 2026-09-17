@@ -30,7 +30,7 @@
     <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2 py-2">
         <span><i class="bi bi-geo-alt"></i> Не знаете, куда пойти за книгой?</span>
         <button id="btn-find-nearest" class="btn btn-sm btn-outline-primary">
-            <i class="bi bi-crosshair"></i> Показать ближайшую открытую точку
+            <i class="bi bi-crosshair"></i> Показать ближайший открытый библиопункт
         </button>
     </div>
     <div id="nearest-point-result" class="d-none card-body border-top py-2"></div>
@@ -71,7 +71,7 @@
                     <dd>{{ reader.phone }}</dd>
                     {% endif %}
                     {% if reader.affiliated_location %}
-                    <dt class="text-muted small">Прикреплённая точка</dt>
+                    <dt class="text-muted small">Прикреплённый библиопункт</dt>
                     <dd>
                         <i class="bi bi-geo-alt"></i>
                         <a href="/p/{{ reader.affiliated_location.slug }}/" class="text-decoration-none">
@@ -114,7 +114,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Книга</th>
-                                <th>Точка</th>
+                                <th>Библиопункт</th>
                                 <th>Взята</th>
                                 <th></th>
                             </tr>
@@ -131,7 +131,7 @@
                                 </td>
                                 <td class="small">
                                     {% if loan.issued_by %}
-                                        <span class="badge bg-secondary" title="Закрытая точка">
+                                        <span class="badge bg-secondary" title="Закрытый библиопункт">
                                             <i class="bi bi-building"></i> {{ loan.location.name|truncatechars:20 }}
                                         </span>
                                     {% else %}
@@ -153,7 +153,7 @@
                                     </form>
                                     {% else %}
                                     <!-- Closed point: return via worker -->
-                                    <span class="text-muted small" title="Возврат оформляет работник точки">
+                                    <span class="text-muted small" title="Возврат оформляет работник библиопункта">
                                         <i class="bi bi-person-badge"></i>
                                     </span>
                                     {% endif %}
@@ -192,7 +192,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Книга</th>
-                                <th>Точка</th>
+                                <th>Библиопункт</th>
                                 <th>Дата</th>
                                 <th>Статус</th>
                                 <th>Ответ библиотеки</th>
@@ -321,7 +321,7 @@
             <thead class="table-light">
                 <tr>
                     <th>Книга</th>
-                    <th>Точка</th>
+                    <th>Библиопункт</th>
                     <th>Взята</th>
                     <th>Возвращена</th>
                     <th>Дней</th>
@@ -402,7 +402,7 @@
 
         navigator.geolocation.getCurrentPosition(function (pos) {
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-crosshair"></i> Показать ближайшую открытую точку';
+            btn.innerHTML = '<i class="bi bi-crosshair"></i> Показать ближайший открытый библиопункт';
 
             var uLat = pos.coords.latitude;
             var uLng = pos.coords.longitude;
@@ -418,11 +418,11 @@
             result.innerHTML = '<i class="bi bi-geo-alt-fill text-success"></i> Ближайшая: '
                 + '<strong>' + nearest.name + '</strong> (' + distText + ', книг: ' + nearest.books + ')'
                 + '<div class="text-muted small">' + nearest.address + '</div>'
-                + '<a href="/p/' + nearest.slug + '/" class="btn btn-sm btn-outline-success mt-2">Открыть точку</a>';
+                + '<a href="/p/' + nearest.slug + '/" class="btn btn-sm btn-outline-success mt-2">Открыть библиопункт</a>';
             result.classList.remove('d-none');
         }, function () {
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-crosshair"></i> Показать ближайшую открытую точку';
+            btn.innerHTML = '<i class="bi bi-crosshair"></i> Показать ближайший открытый библиопункт';
             result.className = 'card-body border-top py-2 text-danger small';
             result.textContent = 'Не удалось получить геолокацию. Проверьте разрешение в браузере.';
             result.classList.remove('d-none');

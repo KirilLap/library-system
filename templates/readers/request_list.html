@@ -32,7 +32,7 @@
                 <th>#</th>
                 <th>Читатель</th>
                 <th>Книга / Запрос</th>
-                <th>Точка</th>
+                <th>Библиопункт</th>
                 <th>Дата</th>
                 <th>Статус</th>
                 <th class="text-end">Действия</th>
@@ -68,7 +68,7 @@
                             {% if req.book.status == 'IN_LIBRARY' %}
                                 <span class="badge bg-success-subtle text-success border border-success-subtle">В библиотеке</span>
                             {% elif req.book.status == 'IN_DELIVERY' %}
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">На точке</span>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">В библиопункте</span>
                             {% endif %}
                         </div>
                     {% elif req.requested_title %}

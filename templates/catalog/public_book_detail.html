@@ -32,7 +32,7 @@
             {% if book.status == 'IN_LIBRARY' %}
                 <span class="badge bg-success fs-6"><i class="bi bi-check-circle"></i> В библиотеке</span>
             {% elif book.status == 'IN_DELIVERY' %}
-                <span class="badge bg-primary fs-6"><i class="bi bi-truck"></i> На точке доставки</span>
+                <span class="badge bg-primary fs-6"><i class="bi bi-truck"></i> В библиопункте</span>
             {% endif %}
             <span class="badge bg-light text-dark border fs-6">{{ book.get_genre_display }}</span>
             <span class="badge bg-light text-dark border fs-6">{{ book.get_language_display }}</span>
@@ -43,14 +43,14 @@
             {% if location.is_open %}
                 <i class="bi bi-geo-alt-fill fs-5"></i>
                 <div>
-                    Книга на точке <strong>{{ location.name }}</strong> — можно прийти и взять самостоятельно.
+                    Книга в библиопункте <strong>{{ location.name }}</strong> — можно прийти и взять самостоятельно.
                     <a href="/p/{{ location.slug }}/" class="d-block small">Адрес и подробности →</a>
                 </div>
             {% else %}
                 <i class="bi bi-lock-fill fs-5"></i>
                 <div>
-                    Книга на закрытой точке <strong>{{ location.name }}</strong> ({{ location.get_type_display }}) —
-                    доступна только там, выдаёт работник точки.
+                    Книга в закрытом библиопункте <strong>{{ location.name }}</strong> ({{ location.get_type_display }}) —
+                    доступна только там, выдаёт работник библиопункта.
                 </div>
             {% endif %}
         </div>

@@ -92,7 +92,7 @@
         <!-- Workers card -->
         <div class="card shadow-sm mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-person-badge"></i> Работники точки</span>
+                <span><i class="bi bi-person-badge"></i> Работники библиопункта</span>
                 <a href="{% url 'organizations:worker_add' location.pk %}" class="btn btn-sm btn-outline-secondary">
                     <i class="bi bi-plus-lg"></i> Добавить
                 </a>
@@ -157,7 +157,7 @@
         <!-- Current books -->
         <div class="card shadow-sm mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-book"></i> Книги на точке
+                <span><i class="bi bi-book"></i> Книги в библиопункте
                     <span class="badge bg-primary ms-1">{{ books|length }}</span>
                 </span>
                 <form class="d-flex gap-2" method="get">
@@ -197,7 +197,7 @@
                 </div>
                 {% else %}
                 <div class="text-center py-4 text-muted">
-                    {% if q %}Ничего не найдено по запросу «{{ q }}»{% else %}Книг на точке нет{% endif %}
+                    {% if q %}Ничего не найдено по запросу «{{ q }}»{% else %}Книг в библиопункте нет{% endif %}
                 </div>
                 {% endif %}
             </div>
@@ -232,7 +232,7 @@
                                     {% if batch.is_returned %}
                                         <span class="badge bg-secondary">Возвращена</span>
                                     {% else %}
-                                        <span class="badge bg-success">На точке</span>
+                                        <span class="badge bg-success">В библиопункте</span>
                                     {% endif %}
                                 </td>
                             </tr>

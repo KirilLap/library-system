@@ -62,7 +62,7 @@
 
                     {% if readers %}
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Читатель точки</label>
+                        <label class="form-label fw-semibold">Читатель библиопункта</label>
                         <select name="reader_pk" class="form-select" required>
                             <option value="">— выберите читателя —</option>
                             {% for r in readers %}
@@ -74,7 +74,7 @@
                         <i class="bi bi-check-lg"></i> Оформить выдачу
                     </button>
                     {% else %}
-                    <p class="text-muted small mb-3">На этой точке ещё нет зарегистрированных читателей.</p>
+                    <p class="text-muted small mb-3">В этом библиопункте ещё нет зарегистрированных читателей.</p>
                     <a href="{% url 'organizations:worker_register_reader' %}" class="btn btn-outline-primary w-100">
                         <i class="bi bi-person-plus"></i> Зарегистрировать читателя
                     </a>

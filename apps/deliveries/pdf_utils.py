@@ -79,7 +79,7 @@ def generate_batch_pdf(batch):
 
     meta_lines = [
         f'<b>Библиотека:</b> {library_name}' + (f' · {library_phone}' if library_phone else ''),
-        f'<b>Точка доставки:</b> {batch.location.name} ({batch.location.get_type_display()})',
+        f'<b>Библиопункт:</b> {batch.location.name} ({batch.location.get_type_display()})',
         f'<b>Адрес:</b> {batch.location.address}',
     ]
     if batch.location.contact_person:

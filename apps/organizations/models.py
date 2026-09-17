@@ -27,14 +27,14 @@ class LocationWorker(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='worker_profile')
     location = models.ForeignKey(
         'locations.Location', on_delete=models.CASCADE,
-        related_name='workers', verbose_name='Точка'
+        related_name='workers', verbose_name='Библиопункт'
     )
     is_active = models.BooleanField(default=True, verbose_name='Активен')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = 'Работник точки'
-        verbose_name_plural = 'Работники точек'
+        verbose_name = 'Работник библиопункта'
+        verbose_name_plural = 'Работники библиопунктов'
 
     def __str__(self):
         return f'{self.user.get_full_name() or self.user.username} ({self.location.name})'

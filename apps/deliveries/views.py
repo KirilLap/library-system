@@ -91,7 +91,7 @@ def _add_book_to_batch(request, batch, inventory_number):
     if active_item:
         messages.error(
             request,
-            f'Книга «{book.title}» уже находится на точке «{active_item.batch.location.name}» '
+            f'Книга «{book.title}» уже находится в библиопункте «{active_item.batch.location.name}» '
             f'(партия #{active_item.batch_id}).'
         )
         return
@@ -171,7 +171,7 @@ def batch_delete(request, pk):
         Book.objects.filter(pk__in=not_returned_ids).update(status='IN_LIBRARY')
         messages.success(request, f'Партия #{pk} удалена.')
         from apps.staff.models import ActionLog
-        ActionLog.log(request.user, f'Удалил партию #{pk} (точка «{location_name}»)')
+        ActionLog.log(request.user, f'Удалил партию #{pk} (библиопункт «{location_name}»)')
         return redirect('deliveries_admin:index')
 
     return render(request, 'deliveries/batch_confirm_delete.html', {

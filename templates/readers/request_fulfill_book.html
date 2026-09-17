@@ -37,7 +37,7 @@
             {% endif %}
         </div>
         <div class="col-md-4">
-            <div class="text-muted small">Желаемая точка</div>
+            <div class="text-muted small">Желаемый библиопункт</div>
             {% if req.preferred_location %}
                 <i class="bi bi-geo-alt text-primary"></i> {{ req.preferred_location.name }}
             {% else %}
@@ -87,7 +87,7 @@
                                         {% if book.status == 'IN_LIBRARY' %}
                                             <span class="text-success">В библиотеке</span>
                                         {% elif book.status == 'IN_DELIVERY' %}
-                                            <span class="text-primary">На точке</span>
+                                            <span class="text-primary">В библиопункте</span>
                                         {% endif %}
                                     </div>
                                 </div>

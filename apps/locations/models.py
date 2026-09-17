@@ -40,8 +40,8 @@ class Location(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = 'Точка доставки'
-        verbose_name_plural = 'Точки доставки'
+        verbose_name = 'Библиопункт'
+        verbose_name_plural = 'Библиопункты'
         ordering = ['name']
 
     def __str__(self):
@@ -49,9 +49,9 @@ class Location(models.Model):
 
     @property
     def is_open(self):
-        """Открытая точка (махалля) — читатель может прийти и взять книгу сам.
+        """Открытый библиопункт (махалля) — читатель может прийти и взять книгу сам.
         Остальные типы (школа/организация/другое) — закрытые: доступны только
-        своим (ученикам/сотрудникам), выдачу там оформляет работник точки."""
+        своим (ученикам/сотрудникам), выдачу там оформляет работник библиопункта."""
         return self.type == 'MAHALLA'
 
     def save(self, *args, **kwargs):

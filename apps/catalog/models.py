@@ -30,7 +30,7 @@ class Language(models.Model):
 class Book(models.Model):
     STATUS_CHOICES = [
         ('IN_LIBRARY', 'В библиотеке'),
-        ('IN_DELIVERY', 'На точке'),
+        ('IN_DELIVERY', 'В библиопункте'),
         ('LOST', 'Утеряна'),
     ]
 

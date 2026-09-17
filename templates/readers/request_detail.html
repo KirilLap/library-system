@@ -55,7 +55,7 @@
                         {% if req.book.status == 'IN_LIBRARY' %}
                             <span class="badge bg-success"><i class="bi bi-check-circle"></i> В библиотеке</span>
                         {% elif req.book.status == 'IN_DELIVERY' %}
-                            <span class="badge bg-primary"><i class="bi bi-truck"></i> На точке доставки</span>
+                            <span class="badge bg-primary"><i class="bi bi-truck"></i> В библиопункте</span>
                         {% elif req.book.status == 'LOST' %}
                             <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Утеряна</span>
                         {% endif %}
@@ -72,12 +72,12 @@
             </div>
         </div>
 
-        <!-- Точка и детали -->
+        <!-- Библиопункт и детали -->
         <div class="card shadow-sm">
             <div class="card-header"><i class="bi bi-geo-alt"></i> Детали</div>
             <div class="card-body">
                 <dl class="mb-0">
-                    <dt class="text-muted small">Желаемая точка</dt>
+                    <dt class="text-muted small">Желаемый библиопункт</dt>
                     <dd>
                         {% if req.preferred_location %}
                             <i class="bi bi-geo-alt text-primary"></i>
@@ -113,7 +113,7 @@
             d-flex align-items-center gap-3 mb-3">
             {% if req.status == 'FULFILLED' %}
                 <i class="bi bi-bag-check-fill fs-3"></i>
-                <div><strong>Заявка выполнена.</strong> Книга доставлена на точку.</div>
+                <div><strong>Заявка выполнена.</strong> Книга доставлена в библиопункт.</div>
             {% elif req.status == 'REJECTED' %}
                 <i class="bi bi-x-circle-fill fs-3"></i>
                 <div><strong>Заявка отклонена.</strong> Читатель уведомлён.</div>

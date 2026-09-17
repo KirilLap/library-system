@@ -50,7 +50,7 @@
     </div>
     <div class="col-sm-3">
         <select name="location" class="form-select">
-            <option value="">Точка — любая</option>
+            <option value="">Библиопункт — любой</option>
             {% for loc in location_choices %}
             <option value="{{ loc.pk }}" {% if location_filter == loc.pk|stringformat:"s" %}selected{% endif %}>
                 {% if not loc.is_open %}🔒 {% endif %}{{ loc.name }} ({{ loc.books_count }})
@@ -61,12 +61,12 @@
     <div class="col-sm-3">
         <select name="sort" class="form-select">
             <option value="" {% if not sort %}selected{% endif %}>Сортировка: по названию</option>
-            <option value="location" {% if sort == 'location' %}selected{% endif %}>Сортировка: по точке</option>
+            <option value="location" {% if sort == 'location' %}selected{% endif %}>Сортировка: по библиопункту</option>
         </select>
     </div>
 </form>
 <p class="text-muted small mb-3">
-    <i class="bi bi-lock"></i> — закрытая точка (школа/организация): книгу выдаёт работник точки, не самообслуживание.
+    <i class="bi bi-lock"></i> — закрытый библиопункт (школа/организация): книгу выдаёт работник библиопункта, не самообслуживание.
 </p>
 
 <p class="text-muted small mb-3">Найдено: <strong>{{ books|length }}</strong></p>
@@ -109,7 +109,7 @@
                         {{ book.current_location_name }}
                     </span>
                     {% else %}
-                    <span class="badge bg-primary">На точке</span>
+                    <span class="badge bg-primary">В библиопункте</span>
                     {% endif %}
                 {% endif %}
             </div>

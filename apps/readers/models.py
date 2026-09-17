@@ -9,7 +9,7 @@ class Reader(models.Model):
     address = models.TextField(blank=True, verbose_name='Адрес')
     affiliated_location = models.ForeignKey(
         'locations.Location', null=True, blank=True, on_delete=models.SET_NULL,
-        related_name='affiliated_readers', verbose_name='Прикреплённая точка'
+        related_name='affiliated_readers', verbose_name='Прикреплённый библиопункт'
     )
     is_blocked = models.BooleanField(default=False, verbose_name='Заблокирован')
     notes = models.TextField(blank=True, verbose_name='Заметки библиотекаря')
@@ -41,7 +41,7 @@ class Loan(models.Model):
         'catalog.Book', on_delete=models.PROTECT, related_name='loans', verbose_name='Книга'
     )
     location = models.ForeignKey(
-        'locations.Location', on_delete=models.PROTECT, related_name='loans', verbose_name='Точка'
+        'locations.Location', on_delete=models.PROTECT, related_name='loans', verbose_name='Библиопункт'
     )
     reader = models.ForeignKey(
         'Reader', on_delete=models.PROTECT, null=True, blank=True,
@@ -104,7 +104,7 @@ class BookRequest(models.Model):
     requested_author = models.CharField(max_length=300, blank=True, verbose_name='Автор (не из каталога)')
     preferred_location = models.ForeignKey(
         'locations.Location', null=True, blank=True, on_delete=models.SET_NULL,
-        related_name='book_requests', verbose_name='Желаемая точка получения'
+        related_name='book_requests', verbose_name='Желаемый библиопункт получения'
     )
     message = models.TextField(blank=True, verbose_name='Сообщение читателя')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING', verbose_name='Статус')

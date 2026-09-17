@@ -9,7 +9,7 @@ class DeliveryBatch(models.Model):
         'locations.Location',
         on_delete=models.PROTECT,
         related_name='batches',
-        verbose_name='Точка доставки',
+        verbose_name='Библиопункт',
     )
     delivery_date = models.DateField(default=timezone.localdate, verbose_name='Дата доставки')
     note = models.TextField(blank=True, verbose_name='Примечание')

@@ -21,7 +21,7 @@
         {% else %}
         <div class="alert alert-danger">
             <p class="mb-1">Вы действительно хотите удалить партию #{{ batch.pk }}?</p>
-            <p class="mb-1">Точка: <strong>{{ batch.location.name }}</strong></p>
+            <p class="mb-1">Библиопункт: <strong>{{ batch.location.name }}</strong></p>
             <p class="mb-0">Книг в партии: <strong>{{ batch.items.count }}</strong></p>
         </div>
         <p class="text-muted small">

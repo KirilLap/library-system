@@ -16,7 +16,7 @@
         {% if book and book.status == 'IN_DELIVERY' %}
         <div class="alert alert-info">
             <i class="bi bi-info-circle"></i>
-            Книга сейчас <strong>на точке</strong>{% if current_location %}: <strong>{{ current_location.name }}</strong>{% endif %}.
+            Книга сейчас <strong>в библиопункте</strong>{% if current_location %}: <strong>{{ current_location.name }}</strong>{% endif %}.
             Статус можно изменить только после возврата.
         </div>
         {% endif %}

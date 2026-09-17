@@ -1,18 +1,18 @@
 {% extends "admin_base.html" %}
 
-{% block title %}Удалить точку{% endblock %}
+{% block title %}Удалить библиопункт{% endblock %}
 {% block nav_locations %}active{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-7">
-        <h1 class="h4 mb-3">Удалить точку «{{ location.name }}»</h1>
+        <h1 class="h4 mb-3">Удалить библиопункт «{{ location.name }}»</h1>
 
         {% if has_batches %}
         <div class="alert alert-danger">
-            <p class="mb-1"><strong>Нельзя удалить</strong> — у точки есть история партий доставки.</p>
-            <p class="mb-0">Чтобы точка исчезла из активных списков, но история сохранилась — снимите
-                галочку «Активна» в редактировании точки вместо удаления.</p>
+            <p class="mb-1"><strong>Нельзя удалить</strong> — у библиопункта есть история партий доставки.</p>
+            <p class="mb-0">Чтобы библиопункт исчез из активных списков, но история сохранилась — снимите
+                галочку «Активна» в редактировании библиопункта вместо удаления.</p>
         </div>
         <a href="{% url 'locations_admin:update' location.pk %}" class="btn btn-outline-secondary me-2">
             Открыть редактирование
@@ -20,7 +20,7 @@
         <a href="{% url 'locations_admin:detail' location.pk %}" class="btn btn-outline-secondary">Назад</a>
         {% else %}
         <div class="alert alert-danger">
-            <p class="mb-1">Вы действительно хотите удалить точку?</p>
+            <p class="mb-1">Вы действительно хотите удалить библиопункт?</p>
             <p class="mb-0"><strong>{{ location.name }}</strong> — {{ location.address }}</p>
         </div>
         {% if location.org_account %}
@@ -29,7 +29,7 @@
         <form method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">
-                <i class="bi bi-trash"></i> Да, удалить точку
+                <i class="bi bi-trash"></i> Да, удалить библиопункт
             </button>
             <a href="{% url 'locations_admin:detail' location.pk %}" class="btn btn-outline-secondary ms-2">Отмена</a>
         </form>

@@ -56,7 +56,7 @@ def book_list(request):
         'sort': sort,
         'genre_choices': Genre.objects.all(),
         'language_choices': Language.objects.all(),
-        'status_choices': [('IN_LIBRARY', 'В библиотеке'), ('IN_DELIVERY', 'На точке')],
+        'status_choices': [('IN_LIBRARY', 'В библиотеке'), ('IN_DELIVERY', 'В библиопункте')],
         'location_choices': Location.objects.filter(is_active=True),
     })
 
