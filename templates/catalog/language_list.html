@@ -1,36 +1,37 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Языки{% endblock %}
+{% block title %}{% translate "Языки" %}{% endblock %}
 {% block nav_catalog %}active{% endblock %}
 
 {% block content %}
 <div class="d-flex align-items-center gap-2 mb-3">
-    <a href="{% url 'catalog_admin:index' %}" class="btn btn-sm btn-outline-secondary">← Каталог</a>
-    <h4 class="mb-0">Языки</h4>
+    <a href="{% url 'catalog_admin:index' %}" class="btn btn-sm btn-outline-secondary">← {% translate "Каталог" %}</a>
+    <h4 class="mb-0">{% translate "Языки" %}</h4>
 </div>
 
 <div class="row g-4">
     <div class="col-md-5">
         <div class="card">
-            <div class="card-header fw-semibold">Добавить язык</div>
+            <div class="card-header fw-semibold">{% translate "Добавить язык" %}</div>
             <div class="card-body">
                 <form method="post" novalidate>
                     {% csrf_token %}
                     <div class="row g-2">
                         <div class="col-4">
-                            <label class="form-label small fw-semibold">Код</label>
+                            <label class="form-label small fw-semibold">{% translate "Код" %}</label>
                             {{ form.code }}
-                            <div class="form-text">Напр.: KK</div>
+                            <div class="form-text">{% translate "Напр.: KK" %}</div>
                             {% for e in form.code.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
                         </div>
                         <div class="col-8">
-                            <label class="form-label small fw-semibold">Название</label>
+                            <label class="form-label small fw-semibold">{% translate "Название" %}</label>
                             {{ form.name }}
                             {% for e in form.name.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary btn-sm mt-3">
-                        <i class="bi bi-plus-lg"></i> Добавить
+                        <i class="bi bi-plus-lg"></i> {% translate "Добавить" %}
                     </button>
                 </form>
             </div>
@@ -43,8 +44,8 @@
                 <table class="table table-sm table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Код</th>
-                            <th>Название</th>
+                            <th>{% translate "Код" %}</th>
+                            <th>{% translate "Название" %}</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -52,19 +53,19 @@
                         {% for lang in languages %}
                         <tr>
                             <td><code>{{ lang.code }}</code></td>
-                            <td>{{ lang.name }}</td>
+                            <td>{% translate lang.name %}</td>
                             <td class="text-end">
                                 <form method="post" action="{% url 'catalog_admin:language_delete' lang.pk %}" class="d-inline">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('Удалить язык «{{ lang.name }}»?')">
+                                            onclick="return confirm('{% translate 'Удалить язык' %} «{{ lang.name|escapejs }}»?')">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="3" class="text-center text-muted py-3">Языки не добавлены</td></tr>
+                        <tr><td colspan="3" class="text-center text-muted py-3">{% translate "Языки не добавлены" %}</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>

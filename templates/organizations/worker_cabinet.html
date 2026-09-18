@@ -1,11 +1,12 @@
 {% extends "public_base.html" %}
+{% load i18n %}
 
-{% block title %}Кабинет работника — {{ location.name }}{% endblock %}
+{% block title %}{% translate "Кабинет работника" %} — {{ location.name }}{% endblock %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3 gap-2">
     <h1 class="h4 mb-0">
-        <i class="bi bi-person-badge"></i> Кабинет работника
+        <i class="bi bi-person-badge"></i> {% translate "Кабинет работника" %}
     </h1>
     <span class="badge bg-secondary">{{ location.name }}</span>
 </div>
@@ -15,8 +16,8 @@
         <a href="{% url 'organizations:worker_issue' %}" class="card text-decoration-none shadow-sm h-100">
             <div class="card-body text-center py-4">
                 <i class="bi bi-book-half text-primary" style="font-size:2rem;"></i>
-                <div class="fw-semibold mt-2">Выдать книгу</div>
-                <div class="text-muted small">Оформить выдачу читателю</div>
+                <div class="fw-semibold mt-2">{% translate "Выдать книгу" %}</div>
+                <div class="text-muted small">{% translate "Оформить выдачу читателю" %}</div>
             </div>
         </a>
     </div>
@@ -24,8 +25,8 @@
         <a href="{% url 'organizations:worker_return' %}" class="card text-decoration-none shadow-sm h-100">
             <div class="card-body text-center py-4">
                 <i class="bi bi-arrow-return-left text-success" style="font-size:2rem;"></i>
-                <div class="fw-semibold mt-2">Принять возврат</div>
-                <div class="text-muted small">{{ active_loans|length }} книг на руках</div>
+                <div class="fw-semibold mt-2">{% translate "Принять возврат" %}</div>
+                <div class="text-muted small">{% blocktranslate with n=active_loans|length %}{{ n }} книг на руках{% endblocktranslate %}</div>
             </div>
         </a>
     </div>
@@ -33,8 +34,8 @@
         <a href="{% url 'organizations:worker_readers' %}" class="card text-decoration-none shadow-sm h-100">
             <div class="card-body text-center py-4">
                 <i class="bi bi-people text-info" style="font-size:2rem;"></i>
-                <div class="fw-semibold mt-2">Читатели</div>
-                <div class="text-muted small">Список и регистрация</div>
+                <div class="fw-semibold mt-2">{% translate "Читатели" %}</div>
+                <div class="text-muted small">{% translate "Список и регистрация" %}</div>
             </div>
         </a>
     </div>
@@ -42,8 +43,8 @@
         <a href="/my/" class="card text-decoration-none shadow-sm h-100">
             <div class="card-body text-center py-4">
                 <i class="bi bi-person-circle text-secondary" style="font-size:2rem;"></i>
-                <div class="fw-semibold mt-2">Мой кабинет</div>
-                <div class="text-muted small">Личные книги и заявки</div>
+                <div class="fw-semibold mt-2">{% translate "Мой кабинет" %}</div>
+                <div class="text-muted small">{% translate "Личные книги и заявки" %}</div>
             </div>
         </a>
     </div>
@@ -51,11 +52,11 @@
 
 <div class="card shadow-sm">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-list-check"></i> Книги на руках
+        <span><i class="bi bi-list-check"></i> {% translate "Книги на руках" %}
             <span class="badge bg-primary ms-1">{{ active_loans|length }}</span>
         </span>
         <a href="{% url 'organizations:worker_issue' %}" class="btn btn-sm btn-primary">
-            <i class="bi bi-plus-lg"></i> Выдать
+            <i class="bi bi-plus-lg"></i> {% translate "Выдать" %}
         </a>
     </div>
     <div class="card-body p-0">
@@ -64,9 +65,9 @@
             <table class="table table-sm mb-0 align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Книга</th>
-                        <th>Читатель</th>
-                        <th>Дата выдачи</th>
+                        <th>{% translate "Книга" %}</th>
+                        <th>{% translate "Читатель" %}</th>
+                        <th>{% translate "Дата выдачи" %}</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -86,7 +87,7 @@
                                 {% csrf_token %}
                                 <input type="hidden" name="loan_pk" value="{{ loan.pk }}">
                                 <button type="submit" class="btn btn-sm btn-outline-success"
-                                        onclick="return confirm('Принять возврат книги «{{ loan.book.title|truncatechars:30 }}»?')">
+                                        onclick="return confirm('{% translate 'Принять возврат книги' %} «{{ loan.book.title|truncatechars:30|escapejs }}»?')">
                                     <i class="bi bi-check-lg"></i>
                                 </button>
                             </form>
@@ -97,7 +98,7 @@
             </table>
         </div>
         {% else %}
-        <div class="text-center py-4 text-muted">Книг на руках нет.</div>
+        <div class="text-center py-4 text-muted">{% translate "Книг на руках нет." %}</div>
         {% endif %}
     </div>
 </div>

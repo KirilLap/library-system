@@ -1,15 +1,16 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Читатели{% endblock %}
+{% block title %}{% translate "Читатели" %}{% endblock %}
 {% block nav_readers %}active{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2><i class="bi bi-people"></i> Читатели</h2>
+    <h2><i class="bi bi-people"></i> {% translate "Читатели" %}</h2>
 </div>
 
 <form method="get" class="mb-3 d-flex gap-2" style="max-width:400px;">
-    <input type="search" name="q" value="{{ q }}" placeholder="Поиск по имени, логину, телефону…"
+    <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Поиск по имени, логину, телефону…' %}"
            class="form-control">
     <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
     {% if q %}<a href="?" class="btn btn-outline-secondary"><i class="bi bi-x"></i></a>{% endif %}
@@ -20,12 +21,12 @@
     <table class="table table-hover align-middle">
         <thead class="table-dark">
             <tr>
-                <th>Имя</th>
-                <th>Логин</th>
-                <th>Телефон</th>
-                <th class="text-center">Активных заявок</th>
-                <th>Зарегистрирован</th>
-                <th>Статус</th>
+                <th>{% translate "Имя" %}</th>
+                <th>{% translate "Логин" %}</th>
+                <th>{% translate "Телефон" %}</th>
+                <th class="text-center">{% translate "Активных заявок" %}</th>
+                <th>{% translate "Зарегистрирован" %}</th>
+                <th>{% translate "Статус" %}</th>
                 <th></th>
             </tr>
         </thead>
@@ -45,9 +46,9 @@
                 <td class="small text-muted">{{ reader.created_at|date:"d.m.Y" }}</td>
                 <td>
                     {% if reader.is_blocked %}
-                        <span class="badge bg-danger">Заблокирован</span>
+                        <span class="badge bg-danger">{% translate "Заблокирован" %}</span>
                     {% else %}
-                        <span class="badge bg-success">Активен</span>
+                        <span class="badge bg-success">{% translate "Активен" %}</span>
                     {% endif %}
                 </td>
                 <td class="text-end">
@@ -63,7 +64,7 @@
 {% else %}
 <div class="text-center py-5 text-muted">
     <i class="bi bi-people" style="font-size:3rem;"></i>
-    <p class="mt-3">{% if q %}Ничего не найдено.{% else %}Читателей пока нет.{% endif %}</p>
+    <p class="mt-3">{% if q %}{% translate "Ничего не найдено." %}{% else %}{% translate "Читателей пока нет." %}{% endif %}</p>
 </div>
 {% endif %}
 {% endblock %}

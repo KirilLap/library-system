@@ -1,14 +1,15 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Редактировать тип{% endblock %}
+{% block title %}{% translate "Редактировать тип" %}{% endblock %}
 {% block nav_locations %}active{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-6">
         <div class="d-flex align-items-center gap-2 mb-3">
-            <a href="{% url 'locations_admin:type_list' %}" class="btn btn-sm btn-outline-secondary">← Типы</a>
-            <h4 class="mb-0">Редактировать: {{ location_type.name }}</h4>
+            <a href="{% url 'locations_admin:type_list' %}" class="btn btn-sm btn-outline-secondary">← {% translate "Типы" %}</a>
+            <h4 class="mb-0">{% translate "Редактировать:" %} {% translate location_type.name %}</h4>
         </div>
 
         <div class="card">
@@ -16,26 +17,26 @@
                 <form method="post" novalidate>
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Код</label>
+                        <label class="form-label fw-semibold">{% translate "Код" %}</label>
                         {{ form.code }}
                         {% for e in form.code.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Название</label>
+                        <label class="form-label fw-semibold">{% translate "Название" %}</label>
                         {{ form.name }}
                         {% for e in form.name.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
                     </div>
                     <div class="form-check mb-3">
                         {{ form.is_open }}
                         <label class="form-check-label" for="{{ form.is_open.id_for_label }}">
-                            {{ form.is_open.label }}
+                            {% translate form.is_open.label %}
                         </label>
-                        <div class="form-text">{{ form.is_open.help_text }}</div>
+                        <div class="form-text">{% translate form.is_open.help_text %}</div>
                     </div>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-lg"></i> Сохранить
+                        <i class="bi bi-check-lg"></i> {% translate "Сохранить" %}
                     </button>
-                    <a href="{% url 'locations_admin:type_list' %}" class="btn btn-outline-secondary">Отмена</a>
+                    <a href="{% url 'locations_admin:type_list' %}" class="btn btn-outline-secondary">{% translate "Отмена" %}</a>
                 </form>
             </div>
         </div>

@@ -1,37 +1,37 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Удалить библиопункт{% endblock %}
+{% block title %}{% translate "Удалить библиопункт" %}{% endblock %}
 {% block nav_locations %}active{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-7">
-        <h1 class="h4 mb-3">Удалить библиопункт «{{ location.name }}»</h1>
+        <h1 class="h4 mb-3">{% blocktranslate with name=location.name %}Удалить библиопункт «{{ name }}»{% endblocktranslate %}</h1>
 
         {% if has_batches %}
         <div class="alert alert-danger">
-            <p class="mb-1"><strong>Нельзя удалить</strong> — у библиопункта есть история партий доставки.</p>
-            <p class="mb-0">Чтобы библиопункт исчез из активных списков, но история сохранилась — снимите
-                галочку «Активна» в редактировании библиопункта вместо удаления.</p>
+            <p class="mb-1"><strong>{% translate "Нельзя удалить" %}</strong> — {% translate "у библиопункта есть история партий доставки." %}</p>
+            <p class="mb-0">{% translate "Чтобы библиопункт исчез из активных списков, но история сохранилась — снимите галочку «Активна» в редактировании библиопункта вместо удаления." %}</p>
         </div>
         <a href="{% url 'locations_admin:update' location.pk %}" class="btn btn-outline-secondary me-2">
-            Открыть редактирование
+            {% translate "Открыть редактирование" %}
         </a>
-        <a href="{% url 'locations_admin:detail' location.pk %}" class="btn btn-outline-secondary">Назад</a>
+        <a href="{% url 'locations_admin:detail' location.pk %}" class="btn btn-outline-secondary">{% translate "Назад" %}</a>
         {% else %}
         <div class="alert alert-danger">
-            <p class="mb-1">Вы действительно хотите удалить библиопункт?</p>
+            <p class="mb-1">{% translate "Вы действительно хотите удалить библиопункт?" %}</p>
             <p class="mb-0"><strong>{{ location.name }}</strong> — {{ location.address }}</p>
         </div>
         {% if location.org_account %}
-        <p class="text-muted small">Аккаунт организации «{{ location.org_account.user.username }}» тоже будет удалён.</p>
+        <p class="text-muted small">{% blocktranslate with username=location.org_account.user.username %}Аккаунт организации «{{ username }}» тоже будет удалён.{% endblocktranslate %}</p>
         {% endif %}
         <form method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">
-                <i class="bi bi-trash"></i> Да, удалить библиопункт
+                <i class="bi bi-trash"></i> {% translate "Да, удалить библиопункт" %}
             </button>
-            <a href="{% url 'locations_admin:detail' location.pk %}" class="btn btn-outline-secondary ms-2">Отмена</a>
+            <a href="{% url 'locations_admin:detail' location.pk %}" class="btn btn-outline-secondary ms-2">{% translate "Отмена" %}</a>
         </form>
         {% endif %}
     </div>

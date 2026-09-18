@@ -1,20 +1,21 @@
 {% extends "public_base.html" %}
+{% load i18n %}
 
-{% block title %}Выдать книгу — {{ location.name }}{% endblock %}
+{% block title %}{% translate "Выдать книгу" %} — {{ location.name }}{% endblock %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3 gap-2">
     <a href="{% url 'organizations:worker_cabinet' %}" class="btn btn-sm btn-outline-secondary">
         <i class="bi bi-arrow-left"></i>
     </a>
-    <h2 class="h4 mb-0">Выдать книгу</h2>
+    <h2 class="h4 mb-0">{% translate "Выдать книгу" %}</h2>
     <span class="badge bg-secondary">{{ location.name }}</span>
 </div>
 
 <div class="row g-4">
     <div class="col-lg-6">
         <div class="card shadow-sm">
-            <div class="card-header"><i class="bi bi-upc-scan"></i> Шаг 1 — Найти книгу по инв. номеру</div>
+            <div class="card-header"><i class="bi bi-upc-scan"></i> {% translate "Шаг 1 — Найти книгу по инв. номеру" %}</div>
             <div class="card-body">
                 <form method="post" id="lookup-form">
                     {% csrf_token %}
@@ -23,14 +24,14 @@
                         <input type="text" name="inventory_number" id="inv-input"
                                value="{{ inv_value }}"
                                class="form-control form-control-lg"
-                               placeholder="Инвентарный номер…"
+                               placeholder="{% translate 'Инвентарный номер…' %}"
                                autofocus autocomplete="off">
                         {% include "includes/barcode_scanner.html" with target_input_id="inv-input" %}
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-search"></i> Найти
+                            <i class="bi bi-search"></i> {% translate "Найти" %}
                         </button>
                     </div>
-                    <div class="form-text">Введите номер с этикетки книги, отсканируйте штрих-код или камерой.</div>
+                    <div class="form-text">{% translate "Введите номер с этикетки книги, отсканируйте штрих-код или камерой." %}</div>
                 </form>
 
                 {% if error %}
@@ -41,7 +42,7 @@
 
                 {% if book %}
                 <div class="alert alert-success mt-3 mb-0">
-                    <strong><i class="bi bi-check-circle"></i> Книга найдена:</strong>
+                    <strong><i class="bi bi-check-circle"></i> {% translate "Книга найдена:" %}</strong>
                     <div class="mt-1">{{ book.title }}</div>
                     <div class="text-muted small">{{ book.author }}</div>
                 </div>
@@ -53,7 +54,7 @@
     {% if book %}
     <div class="col-lg-6">
         <div class="card shadow-sm">
-            <div class="card-header"><i class="bi bi-person-check"></i> Шаг 2 — Выбрать читателя</div>
+            <div class="card-header"><i class="bi bi-person-check"></i> {% translate "Шаг 2 — Выбрать читателя" %}</div>
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
@@ -62,21 +63,21 @@
 
                     {% if readers %}
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Читатель библиопункта</label>
+                        <label class="form-label fw-semibold">{% translate "Читатель библиопункта" %}</label>
                         <select name="reader_pk" class="form-select" required>
-                            <option value="">— выберите читателя —</option>
+                            <option value="">{% translate "— выберите читателя —" %}</option>
                             {% for r in readers %}
                             <option value="{{ r.pk }}">{{ r.full_name }} ({{ r.user.username }})</option>
                             {% endfor %}
                         </select>
                     </div>
                     <button type="submit" class="btn btn-success w-100">
-                        <i class="bi bi-check-lg"></i> Оформить выдачу
+                        <i class="bi bi-check-lg"></i> {% translate "Оформить выдачу" %}
                     </button>
                     {% else %}
-                    <p class="text-muted small mb-3">В этом библиопункте ещё нет зарегистрированных читателей.</p>
+                    <p class="text-muted small mb-3">{% translate "В этом библиопункте ещё нет зарегистрированных читателей." %}</p>
                     <a href="{% url 'organizations:worker_register_reader' %}" class="btn btn-outline-primary w-100">
-                        <i class="bi bi-person-plus"></i> Зарегистрировать читателя
+                        <i class="bi bi-person-plus"></i> {% translate "Зарегистрировать читателя" %}
                     </a>
                     {% endif %}
                 </form>

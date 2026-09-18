@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('i18n/', include('django.conf.urls.i18n')),
     path('django-admin/', admin.site.urls),
     path('admin-panel/', include('apps.staff.urls', namespace='staff')),
     path('admin-panel/', include('apps.catalog.urls_admin', namespace='catalog_admin')),

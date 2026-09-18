@@ -1,4 +1,5 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
 {% block title %}{{ location.name }}{% endblock %}
 {% block nav_locations %}active{% endblock %}
@@ -10,13 +11,13 @@
     </a>
     <h2 class="mb-0">{{ location.name }}</h2>
     {% if location.is_active %}
-        <span class="badge bg-success">Активна</span>
+        <span class="badge bg-success">{% translate "Активна" %}</span>
     {% else %}
-        <span class="badge bg-secondary">Неактивна</span>
+        <span class="badge bg-secondary">{% translate "Неактивна" %}</span>
     {% endif %}
     {% if not location.is_public %}
         <span class="badge bg-warning text-dark">
-            <i class="bi bi-eye-slash"></i> Скрыт из каталога
+            <i class="bi bi-eye-slash"></i> {% translate "Скрыт из каталога" %}
         </span>
     {% endif %}
 </div>
@@ -26,10 +27,10 @@
     <div class="col-lg-4">
         <div class="card shadow-sm mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-info-circle"></i> Информация</span>
+                <span><i class="bi bi-info-circle"></i> {% translate "Информация" %}</span>
                 <span>
                     <a href="{% url 'locations_admin:update' location.pk %}" class="btn btn-sm btn-outline-secondary">
-                        <i class="bi bi-pencil"></i> Изменить
+                        <i class="bi bi-pencil"></i> {% translate "Изменить" %}
                     </a>
                     <a href="{% url 'locations_admin:delete' location.pk %}" class="btn btn-sm btn-outline-danger">
                         <i class="bi bi-trash"></i>
@@ -38,28 +39,28 @@
             </div>
             <div class="card-body">
                 <dl class="mb-0">
-                    <dt class="text-muted small">Тип</dt>
-                    <dd>{{ location.get_type_display }}</dd>
+                    <dt class="text-muted small">{% translate "Тип" %}</dt>
+                    <dd>{% translate location.get_type_display %}</dd>
 
-                    <dt class="text-muted small">Адрес</dt>
+                    <dt class="text-muted small">{% translate "Адрес" %}</dt>
                     <dd>{{ location.address }}</dd>
 
                     {% if location.contact_person %}
-                    <dt class="text-muted small">Контактное лицо</dt>
+                    <dt class="text-muted small">{% translate "Контактное лицо" %}</dt>
                     <dd>{{ location.contact_person }}</dd>
                     {% endif %}
 
                     {% if location.contact_phone %}
-                    <dt class="text-muted small">Телефон</dt>
+                    <dt class="text-muted small">{% translate "Телефон" %}</dt>
                     <dd>{{ location.contact_phone }}</dd>
                     {% endif %}
 
                     {% if location.notes %}
-                    <dt class="text-muted small">Заметки</dt>
+                    <dt class="text-muted small">{% translate "Заметки" %}</dt>
                     <dd>{{ location.notes }}</dd>
                     {% endif %}
 
-                    <dt class="text-muted small">Добавлена</dt>
+                    <dt class="text-muted small">{% translate "Добавлена" %}</dt>
                     <dd>{{ location.created_at|date:"d.m.Y" }}</dd>
                 </dl>
             </div>
@@ -67,28 +68,28 @@
 
         <!-- Org account card -->
         <div class="card shadow-sm mb-3">
-            <div class="card-header"><i class="bi bi-building"></i> Кабинет организации</div>
+            <div class="card-header"><i class="bi bi-building"></i> {% translate "Кабинет организации" %}</div>
             <div class="card-body">
                 {% if location.org_account %}
                 <p class="mb-1 small">
-                    Логин: <strong>{{ location.org_account.user.username }}</strong>
+                    {% translate "Логин:" %} <strong>{{ location.org_account.user.username }}</strong>
                 </p>
-                <p class="text-muted small mb-2">Создан: {{ location.org_account.created_at|date:"d.m.Y" }}</p>
+                <p class="text-muted small mb-2">{% translate "Создан:" %} {{ location.org_account.created_at|date:"d.m.Y" }}</p>
                 <a href="/org/" class="btn btn-sm btn-outline-primary me-2" target="_blank">
-                    <i class="bi bi-box-arrow-up-right"></i> Открыть кабинет
+                    <i class="bi bi-box-arrow-up-right"></i> {% translate "Открыть кабинет" %}
                 </a>
                 <form method="post" action="{% url 'organizations:account_delete' location.pk %}"
                       class="d-inline"
-                      onsubmit="return confirm('Удалить аккаунт организации?')">
+                      onsubmit="return confirm('{% translate 'Удалить аккаунт организации?' %}')">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-sm btn-outline-danger">
-                        <i class="bi bi-trash"></i> Удалить аккаунт
+                        <i class="bi bi-trash"></i> {% translate "Удалить аккаунт" %}
                     </button>
                 </form>
                 {% else %}
-                <p class="text-muted small mb-2">Аккаунт для входа не создан.</p>
+                <p class="text-muted small mb-2">{% translate "Аккаунт для входа не создан." %}</p>
                 <a href="{% url 'organizations:account_create' location.pk %}" class="btn btn-sm btn-outline-secondary">
-                    <i class="bi bi-plus-lg"></i> Создать аккаунт
+                    <i class="bi bi-plus-lg"></i> {% translate "Создать аккаунт" %}
                 </a>
                 {% endif %}
             </div>
@@ -97,9 +98,9 @@
         <!-- Workers card -->
         <div class="card shadow-sm mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-person-badge"></i> Работники библиопункта</span>
+                <span><i class="bi bi-person-badge"></i> {% translate "Работники библиопункта" %}</span>
                 <a href="{% url 'organizations:worker_add' location.pk %}" class="btn btn-sm btn-outline-secondary">
-                    <i class="bi bi-plus-lg"></i> Добавить
+                    <i class="bi bi-plus-lg"></i> {% translate "Добавить" %}
                 </a>
             </div>
             <div class="card-body p-0">
@@ -113,14 +114,14 @@
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             {% if worker.is_active %}
-                                <span class="badge bg-success">Активен</span>
+                                <span class="badge bg-success">{% translate "Активен" %}</span>
                             {% else %}
-                                <span class="badge bg-secondary">Неактивен</span>
+                                <span class="badge bg-secondary">{% translate "Неактивен" %}</span>
                             {% endif %}
                             <form method="post" action="{% url 'organizations:worker_toggle' worker.pk %}" class="d-inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-sm btn-outline-secondary"
-                                        title="{% if worker.is_active %}Деактивировать{% else %}Активировать{% endif %}">
+                                        title="{% if worker.is_active %}{% translate 'Деактивировать' %}{% else %}{% translate 'Активировать' %}{% endif %}">
                                     {% if worker.is_active %}<i class="bi bi-lock"></i>{% else %}<i class="bi bi-unlock"></i>{% endif %}
                                 </button>
                             </form>
@@ -130,8 +131,8 @@
                 </ul>
                 {% else %}
                 <div class="text-center py-3 text-muted small">
-                    Работников нет.
-                    <a href="{% url 'organizations:worker_add' location.pk %}">Добавить</a>
+                    {% translate "Работников нет." %}
+                    <a href="{% url 'organizations:worker_add' location.pk %}">{% translate "Добавить" %}</a>
                 </div>
                 {% endif %}
             </div>
@@ -139,18 +140,18 @@
 
         <!-- QR code card -->
         <div class="card shadow-sm">
-            <div class="card-header"><i class="bi bi-qr-code"></i> QR-код</div>
+            <div class="card-header"><i class="bi bi-qr-code"></i> {% translate "QR-код" %}</div>
             <div class="card-body text-center">
                 {% if location.qr_code %}
                     <img src="{{ location.qr_code.url }}" alt="QR" class="img-fluid mb-2" style="max-width:180px;">
                     <div class="small text-muted mb-2">{{ location.get_qr_url }}</div>
                     <a href="{% url 'locations_admin:qr_download' location.pk %}" class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-download"></i> Скачать
+                        <i class="bi bi-download"></i> {% translate "Скачать" %}
                     </a>
                 {% else %}
-                    <p class="text-muted">QR-код не сгенерирован</p>
+                    <p class="text-muted">{% translate "QR-код не сгенерирован" %}</p>
                     <a href="{% url 'locations_admin:update' location.pk %}" class="btn btn-sm btn-outline-secondary">
-                        Пересохранить для генерации
+                        {% translate "Пересохранить для генерации" %}
                     </a>
                 {% endif %}
             </div>
@@ -162,11 +163,11 @@
         <!-- Current books -->
         <div class="card shadow-sm mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-book"></i> Книги в библиопункте
+                <span><i class="bi bi-book"></i> {% translate "Книги в библиопункте" %}
                     <span class="badge bg-primary ms-1">{{ books|length }}</span>
                 </span>
                 <form class="d-flex gap-2" method="get">
-                    <input type="search" name="q" value="{{ q }}" placeholder="Поиск по названию…"
+                    <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Поиск по названию…' %}"
                            class="form-control form-control-sm" style="width:200px;">
                     <button class="btn btn-sm btn-outline-secondary" type="submit">
                         <i class="bi bi-search"></i>
@@ -180,9 +181,9 @@
                     <table class="table table-sm mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Инв. №</th>
-                                <th>Название</th>
-                                <th>Автор</th>
+                                <th>{% translate "Инв. №" %}</th>
+                                <th>{% translate "Название" %}</th>
+                                <th>{% translate "Автор" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -202,7 +203,7 @@
                 </div>
                 {% else %}
                 <div class="text-center py-4 text-muted">
-                    {% if q %}Ничего не найдено по запросу «{{ q }}»{% else %}Книг в библиопункте нет{% endif %}
+                    {% if q %}{% blocktranslate %}Ничего не найдено по запросу «{{ q }}»{% endblocktranslate %}{% else %}{% translate "Книг в библиопункте нет" %}{% endif %}
                 </div>
                 {% endif %}
             </div>
@@ -210,17 +211,17 @@
 
         <!-- Delivery history -->
         <div class="card shadow-sm">
-            <div class="card-header"><i class="bi bi-clock-history"></i> История доставок</div>
+            <div class="card-header"><i class="bi bi-clock-history"></i> {% translate "История доставок" %}</div>
             <div class="card-body p-0">
                 {% if history %}
                 <div class="table-responsive">
                     <table class="table table-sm mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Дата</th>
-                                <th>Партия</th>
-                                <th class="text-center">Книг</th>
-                                <th>Статус</th>
+                                <th>{% translate "Дата" %}</th>
+                                <th>{% translate "Партия" %}</th>
+                                <th class="text-center">{% translate "Книг" %}</th>
+                                <th>{% translate "Статус" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -235,9 +236,9 @@
                                 <td class="text-center small">{{ batch.items.count }}</td>
                                 <td>
                                     {% if batch.is_returned %}
-                                        <span class="badge bg-secondary">Возвращена</span>
+                                        <span class="badge bg-secondary">{% translate "Возвращена" %}</span>
                                     {% else %}
-                                        <span class="badge bg-success">В библиопункте</span>
+                                        <span class="badge bg-success">{% translate "В библиопункте" %}</span>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -246,7 +247,7 @@
                     </table>
                 </div>
                 {% else %}
-                <div class="text-center py-4 text-muted">Доставок ещё не было</div>
+                <div class="text-center py-4 text-muted">{% translate "Доставок ещё не было" %}</div>
                 {% endif %}
             </div>
         </div>

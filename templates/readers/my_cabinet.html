@@ -1,15 +1,16 @@
 {% extends "public_base.html" %}
+{% load i18n %}
 
-{% block title %}Мой кабинет{% endblock %}
+{% block title %}{% translate "Мой кабинет" %}{% endblock %}
 
 {% block content %}
 
 {% if overdue_loans %}
 <div class="alert alert-danger mb-3 py-2">
     <i class="bi bi-exclamation-triangle"></i>
-    {% if overdue_loans|length == 1 %}<strong>Пора вернуть книгу:</strong>{% else %}<strong>Пора вернуть книги:</strong>{% endif %}
-    {% for loan in overdue_loans %}«{{ loan.book.title }}» (у вас {{ loan.days_held }} дн.){% if not forloop.last %}, {% endif %}{% endfor %}.
-    {% if overdue_loans|length == 1 %}Пожалуйста, верните её как можно скорее.{% else %}Пожалуйста, верните их как можно скорее.{% endif %}
+    {% if overdue_loans|length == 1 %}<strong>{% translate "Пора вернуть книгу:" %}</strong>{% else %}<strong>{% translate "Пора вернуть книги:" %}</strong>{% endif %}
+    {% for loan in overdue_loans %}«{{ loan.book.title }}» ({% blocktranslate with days=loan.days_held %}у вас {{ days }} дн.{% endblocktranslate %}){% if not forloop.last %}, {% endif %}{% endfor %}.
+    {% if overdue_loans|length == 1 %}{% translate "Пожалуйста, верните её как можно скорее." %}{% else %}{% translate "Пожалуйста, верните их как можно скорее." %}{% endif %}
 </div>
 {% endif %}
 
@@ -17,10 +18,10 @@
 <div class="alert alert-warning d-flex align-items-center justify-content-between mb-3 py-2">
     <span>
         <i class="bi bi-telephone-x"></i>
-        <strong>Укажите номер телефона</strong> — без него нельзя брать книги и подавать заявки
+        <strong>{% translate "Укажите номер телефона" %}</strong> — {% translate "без него нельзя брать книги и подавать заявки" %}
     </span>
     <a href="/my/profile/" class="btn btn-sm btn-warning">
-        <i class="bi bi-pencil"></i> Указать телефон
+        <i class="bi bi-pencil"></i> {% translate "Указать телефон" %}
     </a>
 </div>
 {% endif %}
@@ -28,9 +29,9 @@
 {% if open_points %}
 <div class="card shadow-sm mb-3" id="nearest-point-card">
     <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2 py-2">
-        <span><i class="bi bi-geo-alt"></i> Не знаете, куда пойти за книгой?</span>
+        <span><i class="bi bi-geo-alt"></i> {% translate "Не знаете, куда пойти за книгой?" %}</span>
         <button id="btn-find-nearest" class="btn btn-sm btn-outline-primary">
-            <i class="bi bi-crosshair"></i> Показать ближайший открытый библиопункт
+            <i class="bi bi-crosshair"></i> {% translate "Показать ближайший открытый библиопункт" %}
         </button>
     </div>
     <div id="nearest-point-result" class="d-none card-body border-top py-2"></div>
@@ -39,9 +40,9 @@
 
 {% if has_worker_profile %}
 <div class="alert alert-primary d-flex align-items-center justify-content-between mb-3 py-2">
-    <span><i class="bi bi-person-badge"></i> У вас есть доступ к кабинету работника</span>
+    <span><i class="bi bi-person-badge"></i> {% translate "У вас есть доступ к кабинету работника" %}</span>
     <a href="{% url 'organizations:worker_cabinet' %}" class="btn btn-sm btn-primary">
-        Кабинет работника <i class="bi bi-arrow-right"></i>
+        {% translate "Кабинет работника" %} <i class="bi bi-arrow-right"></i>
     </a>
 </div>
 {% endif %}
@@ -51,27 +52,27 @@
     <div class="col-lg-4">
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-person-circle"></i> Мой профиль</span>
+                <span><i class="bi bi-person-circle"></i> {% translate "Мой профиль" %}</span>
                 <a href="/my/profile/" class="btn btn-sm btn-outline-secondary">
                     <i class="bi bi-pencil"></i>
                 </a>
             </div>
             <div class="card-body">
                 <dl class="mb-0">
-                    <dt class="text-muted small">Имя</dt>
+                    <dt class="text-muted small">{% translate "Имя" %}</dt>
                     <dd class="fs-5">{{ reader.full_name }}</dd>
-                    <dt class="text-muted small">Логин</dt>
+                    <dt class="text-muted small">{% translate "Логин" %}</dt>
                     <dd>{{ reader.user.username }}</dd>
                     {% if reader.user.email %}
                     <dt class="text-muted small">Email</dt>
                     <dd>{{ reader.user.email }}</dd>
                     {% endif %}
                     {% if reader.phone %}
-                    <dt class="text-muted small">Телефон</dt>
+                    <dt class="text-muted small">{% translate "Телефон" %}</dt>
                     <dd>{{ reader.phone }}</dd>
                     {% endif %}
                     {% if reader.affiliated_location %}
-                    <dt class="text-muted small">Прикреплённый библиопункт</dt>
+                    <dt class="text-muted small">{% translate "Прикреплённый библиопункт" %}</dt>
                     <dd>
                         <i class="bi bi-geo-alt"></i>
                         <a href="/p/{{ reader.affiliated_location.slug }}/" class="text-decoration-none">
@@ -79,12 +80,12 @@
                         </a>
                     </dd>
                     {% endif %}
-                    <dt class="text-muted small">Читатель с</dt>
+                    <dt class="text-muted small">{% translate "Читатель с" %}</dt>
                     <dd>{{ reader.created_at|date:"d.m.Y" }}</dd>
                 </dl>
                 {% if reader.is_blocked %}
                 <div class="alert alert-danger small mt-3 mb-0">
-                    <i class="bi bi-slash-circle"></i> Ваш аккаунт заблокирован. Обратитесь в библиотеку.
+                    <i class="bi bi-slash-circle"></i> {% translate "Ваш аккаунт заблокирован. Обратитесь в библиотеку." %}
                 </div>
                 {% endif %}
             </div>
@@ -98,12 +99,12 @@
         <div class="card shadow-sm mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>
-                    <i class="bi bi-book-half"></i> Книги на руках
+                    <i class="bi bi-book-half"></i> {% translate "Книги на руках" %}
                     <span class="badge bg-primary ms-1">{{ active_loans|length }}</span>
                 </span>
                 {% if not reader.is_blocked %}
                 <a href="{% url 'main:take_book' %}" class="btn btn-sm btn-outline-primary">
-                    <i class="bi bi-plus-lg"></i> Взять книгу
+                    <i class="bi bi-plus-lg"></i> {% translate "Взять книгу" %}
                 </a>
                 {% endif %}
             </div>
@@ -113,9 +114,9 @@
                     <table class="table table-sm mb-0 align-middle">
                         <thead class="table-light">
                             <tr>
-                                <th>Книга</th>
-                                <th>Библиопункт</th>
-                                <th>Взята</th>
+                                <th>{% translate "Книга" %}</th>
+                                <th>{% translate "Библиопункт" %}</th>
+                                <th>{% translate "Взята" %}</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -126,12 +127,12 @@
                                     <div class="fw-semibold small">{{ loan.book.title|truncatechars:40 }}</div>
                                     <div class="text-muted small">{{ loan.book.author|truncatechars:30 }}</div>
                                     {% if loan.is_overdue %}
-                                    <span class="badge bg-danger small">Просрочено, {{ loan.days_held }} дн.</span>
+                                    <span class="badge bg-danger small">{% blocktranslate with days=loan.days_held %}Просрочено, {{ days }} дн.{% endblocktranslate %}</span>
                                     {% endif %}
                                 </td>
                                 <td class="small">
                                     {% if loan.issued_by %}
-                                        <span class="badge bg-secondary" title="Закрытый библиопункт">
+                                        <span class="badge bg-secondary" title="{% translate 'Закрытый библиопункт' %}">
                                             <i class="bi bi-building"></i> {{ loan.location.name|truncatechars:20 }}
                                         </span>
                                     {% else %}
@@ -145,15 +146,15 @@
                                     {% if not loan.issued_by %}
                                     <!-- Open point: reader can self-return -->
                                     <form method="post" action="{% url 'main:return_loan' loan.pk %}"
-                                          onsubmit="return confirm('Отметить книгу «{{ loan.book.title|truncatechars:30 }}» как возвращённую?')">
+                                          onsubmit="return confirm('{% translate 'Отметить книгу' %} «{{ loan.book.title|truncatechars:30|escapejs }}» {% translate 'как возвращённую?' %}')">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Вернуть">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="{% translate 'Вернуть' %}">
                                             <i class="bi bi-arrow-return-left"></i>
                                         </button>
                                     </form>
                                     {% else %}
                                     <!-- Closed point: return via worker -->
-                                    <span class="text-muted small" title="Возврат оформляет работник библиопункта">
+                                    <span class="text-muted small" title="{% translate 'Возврат оформляет работник библиопункта' %}">
                                         <i class="bi bi-person-badge"></i>
                                     </span>
                                     {% endif %}
@@ -166,9 +167,9 @@
                 {% else %}
                 <div class="text-center py-4 text-muted">
                     <i class="bi bi-book" style="opacity:.3;"></i>
-                    Книг на руках нет.
+                    {% translate "Книг на руках нет." %}
                     {% if not reader.is_blocked %}
-                    <a href="{% url 'main:take_book' %}">Взять книгу</a>
+                    <a href="{% url 'main:take_book' %}">{% translate "Взять книгу" %}</a>
                     {% endif %}
                 </div>
                 {% endif %}
@@ -178,11 +179,11 @@
         <!-- Requests -->
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-envelope-paper"></i> Мои заявки
+                <span><i class="bi bi-envelope-paper"></i> {% translate "Мои заявки" %}
                     <span class="badge bg-primary ms-1">{{ requests|length }}</span>
                 </span>
                 <a href="/catalog/" class="btn btn-sm btn-outline-primary">
-                    <i class="bi bi-plus-lg"></i> Новая заявка
+                    <i class="bi bi-plus-lg"></i> {% translate "Новая заявка" %}
                 </a>
             </div>
             <div class="card-body p-0">
@@ -191,11 +192,11 @@
                     <table class="table table-sm mb-0 align-middle">
                         <thead class="table-light">
                             <tr>
-                                <th>Книга</th>
-                                <th>Библиопункт</th>
-                                <th>Дата</th>
-                                <th>Статус</th>
-                                <th>Ответ библиотеки</th>
+                                <th>{% translate "Книга" %}</th>
+                                <th>{% translate "Библиопункт" %}</th>
+                                <th>{% translate "Дата" %}</th>
+                                <th>{% translate "Статус" %}</th>
+                                <th>{% translate "Ответ библиотеки" %}</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -210,7 +211,7 @@
                                     <div class="text-muted small">{{ req.book.author|truncatechars:30 }}</div>
                                     {% if req.status == 'FULFILLED' %}
                                     <span class="badge bg-success-subtle text-success border border-success-subtle small">
-                                        <i class="bi bi-bag-check"></i> приобретена для вас
+                                        <i class="bi bi-bag-check"></i> {% translate "приобретена для вас" %}
                                     </span>
                                     {% endif %}
                                     {% elif req.requested_title %}
@@ -219,7 +220,7 @@
                                     <div class="text-muted small">{{ req.requested_author|truncatechars:30 }}</div>
                                     {% endif %}
                                     {% if req.status != 'FULFILLED' %}
-                                    <span class="badge bg-light text-secondary border small">не из каталога</span>
+                                    <span class="badge bg-light text-secondary border small">{% translate "не из каталога" %}</span>
                                     {% endif %}
                                     {% else %}
                                     <span class="text-muted">—</span>
@@ -234,11 +235,11 @@
                                 <td>
                                     <span class="badge bg-{{ req.get_status_badge_class }}">
                                         {% if req.status == 'PURCHASING' %}
-                                            🛒 {{ req.get_status_display }}
+                                            🛒 {% translate req.get_status_display %}
                                         {% elif req.status == 'FULFILLED' %}
-                                            📍 {{ req.get_status_display }}
+                                            📍 {% translate req.get_status_display %}
                                         {% else %}
-                                            {{ req.get_status_display }}
+                                            {% translate req.get_status_display %}
                                         {% endif %}
                                     </span>
                                 </td>
@@ -246,9 +247,9 @@
                                 <td>
                                     {% if req.status == 'PENDING' or req.status == 'APPROVED' %}
                                     <form method="post" action="/my/request/{{ req.pk }}/cancel/"
-                                          onsubmit="return confirm('Отменить заявку?')">
+                                          onsubmit="return confirm('{% translate 'Отменить заявку?' %}')">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Отменить">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{% translate 'Отменить' %}">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
                                     </form>
@@ -261,8 +262,8 @@
                 </div>
                 {% else %}
                 <div class="text-center py-4 text-muted">
-                    Заявок пока нет.
-                    <a href="/catalog/">Перейти в каталог</a>
+                    {% translate "Заявок пока нет." %}
+                    <a href="/catalog/">{% translate "Перейти в каталог" %}</a>
                 </div>
                 {% endif %}
             </div>
@@ -272,14 +273,14 @@
         {% if queue_entries %}
         <div class="card shadow-sm mt-4">
             <div class="card-header">
-                <span><i class="bi bi-hourglass-split"></i> Моя очередь
+                <span><i class="bi bi-hourglass-split"></i> {% translate "Моя очередь" %}
                     <span class="badge bg-primary ms-1">{{ queue_entries|length }}</span>
                 </span>
             </div>
             <div class="card-body p-0">
                 <table class="table table-sm mb-0 align-middle">
                     <thead class="table-light">
-                        <tr><th>Книга</th><th>Место в очереди</th><th></th></tr>
+                        <tr><th>{% translate "Книга" %}</th><th>{% translate "Место в очереди" %}</th><th></th></tr>
                     </thead>
                     <tbody>
                         {% for entry in queue_entries %}
@@ -293,7 +294,7 @@
                             <td>
                                 <form method="post" action="{% url 'catalog:queue_leave' entry.book.pk %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Выйти из очереди">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="{% translate 'Выйти из очереди' %}">
                                         <i class="bi bi-x-lg"></i>
                                     </button>
                                 </form>
@@ -313,18 +314,18 @@
 {% if loan_history %}
 <div class="card shadow-sm mt-4">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-clock-history"></i> История чтения</span>
+        <span><i class="bi bi-clock-history"></i> {% translate "История чтения" %}</span>
         <span class="badge bg-secondary">{{ loan_history|length }}</span>
     </div>
     <div class="table-responsive">
         <table class="table table-sm table-hover mb-0 align-middle">
             <thead class="table-light">
                 <tr>
-                    <th>Книга</th>
-                    <th>Библиопункт</th>
-                    <th>Взята</th>
-                    <th>Возвращена</th>
-                    <th>Дней</th>
+                    <th>{% translate "Книга" %}</th>
+                    <th>{% translate "Библиопункт" %}</th>
+                    <th>{% translate "Взята" %}</th>
+                    <th>{% translate "Возвращена" %}</th>
+                    <th>{% translate "Дней" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -376,6 +377,15 @@
         }{% if not forloop.last %},{% endif %}
         {% endfor %}
     ];
+    var I18N = {
+        geoNotSupported: "{% translate 'Геолокация не поддерживается вашим браузером.' %}",
+        locating: "{% translate 'Определяем...' %}",
+        findNearest: "{% translate 'Показать ближайший открытый библиопункт' %}",
+        nearestPrefix: "{% translate 'Ближайшая:' %}",
+        booksLabel: "{% translate 'книг:' %}",
+        openPoint: "{% translate 'Открыть библиопункт' %}",
+        geoFailed: "{% translate 'Не удалось получить геолокацию. Проверьте разрешение в браузере.' %}"
+    };
 
     function haversine(lat1, lng1, lat2, lng2) {
         var R = 6371;
@@ -394,15 +404,15 @@
     btn.addEventListener('click', function () {
         if (!navigator.geolocation) {
             result.className = 'card-body border-top py-2 text-danger small';
-            result.textContent = 'Геолокация не поддерживается вашим браузером.';
+            result.textContent = I18N.geoNotSupported;
             return;
         }
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Определяем...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>' + I18N.locating;
 
         navigator.geolocation.getCurrentPosition(function (pos) {
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-crosshair"></i> Показать ближайший открытый библиопункт';
+            btn.innerHTML = '<i class="bi bi-crosshair"></i> ' + I18N.findNearest;
 
             var uLat = pos.coords.latitude;
             var uLng = pos.coords.longitude;
@@ -413,18 +423,18 @@
                 if (d < minDist) { minDist = d; nearest = p; }
             });
 
-            var distText = minDist < 1 ? Math.round(minDist * 1000) + ' м' : minDist.toFixed(1) + ' км';
+            var distText = minDist < 1 ? Math.round(minDist * 1000) + ' m' : minDist.toFixed(1) + ' km';
             result.className = 'card-body border-top py-2';
-            result.innerHTML = '<i class="bi bi-geo-alt-fill text-success"></i> Ближайшая: '
-                + '<strong>' + nearest.name + '</strong> (' + distText + ', книг: ' + nearest.books + ')'
+            result.innerHTML = '<i class="bi bi-geo-alt-fill text-success"></i> ' + I18N.nearestPrefix + ' '
+                + '<strong>' + nearest.name + '</strong> (' + distText + ', ' + I18N.booksLabel + ' ' + nearest.books + ')'
                 + '<div class="text-muted small">' + nearest.address + '</div>'
-                + '<a href="/p/' + nearest.slug + '/" class="btn btn-sm btn-outline-success mt-2">Открыть библиопункт</a>';
+                + '<a href="/p/' + nearest.slug + '/" class="btn btn-sm btn-outline-success mt-2">' + I18N.openPoint + '</a>';
             result.classList.remove('d-none');
         }, function () {
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-crosshair"></i> Показать ближайший открытый библиопункт';
+            btn.innerHTML = '<i class="bi bi-crosshair"></i> ' + I18N.findNearest;
             result.className = 'card-body border-top py-2 text-danger small';
-            result.textContent = 'Не удалось получить геолокацию. Проверьте разрешение в браузере.';
+            result.textContent = I18N.geoFailed;
             result.classList.remove('d-none');
         });
     });

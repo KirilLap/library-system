@@ -1,31 +1,32 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{% translate title %}{% endblock %}
 {% block nav_catalog %}active{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-8 col-lg-7">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h1 class="h4 mb-0">{{ title }}</h1>
+            <h1 class="h4 mb-0">{% translate title %}</h1>
             <a href="{% url 'catalog_admin:index' %}" class="btn btn-outline-secondary btn-sm">
-                ← Назад к каталогу
+                ← {% translate "Назад к каталогу" %}
             </a>
         </div>
 
         {% if book and book.status == 'IN_DELIVERY' %}
         <div class="alert alert-info">
             <i class="bi bi-info-circle"></i>
-            Экземпляр сейчас <strong>в библиопункте</strong>{% if current_location %}: <strong>{{ current_location.name }}</strong>{% endif %}.
-            Статус можно изменить только после возврата.
+            {% blocktranslate %}Экземпляр сейчас <strong>в библиопункте</strong>{% endblocktranslate %}{% if current_location %}: <strong>{{ current_location.name }}</strong>{% endif %}.
+            {% translate "Статус можно изменить только после возврата." %}
         </div>
         {% endif %}
 
         {% if book and book.queue_entries.all %}
         <div class="alert {% if book.status == 'IN_LIBRARY' %}alert-warning{% else %}alert-light border{% endif %}">
             <i class="bi bi-hourglass-split"></i>
-            <strong>В очереди на этот экземпляр: {{ book.queue_entries.count }}</strong>
-            {% if book.status == 'IN_LIBRARY' %}— книга свободна, свяжитесь с читателями:{% endif %}
+            <strong>{% blocktranslate with n=book.queue_entries.count %}В очереди на этот экземпляр: {{ n }}{% endblocktranslate %}</strong>
+            {% if book.status == 'IN_LIBRARY' %}— {% translate "книга свободна, свяжитесь с читателями:" %}{% endif %}
             <ul class="mb-0 mt-1">
                 {% for entry in book.queue_entries.all %}
                 <li>
@@ -33,7 +34,7 @@
                     {% if entry.reader.phone %}
                     — <a href="tel:{{ entry.reader.phone }}">{{ entry.reader.phone }}</a>
                     {% endif %}
-                    <span class="text-muted small">(с {{ entry.created_at|date:"d.m.Y" }})</span>
+                    <span class="text-muted small">({% blocktranslate with d=entry.created_at|date:"d.m.Y" %}с {{ d }}{% endblocktranslate %})</span>
                 </li>
                 {% endfor %}
             </ul>
@@ -44,7 +45,7 @@
         <div class="card mb-3">
             <div class="card-body d-flex align-items-center gap-3">
                 {% if book.cover %}
-                <img src="{{ book.cover.url }}" alt="Обложка"
+                <img src="{{ book.cover.url }}" alt="{% translate 'Обложка' %}"
                      style="width:80px;height:110px;object-fit:cover;border-radius:4px;border:1px solid #dee2e6">
                 {% else %}
                 <div style="width:80px;height:110px;border-radius:4px;background:{{ book.cover_placeholder_color }};
@@ -58,7 +59,7 @@
                     <div class="text-muted small">{{ book.author }}</div>
                     {% if sibling_copies_count %}
                     <a href="{% url 'catalog_admin:book_title_detail' book.book_title_id %}" class="small">
-                        Все экземпляры этой книги ({{ sibling_copies_count|add:1 }}) →
+                        {% blocktranslate with n=sibling_copies_count|add:1 %}Все экземпляры этой книги ({{ n }}){% endblocktranslate %} →
                     </a>
                     {% endif %}
                 </div>
@@ -76,7 +77,7 @@
                         {# ── Редактирование: два блока — библиография (title_form) и экземпляр (copy_form) ── #}
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">
-                                {{ copy_form.inventory_number.label }} <span class="text-danger">*</span>
+                                {% translate copy_form.inventory_number.label %} <span class="text-danger">*</span>
                             </label>
                             {{ copy_form.inventory_number }}
                             {% for err in copy_form.inventory_number.errors %}
@@ -85,15 +86,15 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">{{ copy_form.status.label }}</label>
+                            <label class="form-label">{% translate copy_form.status.label %}</label>
                             {{ copy_form.status }}
                         </div>
 
-                        <div class="col-12"><hr class="mt-0 mb-2"><h6 class="text-muted">Данные книги (общие для всех экземпляров)</h6></div>
+                        <div class="col-12"><hr class="mt-0 mb-2"><h6 class="text-muted">{% translate "Данные книги (общие для всех экземпляров)" %}</h6></div>
 
                         <div class="col-12">
                             <label class="form-label fw-semibold">
-                                {{ title_form.title.label }} <span class="text-danger">*</span>
+                                {% translate title_form.title.label %} <span class="text-danger">*</span>
                             </label>
                             {{ title_form.title }}
                             {% for err in title_form.title.errors %}
@@ -102,48 +103,48 @@
                         </div>
 
                         <div class="col-md-8">
-                            <label class="form-label">{{ title_form.author.label }}</label>
+                            <label class="form-label">{% translate title_form.author.label %}</label>
                             {{ title_form.author }}
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">{{ title_form.year.label }}</label>
+                            <label class="form-label">{% translate title_form.year.label %}</label>
                             {{ title_form.year }}
                         </div>
 
                         <div class="col-md-8">
-                            <label class="form-label">{{ title_form.publisher.label }}</label>
+                            <label class="form-label">{% translate title_form.publisher.label %}</label>
                             {{ title_form.publisher }}
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">{{ title_form.isbn.label }}</label>
+                            <label class="form-label">{% translate title_form.isbn.label %}</label>
                             {{ title_form.isbn }}
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">{{ title_form.genre.label }}</label>
+                            <label class="form-label">{% translate title_form.genre.label %}</label>
                             {{ title_form.genre }}
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">{{ title_form.language.label }}</label>
+                            <label class="form-label">{% translate title_form.language.label %}</label>
                             {{ title_form.language }}
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label">{{ title_form.description.label }}</label>
+                            <label class="form-label">{% translate title_form.description.label %}</label>
                             {{ title_form.description }}
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label">{{ title_form.cover.label }}</label>
+                            <label class="form-label">{% translate title_form.cover.label %}</label>
                             {{ title_form.cover }}
                             {% if book.cover %}
                             <div class="form-check mt-2">
                                 {{ title_form.cover_clear }}
                                 <label class="form-check-label text-danger" for="{{ title_form.cover_clear.id_for_label }}">
-                                    {{ title_form.cover_clear.label }}
+                                    {% translate title_form.cover_clear.label %}
                                 </label>
                             </div>
                             {% endif %}
@@ -153,7 +154,7 @@
                         {# ── Создание новой книги (form = NewBookForm) ── #}
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">
-                                {{ form.inventory_number.label }} <span class="text-danger">*</span>
+                                {% translate form.inventory_number.label %} <span class="text-danger">*</span>
                             </label>
                             {{ form.inventory_number }}
                             {% for err in form.inventory_number.errors %}
@@ -162,13 +163,13 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">{{ form.status.label }}</label>
+                            <label class="form-label">{% translate form.status.label %}</label>
                             {{ form.status }}
                         </div>
 
                         <div class="col-12">
                             <label class="form-label fw-semibold">
-                                {{ form.title.label }} <span class="text-danger">*</span>
+                                {% translate form.title.label %} <span class="text-danger">*</span>
                             </label>
                             {{ form.title }}
                             {% for err in form.title.errors %}
@@ -177,42 +178,42 @@
                         </div>
 
                         <div class="col-md-8">
-                            <label class="form-label">{{ form.author.label }}</label>
+                            <label class="form-label">{% translate form.author.label %}</label>
                             {{ form.author }}
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">{{ form.year.label }}</label>
+                            <label class="form-label">{% translate form.year.label %}</label>
                             {{ form.year }}
                         </div>
 
                         <div class="col-md-8">
-                            <label class="form-label">{{ form.publisher.label }}</label>
+                            <label class="form-label">{% translate form.publisher.label %}</label>
                             {{ form.publisher }}
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">{{ form.isbn.label }}</label>
+                            <label class="form-label">{% translate form.isbn.label %}</label>
                             {{ form.isbn }}
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">{{ form.genre.label }}</label>
+                            <label class="form-label">{% translate form.genre.label %}</label>
                             {{ form.genre }}
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label">{{ form.language.label }}</label>
+                            <label class="form-label">{% translate form.language.label %}</label>
                             {{ form.language }}
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label">{{ form.description.label }}</label>
+                            <label class="form-label">{% translate form.description.label %}</label>
                             {{ form.description }}
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label">{{ form.cover.label }}</label>
+                            <label class="form-label">{% translate form.cover.label %}</label>
                             {{ form.cover }}
                         </div>
                         {% endif %}
@@ -221,19 +222,19 @@
 
                     <div class="mt-4 d-flex gap-2 align-items-center flex-wrap">
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-lg"></i> Сохранить
+                            <i class="bi bi-check-lg"></i> {% translate "Сохранить" %}
                         </button>
                         <a href="{% url 'catalog_admin:index' %}" class="btn btn-outline-secondary">
-                            Отмена
+                            {% translate "Отмена" %}
                         </a>
                         {% if book %}
                         <a href="{% url 'catalog_admin:book_label' book.pk %}"
                            class="btn btn-outline-secondary" target="_blank">
-                            <i class="bi bi-printer"></i> Распечатать этикетку
+                            <i class="bi bi-printer"></i> {% translate "Распечатать этикетку" %}
                         </a>
                         <a href="{% url 'catalog_admin:book_delete' book.pk %}"
                            class="btn btn-outline-danger ms-auto">
-                            <i class="bi bi-trash"></i> Удалить экземпляр
+                            <i class="bi bi-trash"></i> {% translate "Удалить экземпляр" %}
                         </a>
                         {% endif %}
                     </div>

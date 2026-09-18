@@ -82,12 +82,13 @@
         }
     </style>
 </head>
+{% load i18n %}
 <body>
 
 <div class="no-print">
-    <button onclick="window.print()">🖨 Распечатать</button>
-    <a href="{% url 'catalog_admin:index' %}" id="btn-back">← Назад</a>
-    <span>Этикеток: {{ books|length }}</span>
+    <button onclick="window.print()">🖨 {% translate "Распечатать" %}</button>
+    <a href="{% url 'catalog_admin:index' %}" id="btn-back">← {% translate "Назад" %}</a>
+    <span>{% blocktranslate with n=books|length %}Этикеток: {{ n }}{% endblocktranslate %}</span>
 </div>
 
 <script>

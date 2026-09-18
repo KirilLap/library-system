@@ -4,7 +4,8 @@
 Считывает и штрих-код CODE128 (текущие этикетки книг), и QR — на случай будущих QR-этикеток.
 Требует HTTPS или localhost — иначе браузер не даст доступ к камере.
 {% endcomment %}
-<button type="button" class="btn btn-outline-secondary" id="scan-btn-{{ target_input_id }}" title="Сканировать камерой">
+{% load i18n %}
+<button type="button" class="btn btn-outline-secondary" id="scan-btn-{{ target_input_id }}" title="{% translate 'Сканировать камерой' %}">
     <i class="bi bi-camera"></i>
 </button>
 
@@ -12,7 +13,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header py-2">
-                <h6 class="modal-title">Наведите камеру на штрих-код книги</h6>
+                <h6 class="modal-title">{% translate "Наведите камеру на штрих-код книги" %}</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -77,7 +78,7 @@
             modal.hide();
         }, function () { /* обычные неудачные кадры — игнорируем */ })
         .catch(function (err) {
-            errorEl.textContent = 'Не удалось включить камеру. Проверьте разрешение в браузере или введите номер вручную.';
+            errorEl.textContent = "{% translate 'Не удалось включить камеру. Проверьте разрешение в браузере или введите номер вручную.' %}";
         });
     });
 

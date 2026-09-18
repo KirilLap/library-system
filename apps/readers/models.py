@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 
 class Reader(models.Model):
@@ -77,12 +78,12 @@ class Loan(models.Model):
 
 class BookRequest(models.Model):
     STATUS_CHOICES = [
-        ('PENDING',    'Новая'),
-        ('APPROVED',   'Одобрена'),
-        ('PURCHASING', 'Закупается'),
-        ('FULFILLED',  'Выполнена'),
-        ('REJECTED',   'Отклонена'),
-        ('CANCELLED',  'Отменена'),
+        ('PENDING',    _('Новая')),
+        ('APPROVED',   _('Одобрена')),
+        ('PURCHASING', _('Закупается')),
+        ('FULFILLED',  _('Выполнена')),
+        ('REJECTED',   _('Отклонена')),
+        ('CANCELLED',  _('Отменена')),
     ]
 
     # Финальные статусы — изменение запрещено

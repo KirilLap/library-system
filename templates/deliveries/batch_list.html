@@ -1,24 +1,25 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Партии доставки{% endblock %}
+{% block title %}{% translate "Партии доставки" %}{% endblock %}
 {% block nav_deliveries %}active{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2><i class="bi bi-truck"></i> Партии доставки</h2>
+    <h2><i class="bi bi-truck"></i> {% translate "Партии доставки" %}</h2>
     <a href="{% url 'deliveries_admin:create' %}" class="btn btn-primary">
-        <i class="bi bi-plus-lg"></i> Новая партия
+        <i class="bi bi-plus-lg"></i> {% translate "Новая партия" %}
     </a>
 </div>
 
 <div class="mb-3">
     {% if show_returned %}
         <a href="?" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-eye-slash"></i> Скрыть возвращённые
+            <i class="bi bi-eye-slash"></i> {% translate "Скрыть возвращённые" %}
         </a>
     {% else %}
         <a href="?returned=1" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-eye"></i> Показать возвращённые
+            <i class="bi bi-eye"></i> {% translate "Показать возвращённые" %}
         </a>
     {% endif %}
 </div>
@@ -29,11 +30,11 @@
         <thead class="table-dark">
             <tr>
                 <th>#</th>
-                <th>Библиопункт</th>
-                <th>Дата доставки</th>
-                <th class="text-center">Книг</th>
-                <th>Статус</th>
-                <th>Дата возврата</th>
+                <th>{% translate "Библиопункт" %}</th>
+                <th>{% translate "Дата доставки" %}</th>
+                <th class="text-center">{% translate "Книг" %}</th>
+                <th>{% translate "Статус" %}</th>
+                <th>{% translate "Дата возврата" %}</th>
                 <th></th>
             </tr>
         </thead>
@@ -52,9 +53,9 @@
                 </td>
                 <td>
                     {% if batch.is_returned %}
-                        <span class="badge bg-secondary">Возвращена</span>
+                        <span class="badge bg-secondary">{% translate "Возвращена" %}</span>
                     {% else %}
-                        <span class="badge bg-success">В библиопункте</span>
+                        <span class="badge bg-success">{% translate "В библиопункте" %}</span>
                     {% endif %}
                 </td>
                 <td class="small text-muted">
@@ -73,7 +74,7 @@
 {% else %}
 <div class="text-center py-5 text-muted">
     <i class="bi bi-truck" style="font-size:3rem;"></i>
-    <p class="mt-3">Партий пока нет. <a href="{% url 'deliveries_admin:create' %}">Создать первую</a></p>
+    <p class="mt-3">{% translate "Партий пока нет." %} <a href="{% url 'deliveries_admin:create' %}">{% translate "Создать первую" %}</a></p>
 </div>
 {% endif %}
 {% endblock %}

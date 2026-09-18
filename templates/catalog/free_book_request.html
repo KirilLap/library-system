@@ -1,25 +1,25 @@
 {% extends "public_base.html" %}
+{% load i18n %}
 
-{% block title %}Запросить книгу{% endblock %}
+{% block title %}{% translate "Запросить книгу" %}{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card shadow-sm">
             <div class="card-header">
-                <i class="bi bi-envelope-plus"></i> Запросить книгу, которой нет в каталоге
+                <i class="bi bi-envelope-plus"></i> {% translate "Запросить книгу, которой нет в каталоге" %}
             </div>
             <div class="card-body">
                 <p class="text-muted small mb-3">
-                    Если вы не нашли нужную книгу в каталоге — оставьте заявку.
-                    Библиотекарь рассмотрит её и постарается добавить книгу.
+                    {% translate "Если вы не нашли нужную книгу в каталоге — оставьте заявку. Библиотекарь рассмотрит её и постарается добавить книгу." %}
                 </p>
                 <form method="post">
                     {% csrf_token %}
                     {% for field in form %}
                     <div class="mb-3">
                         <label class="form-label fw-semibold">
-                            {{ field.label }}
+                            {% translate field.label %}
                             {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
                         </label>
                         {{ field }}
@@ -30,9 +30,9 @@
                     {% endfor %}
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-send"></i> Отправить заявку
+                            <i class="bi bi-send"></i> {% translate "Отправить заявку" %}
                         </button>
-                        <a href="/catalog/" class="btn btn-outline-secondary">Отмена</a>
+                        <a href="/catalog/" class="btn btn-outline-secondary">{% translate "Отмена" %}</a>
                     </div>
                 </form>
             </div>

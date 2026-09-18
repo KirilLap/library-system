@@ -1,17 +1,18 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Результат импорта{% endblock %}
+{% block title %}{% translate "Результат импорта" %}{% endblock %}
 {% block nav_catalog %}active{% endblock %}
 
 {% block content %}
-<h1 class="h4 mb-4">Результат импорта</h1>
+<h1 class="h4 mb-4">{% translate "Результат импорта" %}</h1>
 
 <div class="row g-3 mb-4">
     <div class="col-md-3">
         <div class="card border-success text-center">
             <div class="card-body py-3">
                 <div class="display-6 text-success fw-bold">{{ created }}</div>
-                <div class="text-muted">Создано</div>
+                <div class="text-muted">{% translate "Создано" %}</div>
             </div>
         </div>
     </div>
@@ -19,7 +20,7 @@
         <div class="card border-primary text-center">
             <div class="card-body py-3">
                 <div class="display-6 text-primary fw-bold">{{ updated }}</div>
-                <div class="text-muted">Обновлено</div>
+                <div class="text-muted">{% translate "Обновлено" %}</div>
             </div>
         </div>
     </div>
@@ -27,24 +28,24 @@
         <div class="card border-warning text-center">
             <div class="card-body py-3">
                 <div class="display-6 text-warning fw-bold">{{ skipped|length }}</div>
-                <div class="text-muted">Пропущено</div>
+                <div class="text-muted">{% translate "Пропущено" %}</div>
             </div>
         </div>
     </div>
 </div>
 
 {% if skipped %}
-<h5>Пропущенные записи</h5>
+<h5>{% translate "Пропущенные записи" %}</h5>
 <div class="table-responsive mb-3">
     <table class="table table-sm">
         <thead class="table-light">
-            <tr><th>Название / идентификатор</th><th>Причина</th></tr>
+            <tr><th>{% translate "Название / идентификатор" %}</th><th>{% translate "Причина" %}</th></tr>
         </thead>
         <tbody>
             {% for item in skipped %}
             <tr>
                 <td>{{ item.title }}</td>
-                <td class="text-muted">{{ item.reason }}</td>
+                <td class="text-muted">{% translate item.reason %}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -54,10 +55,10 @@
 
 <div class="d-flex gap-2">
     <a href="{% url 'catalog_admin:index' %}" class="btn btn-primary">
-        <i class="bi bi-journals"></i> Перейти к каталогу
+        <i class="bi bi-journals"></i> {% translate "Перейти к каталогу" %}
     </a>
     <a href="{% url 'catalog_admin:marc_import' %}" class="btn btn-outline-secondary">
-        Импортировать ещё
+        {% translate "Импортировать ещё" %}
     </a>
 </div>
 {% endblock %}

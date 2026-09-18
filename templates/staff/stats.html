@@ -1,16 +1,17 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Статистика{% endblock %}
+{% block title %}{% translate "Статистика" %}{% endblock %}
 {% block nav_stats %}active{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h4 class="mb-0"><i class="bi bi-bar-chart"></i> Статистика</h4>
+    <h4 class="mb-0"><i class="bi bi-bar-chart"></i> {% translate "Статистика" %}</h4>
     <div class="btn-group">
-        <a href="?days=7" class="btn btn-sm {% if days == 7 %}btn-primary{% else %}btn-outline-primary{% endif %}">7 дней</a>
-        <a href="?days=30" class="btn btn-sm {% if days == 30 %}btn-primary{% else %}btn-outline-primary{% endif %}">30 дней</a>
-        <a href="?days=90" class="btn btn-sm {% if days == 90 %}btn-primary{% else %}btn-outline-primary{% endif %}">90 дней</a>
-        <a href="?days=365" class="btn btn-sm {% if days == 365 %}btn-primary{% else %}btn-outline-primary{% endif %}">Год</a>
+        <a href="?days=7" class="btn btn-sm {% if days == 7 %}btn-primary{% else %}btn-outline-primary{% endif %}">{% blocktranslate %}7 дней{% endblocktranslate %}</a>
+        <a href="?days=30" class="btn btn-sm {% if days == 30 %}btn-primary{% else %}btn-outline-primary{% endif %}">{% blocktranslate %}30 дней{% endblocktranslate %}</a>
+        <a href="?days=90" class="btn btn-sm {% if days == 90 %}btn-primary{% else %}btn-outline-primary{% endif %}">{% blocktranslate %}90 дней{% endblocktranslate %}</a>
+        <a href="?days=365" class="btn btn-sm {% if days == 365 %}btn-primary{% else %}btn-outline-primary{% endif %}">{% translate "Год" %}</a>
     </div>
 </div>
 
@@ -20,7 +21,7 @@
         <div class="card h-100">
             <div class="card-body">
                 <div class="fs-2 fw-bold">{{ period_stats.loans_issued }}</div>
-                <div class="small text-muted">Выдано книг</div>
+                <div class="small text-muted">{% translate "Выдано книг" %}</div>
             </div>
         </div>
     </div>
@@ -28,7 +29,7 @@
         <div class="card h-100">
             <div class="card-body">
                 <div class="fs-2 fw-bold">{{ period_stats.loans_returned }}</div>
-                <div class="small text-muted">Возвращено книг</div>
+                <div class="small text-muted">{% translate "Возвращено книг" %}</div>
             </div>
         </div>
     </div>
@@ -36,7 +37,7 @@
         <div class="card h-100">
             <div class="card-body">
                 <div class="fs-2 fw-bold">{{ period_stats.requests_created }}</div>
-                <div class="small text-muted">Новых заявок</div>
+                <div class="small text-muted">{% translate "Новых заявок" %}</div>
             </div>
         </div>
     </div>
@@ -44,7 +45,7 @@
         <div class="card h-100">
             <div class="card-body">
                 <div class="fs-2 fw-bold">{{ period_stats.requests_fulfilled }}</div>
-                <div class="small text-muted">Заявок выполнено</div>
+                <div class="small text-muted">{% translate "Заявок выполнено" %}</div>
             </div>
         </div>
     </div>
@@ -52,12 +53,12 @@
 
 <!-- График по неделям -->
 <div class="card shadow-sm mb-4">
-    <div class="card-header"><i class="bi bi-graph-up"></i> Выдачи книг по неделям</div>
+    <div class="card-header"><i class="bi bi-graph-up"></i> {% translate "Выдачи книг по неделям" %}</div>
     <div class="card-body">
         {% if weekly_labels %}
         <canvas id="loansChart" height="80"></canvas>
         {% else %}
-        <div class="text-center text-muted py-4">Нет данных о выдачах за этот период</div>
+        <div class="text-center text-muted py-4">{% translate "Нет данных о выдачах за этот период" %}</div>
         {% endif %}
     </div>
 </div>
@@ -66,21 +67,21 @@
     <!-- Топ жанров -->
     <div class="col-md-4">
         <div class="card h-100">
-            <div class="card-header"><i class="bi bi-tags"></i> Популярные жанры</div>
+            <div class="card-header"><i class="bi bi-tags"></i> {% translate "Популярные жанры" %}</div>
             <div class="card-body p-0">
                 {% if top_genres %}
                 <table class="table table-sm mb-0">
                     <tbody>
                         {% for g in top_genres %}
                         <tr>
-                            <td>{{ g.name }}</td>
+                            <td>{% translate g.name %}</td>
                             <td class="text-end"><span class="badge bg-primary">{{ g.count }}</span></td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 {% else %}
-                <div class="text-center text-muted py-4">Нет данных</div>
+                <div class="text-center text-muted py-4">{% translate "Нет данных" %}</div>
                 {% endif %}
             </div>
         </div>
@@ -89,7 +90,7 @@
     <!-- Топ книг -->
     <div class="col-md-4">
         <div class="card h-100">
-            <div class="card-header"><i class="bi bi-book"></i> Популярные книги</div>
+            <div class="card-header"><i class="bi bi-book"></i> {% translate "Популярные книги" %}</div>
             <div class="card-body p-0">
                 {% if top_books %}
                 <table class="table table-sm mb-0">
@@ -106,7 +107,7 @@
                     </tbody>
                 </table>
                 {% else %}
-                <div class="text-center text-muted py-4">Нет данных</div>
+                <div class="text-center text-muted py-4">{% translate "Нет данных" %}</div>
                 {% endif %}
             </div>
         </div>
@@ -115,7 +116,7 @@
     <!-- Активность по библиопунктам -->
     <div class="col-md-4">
         <div class="card h-100">
-            <div class="card-header"><i class="bi bi-geo-alt"></i> Активность по библиопунктам</div>
+            <div class="card-header"><i class="bi bi-geo-alt"></i> {% translate "Активность по библиопунктам" %}</div>
             <div class="card-body p-0">
                 {% if top_locations %}
                 <table class="table table-sm mb-0">
@@ -129,7 +130,7 @@
                     </tbody>
                 </table>
                 {% else %}
-                <div class="text-center text-muted py-4">Нет данных</div>
+                <div class="text-center text-muted py-4">{% translate "Нет данных" %}</div>
                 {% endif %}
             </div>
         </div>
@@ -148,7 +149,7 @@ new Chart(document.getElementById('loansChart'), {
     data: {
         labels: weeklyLabels,
         datasets: [{
-            label: 'Выдано книг',
+            label: "{% translate 'Выдано книг' %}",
             data: weeklyCounts,
             backgroundColor: '#0d6efd'
         }]

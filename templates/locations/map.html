@@ -1,18 +1,19 @@
 {% extends "public_base.html" %}
+{% load i18n %}
 
-{% block title %}Карта библиопунктов{% endblock %}
+{% block title %}{% translate "Карта библиопунктов" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h4 mb-0"><i class="bi bi-geo-alt"></i> Библиопункты на карте</h1>
+    <h1 class="h4 mb-0"><i class="bi bi-geo-alt"></i> {% translate "Библиопункты на карте" %}</h1>
     <div class="text-muted small">
-        Показано на карте: <strong>{{ mapped }}</strong> из {{ total }}
+        {% blocktranslate %}Показано на карте: <strong>{{ mapped }}</strong> из {{ total }}{% endblocktranslate %}
     </div>
 </div>
 
 {% if mapped == 0 %}
 <div class="alert alert-info">
-    Координаты библиопунктов ещё не указаны. Откройте библиопункт в панели администратора и кликните по карте.
+    {% translate "Координаты библиопунктов ещё не указаны. Откройте библиопункт в панели администратора и кликните по карте." %}
 </div>
 {% else %}
 
@@ -21,15 +22,15 @@
         <div id="main-map" style="height:520px;border-radius:8px"></div>
         <button id="btn-locate" class="btn btn-primary btn-sm position-absolute"
                 style="bottom:16px;left:50%;transform:translateX(-50%);z-index:1000;box-shadow:0 2px 8px rgba(0,0,0,.3)">
-            <i class="bi bi-crosshair"></i> Найти ближайший библиопункт
+            <i class="bi bi-crosshair"></i> {% translate "Найти ближайший библиопункт" %}
         </button>
     </div>
 </div>
 
 <div id="nearest-result" class="alert alert-success d-none">
-    <strong><i class="bi bi-check-circle"></i> Ближайший библиопункт:</strong>
+    <strong><i class="bi bi-check-circle"></i> {% translate "Ближайший библиопункт:" %}</strong>
     <span id="nearest-name"></span> — <span id="nearest-dist"></span>
-    <a id="nearest-link" href="#" class="ms-2 btn btn-sm btn-outline-success">Перейти</a>
+    <a id="nearest-link" href="#" class="ms-2 btn btn-sm btn-outline-success">{% translate "Перейти" %}</a>
 </div>
 
 <div id="points-list" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mt-1"></div>
@@ -49,10 +50,19 @@ var POINTS = [
         lat: {{ p.lat|unlocalize }},
         lng: {{ p.lng|unlocalize }},
         books: {{ p.books }},
-        type: "{{ p.type|escapejs }}"
+        type: "{% translate p.type|escapejs %}"
     }{% if not forloop.last %},{% endif %}
     {% endfor %}
 ];
+var I18N = {
+    booksLabel: "{% translate 'книг' %}",
+    open: "{% translate 'Открыть' %}",
+    geoNotSupported: "{% translate 'Геолокация не поддерживается вашим браузером.' %}",
+    locating: "{% translate 'Определяем...' %}",
+    findNearest: "{% translate 'Найти ближайший библиопункт' %}",
+    youAreHere: "{% translate 'Вы здесь' %}",
+    geoFailed: "{% translate 'Не удалось получить геолокацию. Проверьте разрешение в браузере.' %}"
+};
 
 {% if mapped > 0 %}
 (function () {
@@ -72,8 +82,8 @@ var POINTS = [
     POINTS.forEach(function (p) {
         var popup = '<strong>' + p.name + '</strong><br>'
             + '<small class="text-muted">' + p.address + '</small><br>'
-            + (p.books ? '<span class="badge bg-primary mt-1">' + p.books + ' книг</span>' : '')
-            + '<br><a href="/p/' + p.slug + '/" class="btn btn-sm btn-outline-primary mt-2">Открыть</a>';
+            + (p.books ? '<span class="badge bg-primary mt-1">' + p.books + ' ' + I18N.booksLabel + '</span>' : '')
+            + '<br><a href="/p/' + p.slug + '/" class="btn btn-sm btn-outline-primary mt-2">' + I18N.open + '</a>';
         var m = L.marker([p.lat, p.lng]).addTo(map).bindPopup(popup);
         markers[p.slug] = m;
     });
@@ -91,7 +101,7 @@ var POINTS = [
             + '</div>'
             + '<div class="card-footer bg-transparent d-flex justify-content-between align-items-center">'
             + '<small class="text-muted" id="dist-' + p.slug + '"></small>'
-            + '<a href="/p/' + p.slug + '/" class="btn btn-sm btn-outline-primary">Открыть</a>'
+            + '<a href="/p/' + p.slug + '/" class="btn btn-sm btn-outline-primary">' + I18N.open + '</a>'
             + '</div></div>';
         col.querySelector('[data-slug]').addEventListener('click', function (e) {
             if (e.target.tagName === 'A') return;
@@ -114,16 +124,16 @@ var POINTS = [
 
     document.getElementById('btn-locate').addEventListener('click', function () {
         if (!navigator.geolocation) {
-            alert('Геолокация не поддерживается вашим браузером.');
+            alert(I18N.geoNotSupported);
             return;
         }
         var btn = this;
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Определяем...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>' + I18N.locating;
 
         navigator.geolocation.getCurrentPosition(function (pos) {
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-crosshair"></i> Найти ближайший библиопункт';
+            btn.innerHTML = '<i class="bi bi-crosshair"></i> ' + I18N.findNearest;
 
             var uLat = pos.coords.latitude;
             var uLng = pos.coords.longitude;
@@ -131,7 +141,7 @@ var POINTS = [
             if (userMarker) map.removeLayer(userMarker);
             userMarker = L.circleMarker([uLat, uLng], {
                 radius: 8, color: '#0d6efd', fillColor: '#0d6efd', fillOpacity: 0.8
-            }).addTo(map).bindPopup('Вы здесь').openPopup();
+            }).addTo(map).bindPopup(I18N.youAreHere).openPopup();
 
             var nearest = null;
             var minDist = Infinity;
@@ -145,8 +155,8 @@ var POINTS = [
             sorted.forEach(function (item) {
                 var el = document.getElementById('dist-' + item.p.slug);
                 if (el) el.textContent = item.d < 1
-                    ? Math.round(item.d * 1000) + ' м'
-                    : item.d.toFixed(1) + ' км';
+                    ? Math.round(item.d * 1000) + ' m'
+                    : item.d.toFixed(1) + ' km';
             });
 
             // Highlight nearest
@@ -155,8 +165,8 @@ var POINTS = [
                 res.classList.remove('d-none');
                 document.getElementById('nearest-name').textContent = nearest.name;
                 document.getElementById('nearest-dist').textContent = minDist < 1
-                    ? Math.round(minDist * 1000) + ' м'
-                    : minDist.toFixed(1) + ' км';
+                    ? Math.round(minDist * 1000) + ' m'
+                    : minDist.toFixed(1) + ' km';
                 document.getElementById('nearest-link').href = '/p/' + nearest.slug + '/';
                 markers[nearest.slug].openPopup();
                 map.setView([nearest.lat, nearest.lng], 15);
@@ -164,8 +174,8 @@ var POINTS = [
 
         }, function () {
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-crosshair"></i> Найти ближайший библиопункт';
-            alert('Не удалось получить геолокацию. Проверьте разрешение в браузере.');
+            btn.innerHTML = '<i class="bi bi-crosshair"></i> ' + I18N.findNearest;
+            alert(I18N.geoFailed);
         });
     });
 })();

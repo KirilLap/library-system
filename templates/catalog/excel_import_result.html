@@ -1,57 +1,58 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Результат импорта Excel{% endblock %}
+{% block title %}{% translate "Результат импорта Excel" %}{% endblock %}
 {% block nav_catalog %}active{% endblock %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3 gap-2">
-    <a href="{% url 'catalog_admin:index' %}" class="btn btn-sm btn-outline-secondary">← Каталог</a>
-    <h4 class="mb-0">Результат импорта</h4>
+    <a href="{% url 'catalog_admin:index' %}" class="btn btn-sm btn-outline-secondary">← {% translate "Каталог" %}</a>
+    <h4 class="mb-0">{% translate "Результат импорта" %}</h4>
 </div>
 
 <div class="row g-3 mb-4">
     <div class="col-auto">
         <div class="card text-bg-success px-4 py-3 text-center">
             <div class="fs-2 fw-bold">{{ created }}</div>
-            <div class="small">Добавлено</div>
+            <div class="small">{% translate "Добавлено" %}</div>
         </div>
     </div>
     <div class="col-auto">
         <div class="card text-bg-primary px-4 py-3 text-center">
             <div class="fs-2 fw-bold">{{ updated }}</div>
-            <div class="small">Обновлено</div>
+            <div class="small">{% translate "Обновлено" %}</div>
         </div>
     </div>
     <div class="col-auto">
         <div class="card text-bg-danger px-4 py-3 text-center">
             <div class="fs-2 fw-bold">{{ skipped|length }}</div>
-            <div class="small">Пропущено</div>
+            <div class="small">{% translate "Пропущено" %}</div>
         </div>
     </div>
 </div>
 
 {% if duplicates %}
 <div class="alert alert-warning mb-3">
-    <strong><i class="bi bi-exclamation-triangle"></i> Возможные дубликаты ({{ duplicates|length }}):</strong>
+    <strong><i class="bi bi-exclamation-triangle"></i> {% blocktranslate with n=duplicates|length %}Возможные дубликаты ({{ n }}):{% endblocktranslate %}</strong>
     <ul class="mb-0 mt-1">
         {% for d in duplicates %}
-        <li>«{{ d.title }}» — инв. <code>{{ d.inv }}</code> похожа на уже существующую <code>{{ d.dupe_inv }}</code></li>
+        <li>«{{ d.title }}» — {% blocktranslate with inv=d.inv dupe_inv=d.dupe_inv %}инв. <code>{{ inv }}</code> похожа на уже существующую <code>{{ dupe_inv }}</code>{% endblocktranslate %}</li>
         {% endfor %}
     </ul>
 </div>
 {% endif %}
 
 {% if skipped %}
-<h6>Пропущенные строки</h6>
+<h6>{% translate "Пропущенные строки" %}</h6>
 <table class="table table-sm table-bordered mb-4" style="max-width:600px">
     <thead class="table-light">
-        <tr><th>Книга</th><th>Причина</th></tr>
+        <tr><th>{% translate "Книга" %}</th><th>{% translate "Причина" %}</th></tr>
     </thead>
     <tbody>
         {% for s in skipped %}
         <tr>
             <td>{{ s.title }}</td>
-            <td class="text-danger small">{{ s.reason }}</td>
+            <td class="text-danger small">{% translate s.reason %}</td>
         </tr>
         {% endfor %}
     </tbody>
@@ -59,9 +60,9 @@
 {% endif %}
 
 <a href="{% url 'catalog_admin:index' %}" class="btn btn-primary">
-    <i class="bi bi-journals"></i> Перейти в каталог
+    <i class="bi bi-journals"></i> {% translate "Перейти в каталог" %}
 </a>
 <a href="{% url 'catalog_admin:excel_import' %}" class="btn btn-outline-secondary ms-2">
-    Ещё импорт
+    {% translate "Ещё импорт" %}
 </a>
 {% endblock %}

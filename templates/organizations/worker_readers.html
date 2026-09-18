@@ -1,16 +1,17 @@
 {% extends "public_base.html" %}
+{% load i18n %}
 
-{% block title %}Читатели — {{ location.name }}{% endblock %}
+{% block title %}{% translate "Читатели" %} — {{ location.name }}{% endblock %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3 gap-2">
     <a href="{% url 'organizations:worker_cabinet' %}" class="btn btn-sm btn-outline-secondary">
         <i class="bi bi-arrow-left"></i>
     </a>
-    <h2 class="h4 mb-0">Читатели библиопункта</h2>
+    <h2 class="h4 mb-0">{% translate "Читатели библиопункта" %}</h2>
     <span class="badge bg-secondary">{{ location.name }}</span>
     <a href="{% url 'organizations:worker_register_reader' %}" class="btn btn-sm btn-primary ms-auto">
-        <i class="bi bi-person-plus"></i> Зарегистрировать
+        <i class="bi bi-person-plus"></i> {% translate "Зарегистрировать" %}
     </a>
 </div>
 
@@ -21,11 +22,11 @@
             <table class="table table-sm mb-0 align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Читатель</th>
-                        <th>Логин</th>
-                        <th>Телефон</th>
-                        <th>На руках</th>
-                        <th>Статус</th>
+                        <th>{% translate "Читатель" %}</th>
+                        <th>{% translate "Логин" %}</th>
+                        <th>{% translate "Телефон" %}</th>
+                        <th>{% translate "На руках" %}</th>
+                        <th>{% translate "Статус" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,9 +38,9 @@
                         <td class="small">{{ reader.active_loans|length }}</td>
                         <td>
                             {% if reader.is_blocked %}
-                                <span class="badge bg-danger">Заблокирован</span>
+                                <span class="badge bg-danger">{% translate "Заблокирован" %}</span>
                             {% else %}
-                                <span class="badge bg-success">Активен</span>
+                                <span class="badge bg-success">{% translate "Активен" %}</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -50,8 +51,8 @@
         {% else %}
         <div class="text-center py-5 text-muted">
             <i class="bi bi-people" style="font-size:2.5rem;opacity:.3;"></i>
-            <p class="mt-3">Читателей ещё нет.
-                <a href="{% url 'organizations:worker_register_reader' %}">Зарегистрировать первого</a>
+            <p class="mt-3">{% translate "Читателей ещё нет." %}
+                <a href="{% url 'organizations:worker_register_reader' %}">{% translate "Зарегистрировать первого" %}</a>
             </p>
         </div>
         {% endif %}

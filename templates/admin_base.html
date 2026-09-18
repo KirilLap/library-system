@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block body %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -14,91 +15,94 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {% block nav_catalog %}{% endblock %}"
                        href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-journals"></i> Каталог
+                        <i class="bi bi-journals"></i> {% translate "Каталог" %}
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/admin-panel/catalog/">
-                            <i class="bi bi-list-ul"></i> Все книги
+                            <i class="bi bi-list-ul"></i> {% translate "Все книги" %}
                         </a></li>
                         <li><a class="dropdown-item" href="/admin-panel/catalog/add/">
-                            <i class="bi bi-plus-lg"></i> Добавить книгу
+                            <i class="bi bi-plus-lg"></i> {% translate "Добавить книгу" %}
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/admin-panel/catalog/genres/">
-                            <i class="bi bi-tags"></i> Жанры
+                            <i class="bi bi-tags"></i> {% translate "Жанры" %}
                         </a></li>
                         <li><a class="dropdown-item" href="/admin-panel/catalog/languages/">
-                            <i class="bi bi-translate"></i> Языки
+                            <i class="bi bi-translate"></i> {% translate "Языки" %}
                         </a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {% block nav_locations %}{% endblock %}"
                        href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-geo-alt"></i> Библиопункты
+                        <i class="bi bi-geo-alt"></i> {% translate "Библиопункты" %}
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/admin-panel/locations/">
-                            <i class="bi bi-list-ul"></i> Все библиопункты
+                            <i class="bi bi-list-ul"></i> {% translate "Все библиопункты" %}
                         </a></li>
                         <li><a class="dropdown-item" href="/admin-panel/locations/add/">
-                            <i class="bi bi-plus-lg"></i> Добавить библиопункт
+                            <i class="bi bi-plus-lg"></i> {% translate "Добавить библиопункт" %}
                         </a></li>
                         {% if request.user.staff_profile.is_admin %}
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="/admin-panel/locations/types/">
-                            <i class="bi bi-tags"></i> Типы библиопунктов
+                            <i class="bi bi-tags"></i> {% translate "Типы библиопунктов" %}
                         </a></li>
                         {% endif %}
                     </ul>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% block nav_deliveries %}{% endblock %}" href="/admin-panel/deliveries/">
-                        <i class="bi bi-truck"></i> Партии
+                        <i class="bi bi-truck"></i> {% translate "Партии" %}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% block nav_readers %}{% endblock %}" href="/admin-panel/readers/">
-                        <i class="bi bi-people"></i> Читатели
+                        <i class="bi bi-people"></i> {% translate "Читатели" %}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% block nav_requests %}{% endblock %}" href="/admin-panel/requests/">
-                        <i class="bi bi-inbox"></i> Заявки
+                        <i class="bi bi-inbox"></i> {% translate "Заявки" %}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% block nav_stats %}{% endblock %}" href="/admin-panel/stats/">
-                        <i class="bi bi-bar-chart"></i> Статистика
+                        <i class="bi bi-bar-chart"></i> {% translate "Статистика" %}
                     </a>
                 </li>
                 {% if request.user.staff_profile.is_admin %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {% block nav_staff %}{% endblock %}"
                        href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-shield-lock"></i> Сотрудники
+                        <i class="bi bi-shield-lock"></i> {% translate "Сотрудники" %}
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/admin-panel/staff/">
-                            <i class="bi bi-people"></i> Все сотрудники
+                            <i class="bi bi-people"></i> {% translate "Все сотрудники" %}
                         </a></li>
                         <li><a class="dropdown-item" href="/admin-panel/log/">
-                            <i class="bi bi-journal-text"></i> Журнал действий
+                            <i class="bi bi-journal-text"></i> {% translate "Журнал действий" %}
                         </a></li>
                     </ul>
                 </li>
                 {% endif %}
             </ul>
-            <ul class="navbar-nav">
+            <ul class="navbar-nav align-items-lg-center gap-lg-2">
+                <li class="nav-item">
+                    {% include "includes/lang_switcher.html" %}
+                </li>
                 {% if user.is_authenticated %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                         <i class="bi bi-person-circle"></i>
                         {{ user.get_full_name|default:user.username }}
                         {% if request.user.staff_profile.is_admin %}
-                        <span class="badge bg-danger ms-1">Админ</span>
+                        <span class="badge bg-danger ms-1">{% translate "Админ" %}</span>
                         {% else %}
-                        <span class="badge bg-secondary ms-1">Библиотекарь</span>
+                        <span class="badge bg-secondary ms-1">{% translate "Библиотекарь" %}</span>
                         {% endif %}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -106,7 +110,7 @@
                             <form method="post" action="/admin-panel/logout/">
                                 {% csrf_token %}
                                 <button type="submit" class="dropdown-item text-danger">
-                                    <i class="bi bi-box-arrow-right"></i> Выйти
+                                    <i class="bi bi-box-arrow-right"></i> {% translate "Выйти" %}
                                 </button>
                             </form>
                         </li>
@@ -122,7 +126,7 @@
     {% if messages %}
         {% for message in messages %}
         <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
-            {{ message }}
+            {% with msg_text=message|stringformat:"s" %}{% translate msg_text %}{% endwith %}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         {% endfor %}

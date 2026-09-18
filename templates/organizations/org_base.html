@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block body %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -6,8 +7,9 @@
         <span class="navbar-brand">
             <i class="bi bi-building"></i> {{ LIBRARY_NAME }}
         </span>
-        {% if user.is_authenticated %}
         <div class="ms-auto d-flex align-items-center gap-3">
+            {% include "includes/lang_switcher.html" %}
+            {% if user.is_authenticated %}
             <span class="text-white-50 small">
                 <i class="bi bi-geo-alt"></i>
                 {% with user.org_account as org %}{% if org %}{{ org.location.name }}{% endif %}{% endwith %}
@@ -15,11 +17,11 @@
             <form method="post" action="{% url 'organizations:logout' %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-sm btn-outline-light">
-                    <i class="bi bi-box-arrow-right"></i> Выйти
+                    <i class="bi bi-box-arrow-right"></i> {% translate "Выйти" %}
                 </button>
             </form>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 </nav>
 
@@ -27,7 +29,7 @@
     {% if messages %}
         {% for message in messages %}
         <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
-            {{ message }}
+            {% with msg_text=message|stringformat:"s" %}{% translate msg_text %}{% endwith %}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         {% endfor %}

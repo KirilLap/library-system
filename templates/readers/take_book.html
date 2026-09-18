@@ -1,13 +1,14 @@
 {% extends "public_base.html" %}
+{% load i18n %}
 
-{% block title %}Взять книгу{% endblock %}
+{% block title %}{% translate "Взять книгу" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3 gap-2">
     <a href="/my/" class="btn btn-sm btn-outline-secondary">
         <i class="bi bi-arrow-left"></i>
     </a>
-    <h2 class="h4 mb-0">Взять книгу</h2>
+    <h2 class="h4 mb-0">{% translate "Взять книгу" %}</h2>
 </div>
 
 <div class="row">
@@ -16,17 +17,16 @@
             <div class="card-body">
                 <p class="text-muted small mb-3">
                     <i class="bi bi-info-circle"></i>
-                    Введите инвентарный номер с <strong>этикетки книги</strong>, которую держите в руках.
-                    Номер не отображается в каталоге — это защита от злоупотреблений.
+                    {% blocktranslate %}Введите инвентарный номер с <strong>этикетки книги</strong>, которую держите в руках. Номер не отображается в каталоге — это защита от злоупотреблений.{% endblocktranslate %}
                 </p>
                 <form method="post">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Инвентарный номер</label>
+                        <label class="form-label fw-semibold">{% translate "Инвентарный номер" %}</label>
                         <div class="input-group">
                             <input type="text" name="inventory_number" id="id_inventory_number"
                                    class="form-control form-control-lg {% if error %}is-invalid{% endif %}"
-                                   placeholder="Например: КН-00123"
+                                   placeholder="{% translate 'Например: КН-00123' %}"
                                    autofocus autocomplete="off">
                             {% include "includes/barcode_scanner.html" with target_input_id="id_inventory_number" %}
                         </div>
@@ -35,17 +35,16 @@
                         {% endif %}
                     </div>
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-book"></i> Отметить как взятую
+                        <i class="bi bi-book"></i> {% translate "Отметить как взятую" %}
                     </button>
                 </form>
             </div>
         </div>
 
         <div class="alert alert-light border mt-3 small">
-            <strong><i class="bi bi-question-circle"></i> Где найти инвентарный номер?</strong>
+            <strong><i class="bi bi-question-circle"></i> {% translate "Где найти инвентарный номер?" %}</strong>
             <p class="mb-0 mt-1">
-                Инвентарный номер напечатан на этикетке, приклеенной к книге
-                (обычно на обложке или первой странице). Там же есть штрих-код.
+                {% translate "Инвентарный номер напечатан на этикетке, приклеенной к книге (обычно на обложке или первой странице). Там же есть штрих-код." %}
             </p>
         </div>
     </div>

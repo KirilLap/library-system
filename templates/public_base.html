@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block body %}
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
@@ -13,16 +14,17 @@
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="/catalog/">
-                        <i class="bi bi-search"></i> Каталог книг
+                        <i class="bi bi-search"></i> {% translate "Каталог книг" %}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/p/map/">
-                        <i class="bi bi-geo-alt"></i> Библиопункты
+                        <i class="bi bi-geo-alt"></i> {% translate "Библиопункты" %}
                     </a>
                 </li>
             </ul>
             <div class="d-flex align-items-center gap-3">
+                {% include "includes/lang_switcher.html" %}
                 {% if LIBRARY_PHONE %}
                 <span class="text-primary fw-bold" style="font-size:18px;">
                     <i class="bi bi-telephone"></i> {{ LIBRARY_PHONE }}
@@ -35,15 +37,15 @@
                 <form method="post" action="/logout/" class="d-inline">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-outline-secondary" style="min-height:44px;">
-                        <i class="bi bi-box-arrow-right"></i> Выйти
+                        <i class="bi bi-box-arrow-right"></i> {% translate "Выйти" %}
                     </button>
                 </form>
                 {% else %}
                 <a href="/register/" class="btn btn-outline-primary" style="min-height:44px;">
-                    <i class="bi bi-person-plus"></i> Регистрация
+                    <i class="bi bi-person-plus"></i> {% translate "Регистрация" %}
                 </a>
                 <a href="/login/" class="btn btn-primary" style="min-height:44px;">
-                    Войти
+                    {% translate "Войти" %}
                 </a>
                 {% endif %}
             </div>
@@ -55,7 +57,7 @@
     {% if messages %}
         {% for message in messages %}
         <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
-            {{ message }}
+            {% with msg_text=message|stringformat:"s" %}{% translate msg_text %}{% endwith %}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         {% endfor %}

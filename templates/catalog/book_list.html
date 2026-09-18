@@ -1,19 +1,20 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Каталог книг{% endblock %}
+{% block title %}{% translate "Каталог книг" %}{% endblock %}
 {% block nav_catalog %}active{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h4 mb-0">
-        Каталог книг
+        {% translate "Каталог книг" %}
         <span class="badge bg-secondary fs-6">{{ total }}</span>
-        <span class="badge bg-light text-dark fs-6 border" title="Всего экземпляров">{{ total_copies }} экз.</span>
+        <span class="badge bg-light text-dark fs-6 border" title="{% translate 'Всего экземпляров' %}">{{ total_copies }} {% translate "экз." %}</span>
     </h1>
     <div class="d-flex gap-2">
         <div class="dropdown">
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="bi bi-upload"></i> Импорт
+                <i class="bi bi-upload"></i> {% translate "Импорт" %}
             </button>
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="{% url 'catalog_admin:marc_import' %}">
@@ -25,7 +26,7 @@
             </ul>
         </div>
         <a href="{% url 'catalog_admin:book_create' %}" class="btn btn-primary">
-            <i class="bi bi-plus-lg"></i> Добавить книгу
+            <i class="bi bi-plus-lg"></i> {% translate "Добавить книгу" %}
         </a>
     </div>
 </div>
@@ -33,38 +34,38 @@
 <form method="get" class="row g-2 mb-3" id="filter-form">
     <div class="col-md-4">
         <input type="text" name="q" value="{{ q }}" class="form-control"
-               placeholder="Поиск по названию, автору, инв. номеру...">
+               placeholder="{% translate 'Поиск по названию, автору, инв. номеру...' %}">
     </div>
     <div class="col-md-2">
         <select name="status" class="form-select">
-            <option value="">Все статусы</option>
+            <option value="">{% translate "Все статусы" %}</option>
             {% for val, label in status_choices %}
-            <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+            <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{% translate label %}</option>
             {% endfor %}
         </select>
     </div>
     <div class="col-md-2">
         <select name="genre" class="form-select">
-            <option value="">Все жанры</option>
+            <option value="">{% translate "Все жанры" %}</option>
             {% for val, label in genre_choices %}
-            <option value="{{ val }}" {% if genre_filter == val %}selected{% endif %}>{{ label }}</option>
+            <option value="{{ val }}" {% if genre_filter == val %}selected{% endif %}>{% translate label %}</option>
             {% endfor %}
         </select>
     </div>
     <div class="col-md-2">
         <select name="language" class="form-select">
-            <option value="">Все языки</option>
+            <option value="">{% translate "Все языки" %}</option>
             {% for val, label in language_choices %}
-            <option value="{{ val }}" {% if language_filter == val %}selected{% endif %}>{{ label }}</option>
+            <option value="{{ val }}" {% if language_filter == val %}selected{% endif %}>{% translate label %}</option>
             {% endfor %}
         </select>
     </div>
     <div class="col-md-2 d-flex gap-1">
         <button type="submit" class="btn btn-outline-primary flex-grow-1">
-            <i class="bi bi-search"></i> Найти
+            <i class="bi bi-search"></i> {% translate "Найти" %}
         </button>
         {% if q or status_filter or genre_filter or language_filter %}
-        <a href="{% url 'catalog_admin:index' %}" class="btn btn-outline-secondary" title="Сбросить">
+        <a href="{% url 'catalog_admin:index' %}" class="btn btn-outline-secondary" title="{% translate 'Сбросить' %}">
             <i class="bi bi-x-lg"></i>
         </a>
         {% endif %}
@@ -74,14 +75,14 @@
 {% if page_obj.object_list %}
 
 <div class="align-items-center gap-2 mb-2" id="batch-toolbar" style="display:none">
-    <span class="text-muted small" id="selected-count">Выбрано: 0</span>
+    <span class="text-muted small" id="selected-count">{% translate "Выбрано:" %} 0</span>
     <a href="#" id="btn-print-selected" class="btn btn-sm btn-outline-secondary" target="_blank">
-        <i class="bi bi-printer"></i> Печать этикеток (все экземпляры)
+        <i class="bi bi-printer"></i> {% translate "Печать этикеток (все экземпляры)" %}
     </a>
     <a href="#" id="btn-delete-selected" class="btn btn-sm btn-outline-danger">
-        <i class="bi bi-trash"></i> Удалить выбранные (со всеми экземплярами)
+        <i class="bi bi-trash"></i> {% translate "Удалить выбранные (со всеми экземплярами)" %}
     </a>
-    <button type="button" class="btn btn-sm btn-link text-muted" id="btn-deselect-all">Снять выбор</button>
+    <button type="button" class="btn btn-sm btn-link text-muted" id="btn-deselect-all">{% translate "Снять выбор" %}</button>
 </div>
 
 <div class="table-responsive">
@@ -89,14 +90,14 @@
         <thead class="table-light">
             <tr>
                 <th style="width:36px">
-                    <input type="checkbox" id="check-all" class="form-check-input" title="Выбрать все">
+                    <input type="checkbox" id="check-all" class="form-check-input" title="{% translate 'Выбрать все' %}">
                 </th>
-                <th>Название</th>
-                <th>Автор</th>
-                <th>Год</th>
-                <th>Жанр</th>
-                <th>Язык</th>
-                <th>Экземпляров</th>
+                <th>{% translate "Название" %}</th>
+                <th>{% translate "Автор" %}</th>
+                <th>{% translate "Год" %}</th>
+                <th>{% translate "Жанр" %}</th>
+                <th>{% translate "Язык" %}</th>
+                <th>{% translate "Экземпляров" %}</th>
                 <th></th>
             </tr>
         </thead>
@@ -113,8 +114,8 @@
                 </td>
                 <td class="text-muted">{{ book_title.author|truncatechars:35 }}</td>
                 <td>{{ book_title.year|default:"—" }}</td>
-                <td>{{ book_title.get_genre_display }}</td>
-                <td>{{ book_title.get_language_display }}</td>
+                <td>{% translate book_title.get_genre_display %}</td>
+                <td>{% translate book_title.get_language_display %}</td>
                 <td>
                     <span class="badge bg-secondary">{{ book_title.num_copies }}</span>
                 </td>
@@ -131,24 +132,24 @@
 </div>
 
 {% if page_obj.has_other_pages %}
-<nav aria-label="Страницы">
+<nav aria-label="{% translate 'Страницы' %}">
     <ul class="pagination pagination-sm">
         {% if page_obj.has_previous %}
         <li class="page-item">
             <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}&status={{ status_filter }}&genre={{ genre_filter }}&language={{ language_filter }}">
-                ← Назад
+                ← {% translate "Назад" %}
             </a>
         </li>
         {% endif %}
         <li class="page-item disabled">
             <span class="page-link">
-                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+                {% blocktranslate with num=page_obj.number total=page_obj.paginator.num_pages %}Страница {{ num }} из {{ total }}{% endblocktranslate %}
             </span>
         </li>
         {% if page_obj.has_next %}
         <li class="page-item">
             <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}&status={{ status_filter }}&genre={{ genre_filter }}&language={{ language_filter }}">
-                Вперёд →
+                {% translate "Вперёд" %} →
             </a>
         </li>
         {% endif %}
@@ -160,11 +161,11 @@
 <div class="text-center py-5 text-muted">
     <i class="bi bi-inbox display-4 d-block mb-2"></i>
     {% if q or status_filter or genre_filter or language_filter %}
-        Ничего не найдено.
-        <a href="{% url 'catalog_admin:index' %}">Сбросить фильтры</a>
+        {% translate "Ничего не найдено." %}
+        <a href="{% url 'catalog_admin:index' %}">{% translate "Сбросить фильтры" %}</a>
     {% else %}
-        Каталог пуст.
-        <a href="{% url 'catalog_admin:book_create' %}">Добавить первую книгу</a>
+        {% translate "Каталог пуст." %}
+        <a href="{% url 'catalog_admin:book_create' %}">{% translate "Добавить первую книгу" %}</a>
     {% endif %}
 </div>
 {% endif %}
@@ -179,6 +180,7 @@
     var deselectBtn = document.getElementById('btn-deselect-all');
     var bulkDeleteUrl = '{% url "catalog_admin:book_bulk_delete" %}';
     var labelUrl = '{% url "catalog_admin:book_title_labels_batch" %}';
+    var selectedLabel = '{% translate "Выбрано:" %}';
 
     function getChecked() {
         return Array.from(document.querySelectorAll('.title-check:checked'));
@@ -188,7 +190,7 @@
         var checked = getChecked();
         if (checked.length > 0) {
             toolbar.style.display = 'flex';
-            countEl.textContent = 'Выбрано: ' + checked.length;
+            countEl.textContent = selectedLabel + ' ' + checked.length;
             var ids = checked.map(function (c) { return 'ids=' + c.value; }).join('&');
             deleteBtn.href = bulkDeleteUrl + '?' + ids;
             printBtn.href = labelUrl + '?' + ids;

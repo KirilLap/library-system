@@ -1,34 +1,34 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Удалить читателя{% endblock %}
+{% block title %}{% translate "Удалить читателя" %}{% endblock %}
 {% block nav_readers %}active{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-7">
-        <h1 class="h4 mb-3">Удалить читателя</h1>
+        <h1 class="h4 mb-3">{% translate "Удалить читателя" %}</h1>
 
         {% if has_loans %}
         <div class="alert alert-danger">
-            <p class="mb-1"><strong>Нельзя удалить</strong> — у читателя есть история выдач книг.</p>
-            <p class="mb-0">Используйте блокировку, чтобы читатель не мог брать книги и подавать заявки,
-                но история выдач сохранилась.</p>
+            <p class="mb-1"><strong>{% translate "Нельзя удалить" %}</strong> — {% translate "у читателя есть история выдач книг." %}</p>
+            <p class="mb-0">{% translate "Используйте блокировку, чтобы читатель не мог брать книги и подавать заявки, но история выдач сохранилась." %}</p>
         </div>
-        <a href="{% url 'readers_admin:detail' reader.pk %}" class="btn btn-outline-secondary">Назад</a>
+        <a href="{% url 'readers_admin:detail' reader.pk %}" class="btn btn-outline-secondary">{% translate "Назад" %}</a>
         {% else %}
         <div class="alert alert-danger">
-            <p class="mb-1">Вы действительно хотите удалить читателя?</p>
+            <p class="mb-1">{% translate "Вы действительно хотите удалить читателя?" %}</p>
             <p class="mb-0"><strong>{{ reader.full_name }}</strong> ({{ reader.user.username }})</p>
         </div>
         <p class="text-muted small">
-            Будет удалён аккаунт читателя и вся история его заявок. Это необратимо.
+            {% translate "Будет удалён аккаунт читателя и вся история его заявок. Это необратимо." %}
         </p>
         <form method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">
-                <i class="bi bi-trash"></i> Да, удалить читателя
+                <i class="bi bi-trash"></i> {% translate "Да, удалить читателя" %}
             </button>
-            <a href="{% url 'readers_admin:detail' reader.pk %}" class="btn btn-outline-secondary ms-2">Отмена</a>
+            <a href="{% url 'readers_admin:detail' reader.pk %}" class="btn btn-outline-secondary ms-2">{% translate "Отмена" %}</a>
         </form>
         {% endif %}
     </div>

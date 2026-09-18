@@ -1,6 +1,7 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Партия #{{ batch.pk }}{% endblock %}
+{% block title %}{% blocktranslate with pk=batch.pk %}Партия #{{ pk }}{% endblocktranslate %}{% endblock %}
 {% block nav_deliveries %}active{% endblock %}
 
 {% block content %}
@@ -8,11 +9,11 @@
     <a href="{% url 'deliveries_admin:index' %}" class="btn btn-sm btn-outline-secondary">
         <i class="bi bi-arrow-left"></i>
     </a>
-    <h2 class="mb-0">Партия #{{ batch.pk }}</h2>
+    <h2 class="mb-0">{% blocktranslate with pk=batch.pk %}Партия #{{ pk }}{% endblocktranslate %}</h2>
     {% if batch.is_returned %}
-        <span class="badge bg-secondary fs-6">Возвращена {{ batch.returned_date|date:"d.m.Y" }}</span>
+        <span class="badge bg-secondary fs-6">{% blocktranslate with d=batch.returned_date|date:"d.m.Y" %}Возвращена {{ d }}{% endblocktranslate %}</span>
     {% else %}
-        <span class="badge bg-success fs-6">В библиопункте</span>
+        <span class="badge bg-success fs-6">{% translate "В библиопункте" %}</span>
     {% endif %}
 </div>
 
@@ -20,20 +21,20 @@
     <!-- Left: info + actions -->
     <div class="col-lg-4">
         <div class="card shadow-sm mb-3">
-            <div class="card-header"><i class="bi bi-info-circle"></i> Информация</div>
+            <div class="card-header"><i class="bi bi-info-circle"></i> {% translate "Информация" %}</div>
             <div class="card-body">
                 <dl class="mb-0">
-                    <dt class="text-muted small">Библиопункт</dt>
+                    <dt class="text-muted small">{% translate "Библиопункт" %}</dt>
                     <dd>
                         <a href="{% url 'locations_admin:detail' batch.location.pk %}">{{ batch.location.name }}</a>
                     </dd>
-                    <dt class="text-muted small">Дата доставки</dt>
+                    <dt class="text-muted small">{% translate "Дата доставки" %}</dt>
                     <dd>{{ batch.delivery_date|date:"d.m.Y" }}</dd>
                     {% if batch.note %}
-                    <dt class="text-muted small">Примечание</dt>
+                    <dt class="text-muted small">{% translate "Примечание" %}</dt>
                     <dd>{{ batch.note }}</dd>
                     {% endif %}
-                    <dt class="text-muted small">Книг в партии</dt>
+                    <dt class="text-muted small">{% translate "Книг в партии" %}</dt>
                     <dd><strong>{{ items|length }}</strong></dd>
                 </dl>
             </div>
@@ -41,20 +42,20 @@
 
         <div class="d-grid gap-2">
             <a href="{% url 'deliveries_admin:pdf' batch.pk %}" class="btn btn-outline-primary">
-                <i class="bi bi-file-pdf"></i> Скачать акт (PDF)
+                <i class="bi bi-file-pdf"></i> {% translate "Скачать акт (PDF)" %}
             </a>
 
             {% if not batch.is_returned %}
             <form method="post" action="{% url 'deliveries_admin:return' batch.pk %}"
-                  onsubmit="return confirm('Отметить партию как возвращённую? Все книги будут переведены в «В библиотеке».')">
+                  onsubmit="return confirm('{% translate 'Отметить партию как возвращённую? Все книги будут переведены в «В библиотеке».' %}')">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-warning w-100">
-                    <i class="bi bi-box-arrow-in-left"></i> Отметить возвращённой
+                    <i class="bi bi-box-arrow-in-left"></i> {% translate "Отметить возвращённой" %}
                 </button>
             </form>
             {% endif %}
             <a href="{% url 'deliveries_admin:delete' batch.pk %}" class="btn btn-outline-danger">
-                <i class="bi bi-trash"></i> Удалить партию
+                <i class="bi bi-trash"></i> {% translate "Удалить партию" %}
             </a>
         </div>
     </div>
@@ -65,7 +66,7 @@
         <!-- Add book form -->
         <div class="card shadow-sm mb-3 border-primary">
             <div class="card-header bg-primary text-white">
-                <i class="bi bi-plus-circle"></i> Добавить книгу по инв. номеру
+                <i class="bi bi-plus-circle"></i> {% translate "Добавить книгу по инв. номеру" %}
             </div>
             <div class="card-body">
                 <form method="post" id="addBookForm" autocomplete="off">
@@ -74,7 +75,7 @@
                         {{ add_form.inventory_number }}
                         {% include "includes/barcode_scanner.html" with target_input_id="id_inventory_number" %}
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-plus-lg"></i> Добавить
+                            <i class="bi bi-plus-lg"></i> {% translate "Добавить" %}
                         </button>
                     </div>
                     {% if add_form.inventory_number.errors %}
@@ -85,8 +86,7 @@
                 </form>
                 <div class="text-muted small mt-2">
                     <i class="bi bi-info-circle"></i>
-                    Введите инвентарный номер и нажмите Enter или кнопку «Добавить».
-                    Поддерживается USB штрих-код сканер.
+                    {% translate "Введите инвентарный номер и нажмите Enter или кнопку «Добавить». Поддерживается USB штрих-код сканер." %}
                 </div>
             </div>
         </div>
@@ -95,7 +95,7 @@
         <!-- Books table -->
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-book"></i> Книги в партии
+                <span><i class="bi bi-book"></i> {% translate "Книги в партии" %}
                     <span class="badge bg-primary ms-1">{{ items|length }}</span>
                 </span>
             </div>
@@ -106,10 +106,10 @@
                         <thead class="table-light">
                             <tr>
                                 <th>#</th>
-                                <th>Инв. №</th>
-                                <th>Название</th>
-                                <th>Автор</th>
-                                <th>Статус</th>
+                                <th>{% translate "Инв. №" %}</th>
+                                <th>{% translate "Название" %}</th>
+                                <th>{% translate "Автор" %}</th>
+                                <th>{% translate "Статус" %}</th>
                                 {% if not batch.is_returned %}<th></th>{% endif %}
                             </tr>
                         </thead>
@@ -126,18 +126,18 @@
                                 <td class="small text-muted">{{ item.book.author|truncatechars:25 }}</td>
                                 <td>
                                     {% if item.is_returned %}
-                                        <span class="badge bg-secondary">Возвращена</span>
+                                        <span class="badge bg-secondary">{% translate "Возвращена" %}</span>
                                     {% else %}
-                                        <span class="badge bg-success">В библиопункте</span>
+                                        <span class="badge bg-success">{% translate "В библиопункте" %}</span>
                                     {% endif %}
                                 </td>
                                 {% if not batch.is_returned %}
                                 <td class="text-end">
                                     <form method="post"
                                           action="{% url 'deliveries_admin:remove_item' batch.pk item.pk %}"
-                                          onsubmit="return confirm('Удалить книгу из партии?')">
+                                          onsubmit="return confirm('{% translate 'Удалить книгу из партии?' %}')">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Удалить из партии">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{% translate 'Удалить из партии' %}">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
                                     </form>
@@ -150,7 +150,7 @@
                 </div>
                 {% else %}
                 <div class="text-center py-4 text-muted">
-                    Книг ещё нет. Добавьте по инвентарному номеру.
+                    {% translate "Книг ещё нет. Добавьте по инвентарному номеру." %}
                 </div>
                 {% endif %}
             </div>

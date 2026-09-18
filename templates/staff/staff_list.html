@@ -1,13 +1,14 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Сотрудники{% endblock %}
+{% block title %}{% translate "Сотрудники" %}{% endblock %}
 {% block nav_staff %}active{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0"><i class="bi bi-people-fill"></i> Сотрудники</h4>
+    <h4 class="mb-0"><i class="bi bi-people-fill"></i> {% translate "Сотрудники" %}</h4>
     <a href="{% url 'staff:create' %}" class="btn btn-primary">
-        <i class="bi bi-person-plus"></i> Добавить сотрудника
+        <i class="bi bi-person-plus"></i> {% translate "Добавить сотрудника" %}
     </a>
 </div>
 
@@ -16,11 +17,11 @@
         <table class="table table-hover mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>Имя</th>
-                    <th>Логин</th>
-                    <th>Роль</th>
-                    <th>Статус</th>
-                    <th>Добавлен</th>
+                    <th>{% translate "Имя" %}</th>
+                    <th>{% translate "Логин" %}</th>
+                    <th>{% translate "Роль" %}</th>
+                    <th>{% translate "Статус" %}</th>
+                    <th>{% translate "Добавлен" %}</th>
                     <th></th>
                 </tr>
             </thead>
@@ -31,16 +32,16 @@
                     <td class="text-muted">{{ profile.user.username }}</td>
                     <td>
                         {% if profile.is_admin %}
-                        <span class="badge bg-danger">Администратор</span>
+                        <span class="badge bg-danger">{% translate "Администратор" %}</span>
                         {% else %}
-                        <span class="badge bg-secondary">Библиотекарь</span>
+                        <span class="badge bg-secondary">{% translate "Библиотекарь" %}</span>
                         {% endif %}
                     </td>
                     <td>
                         {% if profile.is_active %}
-                        <span class="badge bg-success">Активен</span>
+                        <span class="badge bg-success">{% translate "Активен" %}</span>
                         {% else %}
-                        <span class="badge bg-warning text-dark">Заблокирован</span>
+                        <span class="badge bg-warning text-dark">{% translate "Заблокирован" %}</span>
                         {% endif %}
                     </td>
                     <td class="text-muted small">{{ profile.created_at|date:"d.m.Y" }}</td>
@@ -52,7 +53,7 @@
                         <form method="post" action="{% url 'staff:toggle' profile.pk %}" class="d-inline">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm {% if profile.is_active %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
-                                    onclick="return confirm('{% if profile.is_active %}Заблокировать{% else %}Активировать{% endif %} сотрудника?')">
+                                    onclick="return confirm('{% if profile.is_active %}{% translate 'Заблокировать сотрудника?' %}{% else %}{% translate 'Активировать сотрудника?' %}{% endif %}')">
                                 {% if profile.is_active %}
                                 <i class="bi bi-lock"></i>
                                 {% else %}
@@ -65,7 +66,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center text-muted py-4">Сотрудников нет</td>
+                    <td colspan="6" class="text-center text-muted py-4">{% translate "Сотрудников нет" %}</td>
                 </tr>
                 {% endfor %}
             </tbody>

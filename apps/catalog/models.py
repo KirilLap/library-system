@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class Genre(models.Model):
@@ -91,9 +92,9 @@ class Book(models.Model):
     ссылающийся на book.title / book.author и т.д."""
 
     STATUS_CHOICES = [
-        ('IN_LIBRARY', 'В библиотеке'),
-        ('IN_DELIVERY', 'В библиопункте'),
-        ('LOST', 'Утеряна'),
+        ('IN_LIBRARY', _('В библиотеке')),
+        ('IN_DELIVERY', _('В библиопункте')),
+        ('LOST', _('Утеряна')),
     ]
 
     book_title = models.ForeignKey(

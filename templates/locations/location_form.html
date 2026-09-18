@@ -1,6 +1,7 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{% translate title %}{% endblock %}
 {% block nav_locations %}active{% endblock %}
 
 {% block content %}
@@ -11,7 +12,7 @@
                class="btn btn-sm btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i>
             </a>
-            <h2 class="mb-0">{{ title }}</h2>
+            <h2 class="mb-0">{% translate title %}</h2>
         </div>
 
         <div class="card shadow-sm">
@@ -23,30 +24,29 @@
                     {% if field.name == 'latitude' or field.name == 'longitude' %}{% else %}
                     <div class="mb-3">
                         <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
-                            {{ field.label }}
+                            {% translate field.label %}
                             {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
                         </label>
                         {% if field.name == 'is_active' %}
                         <div class="form-check">
                             {{ field }}
                             <label class="form-check-label" for="{{ field.id_for_label }}">
-                                Библиопункт активен (отображается в списке)
+                                {% translate "Библиопункт активен (отображается в списке)" %}
                             </label>
                         </div>
                         {% elif field.name == 'is_public' %}
                         <div class="form-check">
                             {{ field }}
                             <label class="form-check-label" for="{{ field.id_for_label }}">
-                                Показывать в публичном каталоге
+                                {% translate "Показывать в публичном каталоге" %}
                             </label>
                         </div>
-                        <div class="form-text">{{ field.help_text }}</div>
                         {% else %}
                             {{ field }}
                         {% endif %}
                         {% if field.name == 'address' %}
                         <button type="button" id="btn-geocode-address" class="btn btn-sm btn-outline-primary mt-2">
-                            <i class="bi bi-search"></i> Найти на карте по этому адресу
+                            <i class="bi bi-search"></i> {% translate "Найти на карте по этому адресу" %}
                         </button>
                         <div id="geocode-status" class="small mt-1"></div>
                         {% endif %}
@@ -54,7 +54,7 @@
                         <div class="text-danger small mt-1">{{ error }}</div>
                         {% endfor %}
                         {% if field.help_text %}
-                        <div class="form-text">{{ field.help_text }}</div>
+                        <div class="form-text">{% translate field.help_text %}</div>
                         {% endif %}
                     </div>
                     {% endif %}
@@ -63,37 +63,37 @@
                     <!-- Map picker -->
                     <div class="mb-3">
                         <label class="form-label fw-semibold">
-                            <i class="bi bi-geo-alt"></i> Местоположение на карте
+                            <i class="bi bi-geo-alt"></i> {% translate "Местоположение на карте" %}
                         </label>
                         <div class="text-muted small mb-2">
-                            Кликните по карте, чтобы указать координаты библиопункта.
+                            {% translate "Кликните по карте, чтобы указать координаты библиопункта." %}
                         </div>
                         <div id="map-picker" style="height:360px;border-radius:8px;border:1px solid #dee2e6"></div>
                         <div class="row g-2 mt-2">
                             <div class="col-6">
-                                <label class="form-label small">Широта</label>
+                                <label class="form-label small">{% translate "Широта" %}</label>
                                 {{ form.latitude }}
                             </div>
                             <div class="col-6">
-                                <label class="form-label small">Долгота</label>
+                                <label class="form-label small">{% translate "Долгота" %}</label>
                                 {{ form.longitude }}
                             </div>
                         </div>
                         {% if form.latitude.errors or form.longitude.errors %}
-                        <div class="text-danger small mt-1">Проверьте координаты.</div>
+                        <div class="text-danger small mt-1">{% translate "Проверьте координаты." %}</div>
                         {% endif %}
                         <button type="button" id="btn-clear-coords" class="btn btn-sm btn-outline-secondary mt-2">
-                            <i class="bi bi-x-circle"></i> Убрать метку
+                            <i class="bi bi-x-circle"></i> {% translate "Убрать метку" %}
                         </button>
                     </div>
 
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-check-lg"></i>
-                            {% if location %}Сохранить{% else %}Создать{% endif %}
+                            {% if location %}{% translate "Сохранить" %}{% else %}{% translate "Создать" %}{% endif %}
                         </button>
                         <a href="{% if location %}{% url 'locations_admin:detail' location.pk %}{% else %}{% url 'locations_admin:index' %}{% endif %}"
-                           class="btn btn-outline-secondary">Отмена</a>
+                           class="btn btn-outline-secondary">{% translate "Отмена" %}</a>
                     </div>
                 </form>
             </div>
@@ -105,6 +105,13 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 (function () {
+    var I18N = {
+        provideAddressFirst: "{% translate 'Сначала укажите адрес.' %}",
+        searching: "{% translate 'Ищем на карте…' %}",
+        notFound: "{% translate 'Ничего не найдено. Уточните адрес или укажите точку кликом по карте.' %}",
+        found: "{% translate 'Найдено:' %}",
+        searchFailed: "{% translate 'Не удалось выполнить поиск. Проверьте интернет-соединение.' %}"
+    };
     var latInput = document.getElementById('{{ form.latitude.id_for_label }}');
     var lngInput = document.getElementById('{{ form.longitude.id_for_label }}');
 
@@ -196,13 +203,13 @@
             var query = addressField.value.trim();
             if (!query) {
                 geocodeStatus.className = 'small mt-1 text-danger';
-                geocodeStatus.textContent = 'Сначала укажите адрес.';
+                geocodeStatus.textContent = I18N.provideAddressFirst;
                 return;
             }
 
             geocodeBtn.disabled = true;
             geocodeStatus.className = 'small mt-1 text-muted';
-            geocodeStatus.textContent = 'Ищем на карте…';
+            geocodeStatus.textContent = I18N.searching;
 
             var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(query);
 
@@ -212,7 +219,7 @@
                     geocodeBtn.disabled = false;
                     if (!results.length) {
                         geocodeStatus.className = 'small mt-1 text-danger';
-                        geocodeStatus.textContent = 'Ничего не найдено. Уточните адрес или укажите точку кликом по карте.';
+                        geocodeStatus.textContent = I18N.notFound;
                         return;
                     }
                     var lat = parseFloat(results[0].lat);
@@ -220,12 +227,12 @@
                     map.setView([lat, lng], 16);
                     placeMarker(lat, lng);
                     geocodeStatus.className = 'small mt-1 text-success';
-                    geocodeStatus.textContent = 'Найдено: ' + results[0].display_name;
+                    geocodeStatus.textContent = I18N.found + ' ' + results[0].display_name;
                 })
                 .catch(function () {
                     geocodeBtn.disabled = false;
                     geocodeStatus.className = 'small mt-1 text-danger';
-                    geocodeStatus.textContent = 'Не удалось выполнить поиск. Проверьте интернет-соединение.';
+                    geocodeStatus.textContent = I18N.searchFailed;
                 });
         });
     }

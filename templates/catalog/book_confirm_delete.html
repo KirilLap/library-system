@@ -1,24 +1,25 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Удалить книгу{% endblock %}
+{% block title %}{% translate "Удалить книгу" %}{% endblock %}
 {% block nav_catalog %}active{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-6">
-        <h1 class="h4 mb-3">Удалить книгу</h1>
+        <h1 class="h4 mb-3">{% translate "Удалить книгу" %}</h1>
         <div class="alert alert-danger">
-            <p class="mb-1">Вы действительно хотите удалить эту книгу?</p>
+            <p class="mb-1">{% translate "Вы действительно хотите удалить эту книгу?" %}</p>
             <p class="mb-1"><strong>{{ book.inventory_number }} — {{ book.title }}</strong></p>
-            <p class="mb-0 text-muted">Автор: {{ book.author }}</p>
+            <p class="mb-0 text-muted">{% translate "Автор:" %} {{ book.author }}</p>
         </div>
         <form method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">
-                <i class="bi bi-trash"></i> Да, удалить
+                <i class="bi bi-trash"></i> {% translate "Да, удалить" %}
             </button>
             <a href="{% url 'catalog_admin:book_update' book.pk %}"
-               class="btn btn-outline-secondary ms-2">Отмена</a>
+               class="btn btn-outline-secondary ms-2">{% translate "Отмена" %}</a>
         </form>
     </div>
 </div>

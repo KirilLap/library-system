@@ -1,4 +1,5 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
 {% block title %}{{ reader.full_name }}{% endblock %}
 {% block nav_readers %}active{% endblock %}
@@ -10,35 +11,35 @@
     </a>
     <h2 class="mb-0">{{ reader.full_name }}</h2>
     {% if reader.is_blocked %}
-        <span class="badge bg-danger">Заблокирован</span>
+        <span class="badge bg-danger">{% translate "Заблокирован" %}</span>
     {% else %}
-        <span class="badge bg-success">Активен</span>
+        <span class="badge bg-success">{% translate "Активен" %}</span>
     {% endif %}
 </div>
 
 <div class="row g-4">
     <div class="col-lg-4">
         <div class="card shadow-sm mb-3">
-            <div class="card-header"><i class="bi bi-person-circle"></i> Профиль</div>
+            <div class="card-header"><i class="bi bi-person-circle"></i> {% translate "Профиль" %}</div>
             <div class="card-body">
                 <dl class="mb-0">
-                    <dt class="text-muted small">Имя</dt>
+                    <dt class="text-muted small">{% translate "Имя" %}</dt>
                     <dd>{{ reader.user.get_full_name|default:"—" }}</dd>
-                    <dt class="text-muted small">Логин</dt>
+                    <dt class="text-muted small">{% translate "Логин" %}</dt>
                     <dd>{{ reader.user.username }}</dd>
                     {% if reader.user.email %}
                     <dt class="text-muted small">Email</dt>
                     <dd>{{ reader.user.email }}</dd>
                     {% endif %}
                     {% if reader.phone %}
-                    <dt class="text-muted small">Телефон</dt>
+                    <dt class="text-muted small">{% translate "Телефон" %}</dt>
                     <dd>{{ reader.phone }}</dd>
                     {% endif %}
                     {% if reader.address %}
-                    <dt class="text-muted small">Адрес</dt>
+                    <dt class="text-muted small">{% translate "Адрес" %}</dt>
                     <dd>{{ reader.address }}</dd>
                     {% endif %}
-                    <dt class="text-muted small">Зарегистрирован</dt>
+                    <dt class="text-muted small">{% translate "Зарегистрирован" %}</dt>
                     <dd>{{ reader.created_at|date:"d.m.Y" }}</dd>
                 </dl>
             </div>
@@ -48,17 +49,17 @@
             {% csrf_token %}
             {% if reader.is_blocked %}
             <button type="submit" class="btn btn-success w-100">
-                <i class="bi bi-unlock"></i> Разблокировать
+                <i class="bi bi-unlock"></i> {% translate "Разблокировать" %}
             </button>
             {% else %}
             <button type="submit" class="btn btn-danger w-100"
-                    onclick="return confirm('Заблокировать читателя?')">
-                <i class="bi bi-slash-circle"></i> Заблокировать
+                    onclick="return confirm('{% translate 'Заблокировать читателя?' %}')">
+                <i class="bi bi-slash-circle"></i> {% translate "Заблокировать" %}
             </button>
             {% endif %}
         </form>
         <a href="{% url 'readers_admin:delete' reader.pk %}" class="btn btn-outline-danger w-100 mt-2">
-            <i class="bi bi-trash"></i> Удалить читателя
+            <i class="bi bi-trash"></i> {% translate "Удалить читателя" %}
         </a>
     </div>
 
@@ -68,13 +69,13 @@
         {% if active_loans %}
         <div class="card shadow-sm mb-3 border-primary">
             <div class="card-header bg-primary bg-opacity-10">
-                <i class="bi bi-book-half"></i> Сейчас на руках
+                <i class="bi bi-book-half"></i> {% translate "Сейчас на руках" %}
                 <span class="badge bg-primary ms-1">{{ active_loans|length }}</span>
             </div>
             <div class="card-body p-0">
                 <table class="table table-sm mb-0 align-middle">
                     <thead class="table-light">
-                        <tr><th>Книга</th><th>Библиопункт</th><th>Взята</th><th></th></tr>
+                        <tr><th>{% translate "Книга" %}</th><th>{% translate "Библиопункт" %}</th><th>{% translate "Взята" %}</th><th></th></tr>
                     </thead>
                     <tbody>
                         {% for loan in active_loans %}
@@ -87,7 +88,7 @@
                             <td class="small text-muted text-nowrap">{{ loan.issued_at|date:"d.m.Y" }}</td>
                             <td class="small">
                                 {% if loan.is_overdue %}
-                                <span class="badge bg-danger">Просрочено, {{ loan.days_held }} дн.</span>
+                                <span class="badge bg-danger">{% blocktranslate with days=loan.days_held %}Просрочено, {{ days }} дн.{% endblocktranslate %}</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -101,7 +102,7 @@
         <!-- Заявки -->
         <div class="card shadow-sm mb-3">
             <div class="card-header">
-                <i class="bi bi-envelope-paper"></i> Заявки
+                <i class="bi bi-envelope-paper"></i> {% translate "Заявки" %}
                 <span class="badge bg-primary ms-1">{{ reader_requests|length }}</span>
             </div>
             <div class="card-body p-0">
@@ -111,9 +112,9 @@
                         <thead class="table-light">
                             <tr>
                                 <th>#</th>
-                                <th>Книга</th>
-                                <th>Дата</th>
-                                <th>Статус</th>
+                                <th>{% translate "Книга" %}</th>
+                                <th>{% translate "Дата" %}</th>
+                                <th>{% translate "Статус" %}</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -130,7 +131,7 @@
                                 <td class="small text-muted">{{ req.created_at|date:"d.m.Y" }}</td>
                                 <td>
                                     <span class="badge bg-{{ req.get_status_badge_class }}">
-                                        {{ req.get_status_display }}
+                                        {% translate req.get_status_display %}
                                     </span>
                                 </td>
                                 <td>
@@ -145,7 +146,7 @@
                     </table>
                 </div>
                 {% else %}
-                <div class="text-center py-4 text-muted">Заявок нет</div>
+                <div class="text-center py-4 text-muted">{% translate "Заявок нет" %}</div>
                 {% endif %}
             </div>
         </div>
@@ -153,7 +154,7 @@
         <!-- История займов -->
         <div class="card shadow-sm">
             <div class="card-header">
-                <i class="bi bi-clock-history"></i> История чтения
+                <i class="bi bi-clock-history"></i> {% translate "История чтения" %}
                 <span class="badge bg-secondary ms-1">{{ loan_history|length }}</span>
             </div>
             <div class="card-body p-0">
@@ -162,10 +163,10 @@
                     <table class="table table-sm mb-0 align-middle">
                         <thead class="table-light">
                             <tr>
-                                <th>Книга</th>
-                                <th>Библиопункт</th>
-                                <th>Взята</th>
-                                <th>Возвращена</th>
+                                <th>{% translate "Книга" %}</th>
+                                <th>{% translate "Библиопункт" %}</th>
+                                <th>{% translate "Взята" %}</th>
+                                <th>{% translate "Возвращена" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -186,7 +187,7 @@
                     </table>
                 </div>
                 {% else %}
-                <div class="text-center py-3 text-muted small">История пуста</div>
+                <div class="text-center py-3 text-muted small">{% translate "История пуста" %}</div>
                 {% endif %}
             </div>
         </div>

@@ -1,6 +1,7 @@
 {% extends "organizations/org_base.html" %}
+{% load i18n %}
 
-{% block title %}{{ location.name }} — книги{% endblock %}
+{% block title %}{{ location.name }} — {% translate "книги" %}{% endblock %}
 
 {% block content %}
 <div class="mb-4">
@@ -8,7 +9,7 @@
     <p class="text-muted mb-0">
         <i class="bi bi-geo-alt"></i> {{ location.address }}
         &nbsp;·&nbsp;
-        <span class="badge bg-secondary">{{ location.get_type_display }}</span>
+        <span class="badge bg-secondary">{% translate location.get_type_display %}</span>
     </p>
 </div>
 
@@ -17,13 +18,13 @@
     <div class="col-sm-4">
         <div class="card border-primary text-center py-3">
             <div class="display-5 fw-bold text-primary">{{ books|length }}</div>
-            <div class="text-muted small">Книг сейчас</div>
+            <div class="text-muted small">{% translate "Книг сейчас" %}</div>
         </div>
     </div>
     <div class="col-sm-4">
         <div class="card text-center py-3">
             <div class="display-5 fw-bold">{{ history|length }}</div>
-            <div class="text-muted small">Доставок</div>
+            <div class="text-muted small">{% translate "Доставок" %}</div>
         </div>
     </div>
     <div class="col-sm-4">
@@ -31,7 +32,7 @@
             <div class="display-5 fw-bold text-success">
                 {% if location.last_delivery_date %}{{ location.last_delivery_date|date:"d.m" }}{% else %}—{% endif %}
             </div>
-            <div class="text-muted small">Последняя доставка</div>
+            <div class="text-muted small">{% translate "Последняя доставка" %}</div>
         </div>
     </div>
 </div>
@@ -41,15 +42,15 @@
     <div class="col-sm-6">
         <div class="input-group">
             <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input type="search" name="q" value="{{ q }}" placeholder="Поиск по названию или автору…"
+            <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Поиск по названию или автору…' %}"
                    class="form-control">
         </div>
     </div>
     <div class="col-sm-4">
         <select name="genre" class="form-select" onchange="this.form.submit()">
-            <option value="">— Все жанры —</option>
+            <option value="">{% translate "— Все жанры —" %}</option>
             {% for code, label in genre_choices %}
-            <option value="{{ code }}" {% if genre_filter == code %}selected{% endif %}>{{ label }}</option>
+            <option value="{{ code }}" {% if genre_filter == code %}selected{% endif %}>{% translate label %}</option>
             {% endfor %}
         </select>
     </div>
@@ -70,13 +71,13 @@
             <div class="card-body d-flex flex-column">
                 <h6 class="card-title mb-1">{{ book.title }}</h6>
                 <p class="text-muted small mb-1">{{ book.author }}</p>
-                {% if book.year %}<p class="text-muted small mb-1">{{ book.year }} г.</p>{% endif %}
+                {% if book.year %}<p class="text-muted small mb-1">{{ book.year }} {% translate "г." %}</p>{% endif %}
                 <span class="badge bg-light text-dark border mt-auto align-self-start">
-                    {{ book.get_genre_display }}
+                    {% translate book.get_genre_display %}
                 </span>
             </div>
             <div class="card-footer bg-transparent text-muted small">
-                Инв. {{ book.inventory_number }}
+                {% translate "Инв." %} {{ book.inventory_number }}
             </div>
         </div>
     </div>
@@ -87,9 +88,9 @@
     <i class="bi bi-book" style="font-size:3rem;opacity:.3;"></i>
     <p class="mt-3">
         {% if q or genre_filter %}
-            По вашему запросу ничего не найдено. <a href="?">Сбросить</a>
+            {% translate "По вашему запросу ничего не найдено." %} <a href="?">{% translate "Сбросить" %}</a>
         {% else %}
-            Книг в библиопункте сейчас нет.
+            {% translate "Книг в библиопункте сейчас нет." %}
         {% endif %}
     </p>
 </div>
@@ -97,15 +98,15 @@
 
 <!-- Delivery history -->
 {% if history %}
-<h4 class="mb-3"><i class="bi bi-clock-history"></i> История доставок</h4>
+<h4 class="mb-3"><i class="bi bi-clock-history"></i> {% translate "История доставок" %}</h4>
 <div class="table-responsive">
     <table class="table table-sm table-hover">
         <thead class="table-light">
             <tr>
-                <th>Дата</th>
-                <th>Партия</th>
-                <th class="text-center">Книг</th>
-                <th>Статус</th>
+                <th>{% translate "Дата" %}</th>
+                <th>{% translate "Партия" %}</th>
+                <th class="text-center">{% translate "Книг" %}</th>
+                <th>{% translate "Статус" %}</th>
             </tr>
         </thead>
         <tbody>
@@ -116,9 +117,9 @@
                 <td class="text-center">{{ batch.items.count }}</td>
                 <td>
                     {% if batch.is_returned %}
-                        <span class="badge bg-secondary">Возвращена</span>
+                        <span class="badge bg-secondary">{% translate "Возвращена" %}</span>
                     {% else %}
-                        <span class="badge bg-success">В библиопункте</span>
+                        <span class="badge bg-success">{% translate "В библиопункте" %}</span>
                     {% endif %}
                 </td>
             </tr>

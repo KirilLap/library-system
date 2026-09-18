@@ -1,12 +1,13 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Импорт Excel{% endblock %}
+{% block title %}{% translate "Импорт Excel" %}{% endblock %}
 {% block nav_catalog %}active{% endblock %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-3 gap-2">
-    <a href="{% url 'catalog_admin:index' %}" class="btn btn-sm btn-outline-secondary">← Каталог</a>
-    <h4 class="mb-0">Импорт из Excel</h4>
+    <a href="{% url 'catalog_admin:index' %}" class="btn btn-sm btn-outline-secondary">← {% translate "Каталог" %}</a>
+    <h4 class="mb-0">{% translate "Импорт из Excel" %}</h4>
 </div>
 
 <div class="row">
@@ -14,9 +15,9 @@
 
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-file-earmark-excel text-success"></i> Загрузить файл</span>
+                <span><i class="bi bi-file-earmark-excel text-success"></i> {% translate "Загрузить файл" %}</span>
                 <a href="{% url 'catalog_admin:excel_template' %}" class="btn btn-sm btn-outline-success">
-                    <i class="bi bi-download"></i> Скачать шаблон
+                    <i class="bi bi-download"></i> {% translate "Скачать шаблон" %}
                 </a>
             </div>
             <div class="card-body">
@@ -29,7 +30,7 @@
                         {% endfor %}
                     </div>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-eye"></i> Просмотреть
+                        <i class="bi bi-eye"></i> {% translate "Просмотреть" %}
                     </button>
                 </form>
             </div>
@@ -46,21 +47,21 @@
 
 {% if has_data %}
 <h5 class="mt-2 mb-2">
-    Предпросмотр
-    <span class="badge bg-secondary">{{ total }} строк</span>
+    {% translate "Предпросмотр" %}
+    <span class="badge bg-secondary">{% blocktranslate %}{{ total }} строк{% endblocktranslate %}</span>
 </h5>
 
 <div class="table-responsive mb-3">
     <table class="table table-sm table-bordered align-middle">
         <thead class="table-light">
             <tr>
-                <th>Статус</th>
-                <th>Инв. номер</th>
-                <th>Название</th>
-                <th>Автор</th>
-                <th>Год</th>
-                <th>Жанр</th>
-                <th>Язык</th>
+                <th>{% translate "Статус" %}</th>
+                <th>{% translate "Инв. номер" %}</th>
+                <th>{% translate "Название" %}</th>
+                <th>{% translate "Автор" %}</th>
+                <th>{% translate "Год" %}</th>
+                <th>{% translate "Жанр" %}</th>
+                <th>{% translate "Язык" %}</th>
             </tr>
         </thead>
         <tbody>
@@ -68,13 +69,13 @@
             <tr>
                 <td>
                     {% if row.row_status == 'new' %}
-                    <span class="badge bg-success">{{ row.row_status_text }}</span>
+                    <span class="badge bg-success">{% translate row.row_status_text %}</span>
                     {% elif row.row_status == 'update' %}
-                    <span class="badge bg-primary">{{ row.row_status_text }}</span>
+                    <span class="badge bg-primary">{% translate row.row_status_text %}</span>
                     {% elif row.row_status == 'duplicate' %}
-                    <span class="badge bg-warning text-dark">{{ row.row_status_text }}</span>
+                    <span class="badge bg-warning text-dark">{% translate row.row_status_text %}</span>
                     {% else %}
-                    <span class="badge bg-danger">{{ row.row_status_text }}</span>
+                    <span class="badge bg-danger">{% translate row.row_status_text %}</span>
                     {% endif %}
                 </td>
                 <td><code>{{ row.inventory_number|default:"—" }}</code></td>
@@ -90,15 +91,15 @@
 </div>
 
 {% if total > 20 %}
-<p class="text-muted small">Показаны первые 20 из {{ total }} строк.</p>
+<p class="text-muted small">{% blocktranslate %}Показаны первые 20 из {{ total }} строк.{% endblocktranslate %}</p>
 {% endif %}
 
 <form method="post" action="{% url 'catalog_admin:excel_confirm' %}">
     {% csrf_token %}
     <button type="submit" class="btn btn-success">
-        <i class="bi bi-check-circle"></i> Импортировать {{ total }} книг
+        <i class="bi bi-check-circle"></i> {% blocktranslate %}Импортировать {{ total }} книг{% endblocktranslate %}
     </button>
-    <a href="{% url 'catalog_admin:excel_import' %}" class="btn btn-outline-secondary ms-2">Отмена</a>
+    <a href="{% url 'catalog_admin:excel_import' %}" class="btn btn-outline-secondary ms-2">{% translate "Отмена" %}</a>
 </form>
 {% endif %}
 

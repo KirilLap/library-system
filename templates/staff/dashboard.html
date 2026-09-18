@@ -1,8 +1,9 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="mb-0"><i class="bi bi-speedometer2"></i> Главная панель</h4>
+    <h4 class="mb-0"><i class="bi bi-speedometer2"></i> {% translate "Главная панель" %}</h4>
 </div>
 
 <!-- Статистика -->
@@ -13,16 +14,16 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="fs-2 fw-bold">{{ stats.books_total }}</div>
-                        <div class="small">Книг всего</div>
+                        <div class="small">{% translate "Книг всего" %}</div>
                     </div>
                     <i class="bi bi-journals fs-2 opacity-50"></i>
                 </div>
                 <div class="mt-2 small opacity-75">
-                    В библиотеке: {{ stats.books_in_library }}
+                    {% translate "В библиотеке:" %} {{ stats.books_in_library }}
                 </div>
             </div>
             <a href="/admin-panel/catalog/" class="card-footer text-white text-decoration-none small">
-                Открыть каталог <i class="bi bi-arrow-right"></i>
+                {% translate "Открыть каталог" %} <i class="bi bi-arrow-right"></i>
             </a>
         </div>
     </div>
@@ -33,16 +34,16 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="fs-2 fw-bold">{{ stats.books_in_delivery }}</div>
-                        <div class="small">В доставке</div>
+                        <div class="small">{% translate "В доставке" %}</div>
                     </div>
                     <i class="bi bi-truck fs-2 opacity-50"></i>
                 </div>
                 <div class="mt-2 small opacity-75">
-                    Активных партий: {{ stats.batches_active }}
+                    {% translate "Активных партий:" %} {{ stats.batches_active }}
                 </div>
             </div>
             <a href="/admin-panel/deliveries/" class="card-footer text-white text-decoration-none small">
-                Все партии <i class="bi bi-arrow-right"></i>
+                {% translate "Все партии" %} <i class="bi bi-arrow-right"></i>
             </a>
         </div>
     </div>
@@ -53,17 +54,17 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="fs-2 fw-bold">{{ stats.readers_total }}</div>
-                        <div class="small">Читателей</div>
+                        <div class="small">{% translate "Читателей" %}</div>
                     </div>
                     <i class="bi bi-people fs-2 opacity-50"></i>
                 </div>
                 <div class="mt-2 small opacity-75">
-                    Займов активных: {{ stats.loans_active }}
-                    {% if stats.loans_overdue %}· <strong>просрочено: {{ stats.loans_overdue }}</strong>{% endif %}
+                    {% translate "Займов активных:" %} {{ stats.loans_active }}
+                    {% if stats.loans_overdue %}· <strong>{% translate "просрочено:" %} {{ stats.loans_overdue }}</strong>{% endif %}
                 </div>
             </div>
             <a href="/admin-panel/readers/" class="card-footer text-white text-decoration-none small">
-                Все читатели <i class="bi bi-arrow-right"></i>
+                {% translate "Все читатели" %} <i class="bi bi-arrow-right"></i>
             </a>
         </div>
     </div>
@@ -74,16 +75,16 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="fs-2 fw-bold">{{ stats.requests_pending }}</div>
-                        <div class="small">Новых заявок</div>
+                        <div class="small">{% translate "Новых заявок" %}</div>
                     </div>
                     <i class="bi bi-inbox fs-2 opacity-50"></i>
                 </div>
                 <div class="mt-2 small opacity-75">
-                    Библиопунктов: {{ stats.locations_total }}
+                    {% translate "Библиопунктов:" %} {{ stats.locations_total }}
                 </div>
             </div>
             <a href="/admin-panel/requests/" class="card-footer text-white text-decoration-none small">
-                Все заявки <i class="bi bi-arrow-right"></i>
+                {% translate "Все заявки" %} <i class="bi bi-arrow-right"></i>
             </a>
         </div>
     </div>
@@ -92,7 +93,7 @@
 {% if overdue_loans %}
 <div class="card shadow-sm mb-4 border-danger">
     <div class="card-header bg-danger bg-opacity-10 d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-exclamation-triangle text-danger"></i> Просроченные займы
+        <span><i class="bi bi-exclamation-triangle text-danger"></i> {% translate "Просроченные займы" %}
             <span class="badge bg-danger ms-1">{{ stats.loans_overdue }}</span>
         </span>
     </div>
@@ -100,10 +101,10 @@
         <table class="table table-sm table-hover mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>Книга</th>
-                    <th>Читатель</th>
-                    <th>Библиопункт</th>
-                    <th class="text-end">Дней держит</th>
+                    <th>{% translate "Книга" %}</th>
+                    <th>{% translate "Читатель" %}</th>
+                    <th>{% translate "Библиопункт" %}</th>
+                    <th class="text-end">{% translate "Дней держит" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -121,7 +122,7 @@
                     </td>
                     <td class="small text-muted">{{ loan.location.name }}</td>
                     <td class="text-end">
-                        <span class="badge bg-danger">{{ loan.days_held }} дн.</span>
+                        <span class="badge bg-danger">{{ loan.days_held }} {% translate "дн." %}</span>
                     </td>
                 </tr>
                 {% endfor %}
@@ -138,17 +139,17 @@
     <div class="col-md-6">
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-truck"></i> Активные партии</span>
-                <a href="/admin-panel/deliveries/" class="btn btn-sm btn-outline-secondary">Все</a>
+                <span><i class="bi bi-truck"></i> {% translate "Активные партии" %}</span>
+                <a href="/admin-panel/deliveries/" class="btn btn-sm btn-outline-secondary">{% translate "Все" %}</a>
             </div>
             <div class="card-body p-0">
                 {% if active_batches %}
                 <table class="table table-sm table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Библиопункт</th>
-                            <th>Дата</th>
-                            <th class="text-end">Книг</th>
+                            <th>{% translate "Библиопункт" %}</th>
+                            <th>{% translate "Дата" %}</th>
+                            <th class="text-end">{% translate "Книг" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -170,7 +171,7 @@
                 {% else %}
                 <div class="text-center text-muted py-4">
                     <i class="bi bi-truck fs-3"></i>
-                    <div class="mt-2">Нет активных партий</div>
+                    <div class="mt-2">{% translate "Нет активных партий" %}</div>
                 </div>
                 {% endif %}
             </div>
@@ -182,21 +183,21 @@
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>
-                    <i class="bi bi-inbox"></i> Заявки на рассмотрении
+                    <i class="bi bi-inbox"></i> {% translate "Заявки на рассмотрении" %}
                     {% if stats.requests_pending > 0 %}
                     <span class="badge bg-danger ms-1">{{ stats.requests_pending }}</span>
                     {% endif %}
                 </span>
-                <a href="/admin-panel/requests/" class="btn btn-sm btn-outline-secondary">Все</a>
+                <a href="/admin-panel/requests/" class="btn btn-sm btn-outline-secondary">{% translate "Все" %}</a>
             </div>
             <div class="card-body p-0">
                 {% if pending_requests %}
                 <table class="table table-sm table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Читатель</th>
-                            <th>Книга</th>
-                            <th class="text-end">Дата</th>
+                            <th>{% translate "Читатель" %}</th>
+                            <th>{% translate "Книга" %}</th>
+                            <th class="text-end">{% translate "Дата" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -212,7 +213,7 @@
                 {% else %}
                 <div class="text-center text-muted py-4">
                     <i class="bi bi-inbox fs-3"></i>
-                    <div class="mt-2">Нет новых заявок</div>
+                    <div class="mt-2">{% translate "Нет новых заявок" %}</div>
                 </div>
                 {% endif %}
             </div>
@@ -223,18 +224,18 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-book"></i> Книги на руках у читателей ({{ stats.loans_active }})</span>
-                <a href="/admin-panel/readers/" class="btn btn-sm btn-outline-secondary">Читатели</a>
+                <span><i class="bi bi-book"></i> {% blocktranslate with n=stats.loans_active %}Книги на руках у читателей ({{ n }}){% endblocktranslate %}</span>
+                <a href="/admin-panel/readers/" class="btn btn-sm btn-outline-secondary">{% translate "Читатели" %}</a>
             </div>
             <div class="card-body p-0">
                 {% if recent_loans %}
                 <table class="table table-sm table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Книга</th>
-                            <th>Читатель</th>
-                            <th>Библиопункт</th>
-                            <th class="text-end">Выдана</th>
+                            <th>{% translate "Книга" %}</th>
+                            <th>{% translate "Читатель" %}</th>
+                            <th>{% translate "Библиопункт" %}</th>
+                            <th class="text-end">{% translate "Выдана" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -245,7 +246,7 @@
                                 {% if loan.reader %}
                                     {{ loan.reader.user.get_full_name|default:loan.reader.user.username }}
                                 {% else %}
-                                    <span class="text-muted">Анонимный</span>
+                                    <span class="text-muted">{% translate "Анонимный" %}</span>
                                 {% endif %}
                             </td>
                             <td class="small text-muted">{{ loan.location.name|default:"—" }}</td>
@@ -257,7 +258,7 @@
                 {% else %}
                 <div class="text-center text-muted py-4">
                     <i class="bi bi-book fs-3"></i>
-                    <div class="mt-2">Нет активных займов</div>
+                    <div class="mt-2">{% translate "Нет активных займов" %}</div>
                 </div>
                 {% endif %}
             </div>

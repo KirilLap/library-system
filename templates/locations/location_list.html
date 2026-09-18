@@ -1,24 +1,25 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Библиопункты{% endblock %}
+{% block title %}{% translate "Библиопункты" %}{% endblock %}
 {% block nav_locations %}active{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2><i class="bi bi-geo-alt"></i> Библиопункты</h2>
+    <h2><i class="bi bi-geo-alt"></i> {% translate "Библиопункты" %}</h2>
     <a href="{% url 'locations_admin:create' %}" class="btn btn-primary">
-        <i class="bi bi-plus-lg"></i> Добавить библиопункт
+        <i class="bi bi-plus-lg"></i> {% translate "Добавить библиопункт" %}
     </a>
 </div>
 
 <div class="mb-3">
     {% if show_inactive %}
         <a href="?" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-eye-slash"></i> Скрыть неактивные
+            <i class="bi bi-eye-slash"></i> {% translate "Скрыть неактивные" %}
         </a>
     {% else %}
         <a href="?inactive=1" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-eye"></i> Показать неактивные
+            <i class="bi bi-eye"></i> {% translate "Показать неактивные" %}
         </a>
     {% endif %}
 </div>
@@ -28,13 +29,13 @@
     <table class="table table-hover align-middle">
         <thead class="table-dark">
             <tr>
-                <th>Название</th>
-                <th>Тип</th>
-                <th>Адрес</th>
-                <th>Контакт</th>
-                <th class="text-center">Книг</th>
-                <th>Последняя доставка</th>
-                <th>Статус</th>
+                <th>{% translate "Название" %}</th>
+                <th>{% translate "Тип" %}</th>
+                <th>{% translate "Адрес" %}</th>
+                <th>{% translate "Контакт" %}</th>
+                <th class="text-center">{% translate "Книг" %}</th>
+                <th>{% translate "Последняя доставка" %}</th>
+                <th>{% translate "Статус" %}</th>
                 <th></th>
             </tr>
         </thead>
@@ -46,7 +47,7 @@
                         {{ loc.name }}
                     </a>
                 </td>
-                <td><span class="badge bg-secondary">{{ loc.get_type_display }}</span></td>
+                <td><span class="badge bg-secondary">{% translate loc.get_type_display %}</span></td>
                 <td class="text-muted small">{{ loc.address|truncatechars:50 }}</td>
                 <td class="small">
                     {% if loc.contact_person %}{{ loc.contact_person }}{% endif %}
@@ -64,18 +65,18 @@
                 </td>
                 <td>
                     {% if loc.is_active %}
-                        <span class="badge bg-success">Активна</span>
+                        <span class="badge bg-success">{% translate "Активна" %}</span>
                     {% else %}
-                        <span class="badge bg-secondary">Неактивна</span>
+                        <span class="badge bg-secondary">{% translate "Неактивна" %}</span>
                     {% endif %}
                     {% if not loc.is_public %}
-                        <span class="badge bg-warning text-dark" title="Не отображается в публичном каталоге">
-                            <i class="bi bi-eye-slash"></i> Скрыт
+                        <span class="badge bg-warning text-dark" title="{% translate 'Не отображается в публичном каталоге' %}">
+                            <i class="bi bi-eye-slash"></i> {% translate "Скрыт" %}
                         </span>
                     {% endif %}
                 </td>
                 <td class="text-end">
-                    <a href="{% url 'locations_admin:update' loc.pk %}" class="btn btn-sm btn-outline-secondary" title="Редактировать">
+                    <a href="{% url 'locations_admin:update' loc.pk %}" class="btn btn-sm btn-outline-secondary" title="{% translate 'Редактировать' %}">
                         <i class="bi bi-pencil"></i>
                     </a>
                 </td>
@@ -87,7 +88,7 @@
 {% else %}
 <div class="text-center py-5 text-muted">
     <i class="bi bi-geo-alt" style="font-size:3rem;"></i>
-    <p class="mt-3">Библиопунктов пока нет. <a href="{% url 'locations_admin:create' %}">Добавить первый</a></p>
+    <p class="mt-3">{% translate "Библиопунктов пока нет." %} <a href="{% url 'locations_admin:create' %}">{% translate "Добавить первый" %}</a></p>
 </div>
 {% endif %}
 {% endblock %}

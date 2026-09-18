@@ -1,13 +1,14 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class StaffProfile(models.Model):
     ROLE_ADMIN = 'ADMIN'
     ROLE_LIBRARIAN = 'LIBRARIAN'
     ROLE_CHOICES = [
-        (ROLE_ADMIN, 'Администратор'),
-        (ROLE_LIBRARIAN, 'Библиотекарь'),
+        (ROLE_ADMIN, _('Администратор')),
+        (ROLE_LIBRARIAN, _('Библиотекарь')),
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='staff_profile')

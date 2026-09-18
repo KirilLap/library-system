@@ -1,6 +1,7 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Выполнить заявку #{{ req.pk }}{% endblock %}
+{% block title %}{% blocktranslate with pk=req.pk %}Выполнить заявку #{{ pk }}{% endblocktranslate %}{% endblock %}
 {% block nav_requests %}active{% endblock %}
 
 {% block content %}
@@ -8,15 +9,15 @@
     <a href="{% url 'readers_admin_extra:request_detail' req.pk %}" class="btn btn-sm btn-outline-secondary">
         <i class="bi bi-arrow-left"></i>
     </a>
-    <h2 class="mb-0">Выполнить заявку #{{ req.pk }}</h2>
-    <span class="badge bg-{{ req.get_status_badge_class }}">{{ req.get_status_display }}</span>
+    <h2 class="mb-0">{% blocktranslate with pk=req.pk %}Выполнить заявку #{{ pk }}{% endblocktranslate %}</h2>
+    <span class="badge bg-{{ req.get_status_badge_class }}">{% translate req.get_status_display %}</span>
 </div>
 
 <!-- Инфо о заявке -->
 <div class="alert alert-light border mb-4">
     <div class="row align-items-center">
         <div class="col-md-4">
-            <div class="text-muted small">Читатель</div>
+            <div class="text-muted small">{% translate "Читатель" %}</div>
             <div class="fw-semibold">{{ req.reader.full_name }}</div>
             {% if req.reader.phone %}
             <a href="tel:{{ req.reader.phone }}" class="small text-muted">
@@ -25,7 +26,7 @@
             {% endif %}
         </div>
         <div class="col-md-4">
-            <div class="text-muted small">Запрошенная книга</div>
+            <div class="text-muted small">{% translate "Запрошенная книга" %}</div>
             {% if req.requested_title %}
                 <div class="fw-semibold">{{ req.requested_title }}</div>
                 <div class="text-muted small">{{ req.requested_author }}</div>
@@ -37,11 +38,11 @@
             {% endif %}
         </div>
         <div class="col-md-4">
-            <div class="text-muted small">Желаемый библиопункт</div>
+            <div class="text-muted small">{% translate "Желаемый библиопункт" %}</div>
             {% if req.preferred_location %}
                 <i class="bi bi-geo-alt text-primary"></i> {{ req.preferred_location.name }}
             {% else %}
-                <span class="text-muted">не указана</span>
+                <span class="text-muted">{% translate "не указана" %}</span>
             {% endif %}
         </div>
     </div>
@@ -53,16 +54,16 @@
     <div class="col-lg-6">
         <div class="card h-100">
             <div class="card-header bg-primary bg-opacity-10 fw-semibold">
-                <i class="bi bi-search"></i> Вариант 1 — Найти в каталоге
+                <i class="bi bi-search"></i> {% translate "Вариант 1 — Найти в каталоге" %}
             </div>
             <div class="card-body">
-                <p class="text-muted small">Если книга уже добавлена в каталог — найдите её здесь.</p>
+                <p class="text-muted small">{% translate "Если книга уже добавлена в каталог — найдите её здесь." %}</p>
 
                 <form method="get" class="mb-3">
                     <input type="hidden" name="pk" value="{{ req.pk }}">
                     <div class="input-group">
                         <input type="text" name="search" value="{{ search_q }}"
-                               class="form-control" placeholder="Название или автор…">
+                               class="form-control" placeholder="{% translate 'Название или автор…' %}">
                         <button class="btn btn-outline-primary" type="submit">
                             <i class="bi bi-search"></i>
                         </button>
@@ -82,17 +83,17 @@
                                     <div class="fw-semibold">{{ book.title }}</div>
                                     <div class="text-muted small">
                                         {{ book.author }}
-                                        &nbsp;·&nbsp; Инв. {{ book.inventory_number }}
+                                        &nbsp;·&nbsp; {% translate "Инв." %} {{ book.inventory_number }}
                                         &nbsp;·&nbsp;
                                         {% if book.status == 'IN_LIBRARY' %}
-                                            <span class="text-success">В библиотеке</span>
+                                            <span class="text-success">{% translate "В библиотеке" %}</span>
                                         {% elif book.status == 'IN_DELIVERY' %}
-                                            <span class="text-primary">В библиопункте</span>
+                                            <span class="text-primary">{% translate "В библиопункте" %}</span>
                                         {% endif %}
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-sm btn-success flex-shrink-0">
-                                    <i class="bi bi-check-lg"></i> Выбрать
+                                    <i class="bi bi-check-lg"></i> {% translate "Выбрать" %}
                                 </button>
                             </div>
                         </form>
@@ -101,13 +102,13 @@
                     {% else %}
                     <div class="text-center text-muted py-3">
                         <i class="bi bi-search" style="font-size:2rem;opacity:.3"></i>
-                        <div class="mt-2">Ничего не найдено по «{{ search_q }}»</div>
-                        <div class="small mt-1">Добавьте книгу через форму справа →</div>
+                        <div class="mt-2">{% blocktranslate %}Ничего не найдено по «{{ search_q }}»{% endblocktranslate %}</div>
+                        <div class="small mt-1">{% translate "Добавьте книгу через форму справа →" %}</div>
                     </div>
                     {% endif %}
                 {% else %}
                 <div class="text-center text-muted py-3 small">
-                    Введите название или автора для поиска
+                    {% translate "Введите название или автора для поиска" %}
                 </div>
                 {% endif %}
             </div>
@@ -118,11 +119,11 @@
     <div class="col-lg-6">
         <div class="card h-100">
             <div class="card-header bg-success bg-opacity-10 fw-semibold">
-                <i class="bi bi-plus-circle"></i> Вариант 2 — Добавить новую книгу
+                <i class="bi bi-plus-circle"></i> {% translate "Вариант 2 — Добавить новую книгу" %}
             </div>
             <div class="card-body">
                 <p class="text-muted small">
-                    Поля заполнены из заявки читателя. Укажите инвентарный номер купленного экземпляра.
+                    {% translate "Поля заполнены из заявки читателя. Укажите инвентарный номер купленного экземпляра." %}
                 </p>
 
                 <form method="post" enctype="multipart/form-data">
@@ -133,7 +134,7 @@
                     {% if field.name == 'cover' or field.name == 'cover_clear' %}{% else %}
                     <div class="mb-2">
                         <label class="form-label fw-semibold small mb-1">
-                            {{ field.label }}
+                            {% translate field.label %}
                             {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
                         </label>
                         {{ field }}
@@ -145,13 +146,13 @@
                     {% endfor %}
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small mb-1">Ответ читателю</label>
+                        <label class="form-label fw-semibold small mb-1">{% translate "Ответ читателю" %}</label>
                         <textarea name="librarian_note" rows="2" class="form-control"
-                                  placeholder="Мы приобрели эту книгу специально для вас!">{{ req.librarian_note }}</textarea>
+                                  placeholder="{% translate 'Мы приобрели эту книгу специально для вас!' %}">{{ req.librarian_note }}</textarea>
                     </div>
 
                     <button type="submit" class="btn btn-success w-100">
-                        <i class="bi bi-bag-check"></i> Добавить книгу и выполнить заявку
+                        <i class="bi bi-bag-check"></i> {% translate "Добавить книгу и выполнить заявку" %}
                     </button>
                 </form>
             </div>

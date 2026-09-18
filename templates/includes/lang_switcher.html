@@ -1,0 +1,11 @@
+{% load i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
+<form action="{% url 'set_language' %}" method="post" class="d-inline">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    {% if CURRENT_LANGUAGE == 'uz' %}
+    <button type="submit" name="language" value="ru" class="btn btn-sm btn-outline-secondary">RU</button>
+    {% else %}
+    <button type="submit" name="language" value="uz" class="btn btn-sm btn-outline-secondary">UZ</button>
+    {% endif %}
+</form>

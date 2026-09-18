@@ -1,14 +1,19 @@
 from django import forms
+from django.utils.translation import gettext as _
 from .models import Book, BookTitle, Genre, Language
 
 
 def _genre_choices():
-    choices = [('', '— Жанр —')] + list(Genre.objects.values_list('code', 'name'))
+    choices = [('', _('— Жанр —'))] + [
+        (code, _(name)) for code, name in Genre.objects.values_list('code', 'name')
+    ]
     return choices
 
 
 def _language_choices():
-    choices = [('', '— Язык —')] + list(Language.objects.values_list('code', 'name'))
+    choices = [('', _('— Язык —'))] + [
+        (code, _(name)) for code, name in Language.objects.values_list('code', 'name')
+    ]
     return choices
 
 

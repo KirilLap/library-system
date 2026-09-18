@@ -1,6 +1,7 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Заявка #{{ req.pk }}{% endblock %}
+{% block title %}{% blocktranslate with pk=req.pk %}Заявка #{{ pk }}{% endblocktranslate %}{% endblock %}
 {% block nav_requests %}active{% endblock %}
 
 {% block content %}
@@ -8,8 +9,8 @@
     <a href="{% url 'readers_admin_extra:requests' %}" class="btn btn-sm btn-outline-secondary">
         <i class="bi bi-arrow-left"></i>
     </a>
-    <h2 class="mb-0">Заявка #{{ req.pk }}</h2>
-    <span class="badge bg-{{ req.get_status_badge_class }} fs-6">{{ req.get_status_display }}</span>
+    <h2 class="mb-0">{% blocktranslate with pk=req.pk %}Заявка #{{ pk }}{% endblocktranslate %}</h2>
+    <span class="badge bg-{{ req.get_status_badge_class }} fs-6">{% translate req.get_status_display %}</span>
 </div>
 
 <div class="row g-4">
@@ -19,7 +20,7 @@
 
         <!-- Читатель -->
         <div class="card shadow-sm mb-3">
-            <div class="card-header"><i class="bi bi-person-circle"></i> Читатель</div>
+            <div class="card-header"><i class="bi bi-person-circle"></i> {% translate "Читатель" %}</div>
             <div class="card-body">
                 <div class="fw-semibold fs-5">
                     <a href="{% url 'readers_admin:detail' req.reader.pk %}" class="text-decoration-none">
@@ -34,50 +35,50 @@
                 </div>
                 {% else %}
                 <div class="text-danger small mt-1">
-                    <i class="bi bi-telephone-x"></i> Телефон не указан
+                    <i class="bi bi-telephone-x"></i> {% translate "Телефон не указан" %}
                 </div>
                 {% endif %}
                 <div class="text-muted small mt-2">
-                    Читатель с {{ req.reader.created_at|date:"d.m.Y" }}
+                    {% blocktranslate with d=req.reader.created_at|date:"d.m.Y" %}Читатель с {{ d }}{% endblocktranslate %}
                 </div>
             </div>
         </div>
 
         <!-- Книга -->
         <div class="card shadow-sm mb-3">
-            <div class="card-header"><i class="bi bi-book"></i> Запрошенная книга</div>
+            <div class="card-header"><i class="bi bi-book"></i> {% translate "Запрошенная книга" %}</div>
             <div class="card-body">
                 {% if req.book %}
                     <div class="fw-semibold">{{ req.book.title }}</div>
                     <div class="text-muted">{{ req.book.author }}</div>
-                    <div class="mt-2 small">Инв. номер: <code>{{ req.book.inventory_number }}</code></div>
+                    <div class="mt-2 small">{% translate "Инв. номер:" %} <code>{{ req.book.inventory_number }}</code></div>
                     <div class="mt-1">
                         {% if req.book.status == 'IN_LIBRARY' %}
-                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> В библиотеке</span>
+                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> {% translate "В библиотеке" %}</span>
                         {% elif req.book.status == 'IN_DELIVERY' %}
-                            <span class="badge bg-primary"><i class="bi bi-truck"></i> В библиопункте</span>
+                            <span class="badge bg-primary"><i class="bi bi-truck"></i> {% translate "В библиопункте" %}</span>
                         {% elif req.book.status == 'LOST' %}
-                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Утеряна</span>
+                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> {% translate "Утеряна" %}</span>
                         {% endif %}
                     </div>
                 {% elif req.requested_title %}
                     <div class="fw-semibold">{{ req.requested_title }}</div>
                     {% if req.requested_author %}<div class="text-muted">{{ req.requested_author }}</div>{% endif %}
                     <span class="badge bg-warning text-dark mt-2">
-                        <i class="bi bi-exclamation-triangle"></i> Нет в каталоге
+                        <i class="bi bi-exclamation-triangle"></i> {% translate "Нет в каталоге" %}
                     </span>
                 {% else %}
-                    <span class="text-muted">Не указана</span>
+                    <span class="text-muted">{% translate "Не указана" %}</span>
                 {% endif %}
             </div>
         </div>
 
         <!-- Библиопункт и детали -->
         <div class="card shadow-sm">
-            <div class="card-header"><i class="bi bi-geo-alt"></i> Детали</div>
+            <div class="card-header"><i class="bi bi-geo-alt"></i> {% translate "Детали" %}</div>
             <div class="card-body">
                 <dl class="mb-0">
-                    <dt class="text-muted small">Желаемый библиопункт</dt>
+                    <dt class="text-muted small">{% translate "Желаемый библиопункт" %}</dt>
                     <dd>
                         {% if req.preferred_location %}
                             <i class="bi bi-geo-alt text-primary"></i>
@@ -86,13 +87,13 @@
                             <div class="text-muted small">{{ req.preferred_location.address }}</div>
                             {% endif %}
                         {% else %}
-                            <span class="text-muted">не указана</span>
+                            <span class="text-muted">{% translate "не указана" %}</span>
                         {% endif %}
                     </dd>
-                    <dt class="text-muted small mt-2">Дата заявки</dt>
+                    <dt class="text-muted small mt-2">{% translate "Дата заявки" %}</dt>
                     <dd>{{ req.created_at|date:"d.m.Y H:i" }}</dd>
                     {% if req.message %}
-                    <dt class="text-muted small mt-2">Сообщение читателя</dt>
+                    <dt class="text-muted small mt-2">{% translate "Сообщение читателя" %}</dt>
                     <dd class="fst-italic">«{{ req.message }}»</dd>
                     {% endif %}
                 </dl>
@@ -113,13 +114,13 @@
             d-flex align-items-center gap-3 mb-3">
             {% if req.status == 'FULFILLED' %}
                 <i class="bi bi-bag-check-fill fs-3"></i>
-                <div><strong>Заявка выполнена.</strong> Книга доставлена в библиопункт.</div>
+                <div><strong>{% translate "Заявка выполнена." %}</strong> {% translate "Книга доставлена в библиопункт." %}</div>
             {% elif req.status == 'REJECTED' %}
                 <i class="bi bi-x-circle-fill fs-3"></i>
-                <div><strong>Заявка отклонена.</strong> Читатель уведомлён.</div>
+                <div><strong>{% translate "Заявка отклонена." %}</strong> {% translate "Читатель уведомлён." %}</div>
             {% else %}
                 <i class="bi bi-slash-circle fs-3"></i>
-                <div><strong>Заявка отменена читателем.</strong></div>
+                <div><strong>{% translate "Заявка отменена читателем." %}</strong></div>
             {% endif %}
         </div>
 
@@ -136,11 +137,11 @@
                 {% elif req.status == 'APPROVED' %}bg-primary bg-opacity-10
                 {% elif req.status == 'PURCHASING' %}bg-info bg-opacity-10{% endif %}">
                 {% if req.status == 'PENDING' %}
-                    <i class="bi bi-hourglass-split"></i> Новая заявка — выберите действие
+                    <i class="bi bi-hourglass-split"></i> {% translate "Новая заявка — выберите действие" %}
                 {% elif req.status == 'APPROVED' %}
-                    <i class="bi bi-check-circle"></i> Заявка одобрена — следующий шаг
+                    <i class="bi bi-check-circle"></i> {% translate "Заявка одобрена — следующий шаг" %}
                 {% elif req.status == 'PURCHASING' %}
-                    <i class="bi bi-cart3"></i> Книга в процессе закупки
+                    <i class="bi bi-cart3"></i> {% translate "Книга в процессе закупки" %}
                 {% endif %}
             </div>
 
@@ -155,8 +156,8 @@
                             <input type="hidden" name="next" value="/admin-panel/requests/{{ req.pk }}/">
                             <button class="btn btn-success w-100">
                                 <i class="bi bi-check-circle"></i><br>
-                                <small>Одобрить</small><br>
-                                <small class="opacity-75">книга есть</small>
+                                <small>{% translate "Одобрить" %}</small><br>
+                                <small class="opacity-75">{% translate "книга есть" %}</small>
                             </button>
                         </form>
                     </div>
@@ -165,10 +166,10 @@
                         <form method="post" action="{% url 'readers_admin_extra:request_purchasing' req.pk %}">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="/admin-panel/requests/{{ req.pk }}/">
-                            <button class="btn btn-info text-white w-100" onclick="return confirm('Перевести в статус «Закупается»?')">
+                            <button class="btn btn-info text-white w-100" onclick="return confirm('{% translate 'Перевести в статус «Закупается»?' %}')">
                                 <i class="bi bi-cart3"></i><br>
-                                <small>Закупаем</small><br>
-                                <small class="opacity-75">нет в наличии</small>
+                                <small>{% translate "Закупаем" %}</small><br>
+                                <small class="opacity-75">{% translate "нет в наличии" %}</small>
                             </button>
                         </form>
                     </div>
@@ -177,17 +178,17 @@
                         <form method="post" action="{% url 'readers_admin_extra:request_reject' req.pk %}">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="/admin-panel/requests/{{ req.pk }}/">
-                            <button class="btn btn-danger w-100" onclick="return confirm('Отклонить заявку?')">
+                            <button class="btn btn-danger w-100" onclick="return confirm('{% translate 'Отклонить заявку?' %}')">
                                 <i class="bi bi-x-circle"></i><br>
-                                <small>Отклонить</small><br>
-                                <small class="opacity-75">отказ</small>
+                                <small>{% translate "Отклонить" %}</small><br>
+                                <small class="opacity-75">{% translate "отказ" %}</small>
                             </button>
                         </form>
                     </div>
                 </div>
                 <div class="text-muted small mt-3">
                     <i class="bi bi-info-circle"></i>
-                    Напишите ответ читателю ниже, он увидит его в личном кабинете.
+                    {% translate "Напишите ответ читателю ниже, он увидит его в личном кабинете." %}
                 </div>
 
                 {% elif req.status == 'APPROVED' %}
@@ -197,8 +198,8 @@
                         <a href="{% url 'readers_admin_extra:request_fulfill_with_book' req.pk %}"
                            class="btn btn-success w-100">
                             <i class="bi bi-bag-check"></i><br>
-                            <small>Выполнена</small><br>
-                            <small class="opacity-75">привязать книгу</small>
+                            <small>{% translate "Выполнена" %}</small><br>
+                            <small class="opacity-75">{% translate "привязать книгу" %}</small>
                         </a>
                     </div>
                     <!-- Закупить -->
@@ -208,8 +209,8 @@
                             <input type="hidden" name="next" value="/admin-panel/requests/{{ req.pk }}/">
                             <button class="btn btn-info text-white w-100">
                                 <i class="bi bi-cart3"></i><br>
-                                <small>Закупаем</small><br>
-                                <small class="opacity-75">нужно купить</small>
+                                <small>{% translate "Закупаем" %}</small><br>
+                                <small class="opacity-75">{% translate "нужно купить" %}</small>
                             </button>
                         </form>
                     </div>
@@ -218,9 +219,9 @@
                         <form method="post" action="{% url 'readers_admin_extra:request_reject' req.pk %}">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="/admin-panel/requests/{{ req.pk }}/">
-                            <button class="btn btn-outline-danger w-100" onclick="return confirm('Отклонить заявку?')">
+                            <button class="btn btn-outline-danger w-100" onclick="return confirm('{% translate 'Отклонить заявку?' %}')">
                                 <i class="bi bi-x-circle"></i><br>
-                                <small>Отклонить</small>
+                                <small>{% translate "Отклонить" %}</small>
                             </button>
                         </form>
                     </div>
@@ -229,14 +230,14 @@
                 {% elif req.status == 'PURCHASING' %}
                 <p class="text-muted mb-3">
                     <i class="bi bi-cart3 text-info"></i>
-                    Книга в процессе закупки. Когда появится в библиотеке — отметьте как выполненную.
+                    {% translate "Книга в процессе закупки. Когда появится в библиотеке — отметьте как выполненную." %}
                 </p>
                 <div class="row g-2">
                     <!-- Выполнена -->
                     <div class="col-12 col-sm-6">
                         <a href="{% url 'readers_admin_extra:request_fulfill_with_book' req.pk %}"
                            class="btn btn-success w-100">
-                            <i class="bi bi-bag-check"></i> Куплена — добавить в каталог
+                            <i class="bi bi-bag-check"></i> {% translate "Куплена — добавить в каталог" %}
                         </a>
                     </div>
                     <!-- Отклонить -->
@@ -244,8 +245,8 @@
                         <form method="post" action="{% url 'readers_admin_extra:request_reject' req.pk %}">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="/admin-panel/requests/{{ req.pk }}/">
-                            <button class="btn btn-outline-danger w-100" onclick="return confirm('Не удалось купить? Отклонить заявку?')">
-                                <i class="bi bi-x-circle"></i> Не смогли купить
+                            <button class="btn btn-outline-danger w-100" onclick="return confirm('{% translate 'Не удалось купить? Отклонить заявку?' %}')">
+                                <i class="bi bi-x-circle"></i> {% translate "Не смогли купить" %}
                             </button>
                         </form>
                     </div>
@@ -258,11 +259,11 @@
 
         <!-- Ответ библиотекаря -->
         <div class="card shadow-sm">
-            <div class="card-header"><i class="bi bi-chat-left-text"></i> Ответ читателю</div>
+            <div class="card-header"><i class="bi bi-chat-left-text"></i> {% translate "Ответ читателю" %}</div>
             <div class="card-body">
                 {% if req.librarian_note %}
                 <div class="alert alert-light border mb-3">
-                    <div class="text-muted small mb-1">Текущее сообщение:</div>
+                    <div class="text-muted small mb-1">{% translate "Текущее сообщение:" %}</div>
                     <p class="mb-0 fst-italic">«{{ req.librarian_note }}»</p>
                 </div>
                 {% endif %}
@@ -271,16 +272,16 @@
                     {% csrf_token %}
                     {% for field in form %}
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">{{ field.label }}</label>
+                        <label class="form-label fw-semibold">{% translate field.label %}</label>
                         {{ field }}
                     </div>
                     {% endfor %}
                     <button type="submit" class="btn btn-outline-primary">
-                        <i class="bi bi-floppy"></i> Сохранить ответ
+                        <i class="bi bi-floppy"></i> {% translate "Сохранить ответ" %}
                     </button>
                 </form>
                 {% else %}
-                <p class="text-muted small mb-0">Заявка завершена — ответ изменить нельзя.</p>
+                <p class="text-muted small mb-0">{% translate "Заявка завершена — ответ изменить нельзя." %}</p>
                 {% endif %}
             </div>
         </div>

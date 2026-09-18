@@ -1,13 +1,14 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Импорт MARC{% endblock %}
+{% block title %}{% translate "Импорт MARC" %}{% endblock %}
 {% block nav_catalog %}active{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h4 mb-0">Импорт MARC</h1>
+    <h1 class="h4 mb-0">{% translate "Импорт MARC" %}</h1>
     <a href="{% url 'catalog_admin:index' %}" class="btn btn-outline-secondary btn-sm">
-        ← Назад к каталогу
+        ← {% translate "Назад к каталогу" %}
     </a>
 </div>
 
@@ -17,21 +18,20 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Загрузить MARC-файл</h5>
+                <h5 class="card-title">{% translate "Загрузить MARC-файл" %}</h5>
                 <p class="text-muted small mb-3">
-                    Поддерживаются форматы <code>.mrc</code> и <code>.marc</code> (стандарт MARC21).
-                    Если у записи есть поле <code>001</code> — оно станет инвентарным номером.
+                    {% blocktranslate %}Поддерживаются форматы <code>.mrc</code> и <code>.marc</code> (стандарт MARC21). Если у записи есть поле <code>001</code> — оно станет инвентарным номером.{% endblocktranslate %}
                 </p>
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="mb-3">
                         {{ form.file }}
                         {% if form.file.help_text %}
-                        <div class="form-text">{{ form.file.help_text }}</div>
+                        <div class="form-text">{% translate form.file.help_text %}</div>
                         {% endif %}
                     </div>
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-upload"></i> Загрузить и проверить
+                        <i class="bi bi-upload"></i> {% translate "Загрузить и проверить" %}
                     </button>
                 </form>
             </div>
@@ -39,15 +39,15 @@
 
         <div class="card mt-3">
             <div class="card-body">
-                <h6 class="card-title text-muted">Маппинг полей MARC → Книга</h6>
+                <h6 class="card-title text-muted">{% translate "Маппинг полей MARC → Книга" %}</h6>
                 <table class="table table-sm table-borderless small mb-0">
-                    <tr><td><code>001</code></td><td>Инвентарный номер</td></tr>
+                    <tr><td><code>001</code></td><td>{% translate "Инвентарный номер" %}</td></tr>
                     <tr><td><code>020$a</code></td><td>ISBN</td></tr>
-                    <tr><td><code>100$a</code></td><td>Автор</td></tr>
-                    <tr><td><code>245$a</code></td><td>Название</td></tr>
-                    <tr><td><code>260$b / 264$b</code></td><td>Издательство</td></tr>
-                    <tr><td><code>260$c / 264$c</code></td><td>Год</td></tr>
-                    <tr><td><code>650$a</code></td><td>Жанр (приближённо)</td></tr>
+                    <tr><td><code>100$a</code></td><td>{% translate "Автор" %}</td></tr>
+                    <tr><td><code>245$a</code></td><td>{% translate "Название" %}</td></tr>
+                    <tr><td><code>260$b / 264$b</code></td><td>{% translate "Издательство" %}</td></tr>
+                    <tr><td><code>260$c / 264$c</code></td><td>{% translate "Год" %}</td></tr>
+                    <tr><td><code>650$a</code></td><td>{% translate "Жанр (приближённо)" %}</td></tr>
                 </table>
             </div>
         </div>
@@ -59,23 +59,23 @@
 <div class="alert alert-info d-flex align-items-center gap-2">
     <i class="bi bi-file-earmark-text fs-4"></i>
     <div>
-        <strong>Найдено записей: {{ total }}</strong>
+        <strong>{% blocktranslate %}Найдено записей: {{ total }}{% endblocktranslate %}</strong>
         {% if parse_errors %}
-        <br><span class="text-warning">Ошибок при чтении: {{ parse_errors|length }}</span>
+        <br><span class="text-warning">{% blocktranslate with n=parse_errors|length %}Ошибок при чтении: {{ n }}{% endblocktranslate %}</span>
         {% endif %}
     </div>
 </div>
 
-<h5 class="mb-2">Превью — первые 5 записей</h5>
+<h5 class="mb-2">{% translate "Превью — первые 5 записей" %}</h5>
 <div class="table-responsive mb-3">
     <table class="table table-sm table-bordered">
         <thead class="table-light">
             <tr>
-                <th>Инв. номер</th>
-                <th>Название</th>
-                <th>Автор</th>
-                <th>Год</th>
-                <th>Жанр</th>
+                <th>{% translate "Инв. номер" %}</th>
+                <th>{% translate "Название" %}</th>
+                <th>{% translate "Автор" %}</th>
+                <th>{% translate "Год" %}</th>
+                <th>{% translate "Жанр" %}</th>
             </tr>
         </thead>
         <tbody>
@@ -85,7 +85,7 @@
                     {% if book.inventory_number %}
                         <code>{{ book.inventory_number }}</code>
                     {% else %}
-                        <span class="text-danger">нет</span>
+                        <span class="text-danger">{% translate "нет" %}</span>
                     {% endif %}
                 </td>
                 <td>{{ book.title|default:"—"|truncatechars:55 }}</td>
@@ -102,20 +102,20 @@
     <form method="post" action="{% url 'catalog_admin:marc_confirm' %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-success">
-            <i class="bi bi-check-lg"></i> Импортировать все {{ total }} записей
+            <i class="bi bi-check-lg"></i> {% blocktranslate %}Импортировать все {{ total }} записей{% endblocktranslate %}
         </button>
     </form>
     <a href="{% url 'catalog_admin:marc_import' %}" class="btn btn-outline-secondary">
-        Загрузить другой файл
+        {% translate "Загрузить другой файл" %}
     </a>
 </div>
 
 {% if parse_errors %}
 <div class="mt-3">
-    <h6 class="text-muted">Ошибки при чтении файла:</h6>
+    <h6 class="text-muted">{% translate "Ошибки при чтении файла:" %}</h6>
     <ul class="list-unstyled small text-muted">
         {% for idx, reason in parse_errors %}
-        <li><i class="bi bi-exclamation-triangle text-warning"></i> Запись {{ idx }}: {{ reason }}</li>
+        <li><i class="bi bi-exclamation-triangle text-warning"></i> {% blocktranslate %}Запись {{ idx }}: {{ reason }}{% endblocktranslate %}</li>
         {% endfor %}
     </ul>
 </div>

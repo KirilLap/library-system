@@ -1,0 +1,1765 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: library-system\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-18 00:00+0500\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Каталог книг"
+msgstr "Kitoblar katalogi"
+
+msgid "Библиопункты"
+msgstr "Kutubxona nuqtalari"
+
+msgid "Регистрация"
+msgstr "Ro'yxatdan o'tish"
+
+msgid "Войти"
+msgstr "Kirish"
+
+msgid "Выйти"
+msgstr "Chiqish"
+
+msgid "Каталог"
+msgstr "Katalog"
+
+msgid "Все книги"
+msgstr "Barcha kitoblar"
+
+msgid "Добавить книгу"
+msgstr "Kitob qo'shish"
+
+msgid "Жанры"
+msgstr "Janrlar"
+
+msgid "Языки"
+msgstr "Tillar"
+
+msgid "Все библиопункты"
+msgstr "Barcha kutubxona nuqtalari"
+
+msgid "Добавить библиопункт"
+msgstr "Kutubxona nuqtasi qo'shish"
+
+msgid "Типы библиопунктов"
+msgstr "Kutubxona nuqtalari turlari"
+
+msgid "Партии"
+msgstr "Partiyalar"
+
+msgid "Читатели"
+msgstr "Kitobxonlar"
+
+msgid "Заявки"
+msgstr "So'rovlar"
+
+msgid "Статистика"
+msgstr "Statistika"
+
+msgid "Сотрудники"
+msgstr "Xodimlar"
+
+msgid "Все сотрудники"
+msgstr "Barcha xodimlar"
+
+msgid "Журнал действий"
+msgstr "Amallar jurnali"
+
+msgid "Админ"
+msgstr "Admin"
+
+msgid "Библиотекарь"
+msgstr "Kutubxonachi"
+
+msgid "Нет нужной книги? Запросить"
+msgstr "Kerakli kitob yo'qmi? So'rov qoldiring"
+
+msgid "Название или автор…"
+msgstr "Nomi yoki muallifi…"
+
+msgid "Жанр"
+msgstr "Janr"
+
+msgid "Язык"
+msgstr "Til"
+
+msgid "Статус"
+msgstr "Holat"
+
+msgid "Библиопункт — любой"
+msgstr "Kutubxona nuqtasi — istalgan"
+
+msgid "Сортировка: по названию"
+msgstr "Saralash: nomi bo'yicha"
+
+msgid "Сортировка: по библиопункту"
+msgstr "Saralash: kutubxona nuqtasi bo'yicha"
+
+msgid "закрытый библиопункт (школа/организация): книгу выдаёт работник библиопункта, не самообслуживание."
+msgstr "yopiq kutubxona nuqtasi (maktab/tashkilot): kitobni nuqta xodimi beradi, o'zi xizmat qilish yo'q."
+
+msgid "Найдено:"
+msgstr "Topildi:"
+
+msgid "г."
+msgstr "y."
+
+msgid "В библиотеке"
+msgstr "Kutubxonada"
+
+msgid "В библиопункте"
+msgstr "Kutubxona nuqtasida"
+
+msgid "Ничего не найдено."
+msgstr "Hech narsa topilmadi."
+
+msgid "Сбросить фильтры"
+msgstr "Filtrlarni tozalash"
+
+msgid "Каталог пока пуст."
+msgstr "Katalog hozircha bo'sh."
+
+msgid "Детская"
+msgstr "Bolalar uchun"
+
+msgid "Документальная"
+msgstr "Hujjatli"
+
+msgid "Другое"
+msgstr "Boshqa"
+
+msgid "Поэзия"
+msgstr "She'riyat"
+
+msgid "Учебная"
+msgstr "O'quv"
+
+msgid "Художественная"
+msgstr "Badiiy"
+
+msgid "Английский"
+msgstr "Ingliz"
+
+msgid "Другой"
+msgstr "Boshqa"
+
+msgid "Русский"
+msgstr "Rus"
+
+msgid "Узбекский"
+msgstr "O'zbek"
+
+msgid "Детский сад"
+msgstr "Bog'cha"
+
+msgid "Махалля"
+msgstr "Mahalla"
+
+msgid "Организация"
+msgstr "Tashkilot"
+
+msgid "Школа"
+msgstr "Maktab"
+
+msgid "Адрес и подробности →"
+msgstr "Manzil va batafsil →"
+
+msgid "Книга в библиопункте <strong>%(location)s</strong> — можно прийти и взять самостоятельно."
+msgstr "Kitob <strong>%(location)s</strong> kutubxona nuqtasida — o'zingiz kelib olishingiz mumkin."
+
+msgid "Книга в закрытом библиопункте <strong>%(loc_name)s</strong> (%(loc_type)s) — доступна только там, выдаёт работник библиопункта."
+msgstr "Kitob yopiq <strong>%(loc_name)s</strong> (%(loc_type)s) kutubxona nuqtasida — faqat o'sha yerda, nuqta xodimi orqali olish mumkin."
+
+msgid "Год издания"
+msgstr "Nashr yili"
+
+msgid "Издательство"
+msgstr "Nashriyot"
+
+msgid "Описание"
+msgstr "Tavsif"
+
+msgid "Заявка на книгу"
+msgstr "Kitobga so'rov"
+
+msgid "Чтобы оставить заявку, войдите или зарегистрируйтесь."
+msgstr "So'rov qoldirish uchun kiring yoki ro'yxatdan o'ting."
+
+msgid "Профиль читателя не найден."
+msgstr "Kitobxon profili topilmadi."
+
+msgid "Ваш аккаунт заблокирован. Обратитесь в библиотеку."
+msgstr "Hisobingiz bloklangan. Kutubxonaga murojaat qiling."
+
+msgid "У вас уже есть активная заявка на эту книгу."
+msgstr "Sizda bu kitobga faol so'rov allaqachon mavjud."
+
+msgid "Статус:"
+msgstr "Holati:"
+
+msgid "Мои заявки"
+msgstr "Mening so'rovlarim"
+
+msgid "Вы в очереди на эту книгу — место <strong>%(pos)s</strong>."
+msgstr "Siz bu kitob uchun navbatdasiz — o'rningiz <strong>%(pos)s</strong>."
+
+msgid "Выйти из очереди"
+msgstr "Navbatdan chiqish"
+
+msgid "Книга сейчас на руках у другого читателя."
+msgstr "Kitob hozir boshqa kitobxonda."
+
+msgid "В очереди: %(queue_count)s."
+msgstr "Navbatda: %(queue_count)s."
+
+msgid "Встать в очередь"
+msgstr "Navbatga turish"
+
+msgid "Отправить заявку"
+msgstr "So'rovni yuborish"
+
+msgid "Имя"
+msgstr "Ism"
+
+msgid "Фамилия"
+msgstr "Familiya"
+
+msgid "Логин"
+msgstr "Login"
+
+msgid "Номер телефона"
+msgstr "Telefon raqami"
+
+msgid "Адрес"
+msgstr "Manzil"
+
+msgid "Пароль"
+msgstr "Parol"
+
+msgid "Повторите пароль"
+msgstr "Parolni takrorlang"
+
+msgid "Где забрать книгу"
+msgstr "Kitobni qayerdan olish"
+
+msgid "Сообщение (необязательно)"
+msgstr "Xabar (ixtiyoriy)"
+
+msgid "Название книги"
+msgstr "Kitob nomi"
+
+msgid "Автор"
+msgstr "Muallif"
+
+msgid "Комментарий"
+msgstr "Izoh"
+
+msgid "Ответ библиотекаря"
+msgstr "Kutubxonachi javobi"
+
+msgid "Зарегистрироваться"
+msgstr "Ro'yxatdan o'tish"
+
+msgid "Уже есть аккаунт?"
+msgstr "Akkountingiz bormi?"
+
+msgid "Вход"
+msgstr "Kirish"
+
+msgid "Нет аккаунта?"
+msgstr "Akkountingiz yo'qmi?"
+
+msgid "Мой профиль"
+msgstr "Mening profilim"
+
+msgid "Укажите номер телефона"
+msgstr "Telefon raqamingizni kiriting"
+
+msgid "без него вы не сможете подавать заявки и брать книги. Библиотекарь использует его для связи с вами."
+msgstr "usiz siz so'rov qoldira olmaysiz va kitob ololmaysiz. Kutubxonachi siz bilan bog'lanish uchun undan foydalanadi."
+
+msgid "Редактировать профиль"
+msgstr "Profilni tahrirlash"
+
+msgid "Сохранить"
+msgstr "Saqlash"
+
+msgid "Отмена"
+msgstr "Bekor qilish"
+
+msgid "Мой кабинет"
+msgstr "Mening kabinetim"
+
+msgid "Пора вернуть книгу:"
+msgstr "Kitobni qaytarish vaqti keldi:"
+
+msgid "Пора вернуть книги:"
+msgstr "Kitoblarni qaytarish vaqti keldi:"
+
+msgid "у вас %(days)s дн."
+msgstr "sizda %(days)s kun"
+
+msgid "Пожалуйста, верните её как можно скорее."
+msgstr "Iltimos, uni imkon qadar tezroq qaytaring."
+
+msgid "Пожалуйста, верните их как можно скорее."
+msgstr "Iltimos, ularni imkon qadar tezroq qaytaring."
+
+msgid "без него нельзя брать книги и подавать заявки"
+msgstr "usiz kitob olib bo'lmaydi va so'rov qoldirib bo'lmaydi"
+
+msgid "Указать телефон"
+msgstr "Telefon kiritish"
+
+msgid "Не знаете, куда пойти за книгой?"
+msgstr "Kitob uchun qayerga borishni bilmayapsizmi?"
+
+msgid "Показать ближайший открытый библиопункт"
+msgstr "Eng yaqin ochiq kutubxona nuqtasini ko'rsatish"
+
+msgid "У вас есть доступ к кабинету работника"
+msgstr "Sizda xodim kabinetiga kirish huquqi bor"
+
+msgid "Кабинет работника"
+msgstr "Xodim kabineti"
+
+msgid "Телефон"
+msgstr "Telefon"
+
+msgid "Прикреплённый библиопункт"
+msgstr "Biriktirilgan kutubxona nuqtasi"
+
+msgid "Читатель с"
+msgstr "A'zo bo'lgan sana"
+
+msgid "Книги на руках"
+msgstr "Qo'lingizdagi kitoblar"
+
+msgid "Взять книгу"
+msgstr "Kitob olish"
+
+msgid "Книга"
+msgstr "Kitob"
+
+msgid "Взята"
+msgstr "Olingan"
+
+msgid "Просрочено, %(days)s дн."
+msgstr "Muddati o'tgan, %(days)s kun"
+
+msgid "Закрытый библиопункт"
+msgstr "Yopiq kutubxona nuqtasi"
+
+msgid "Отметить книгу"
+msgstr "Kitobni belgilash"
+
+msgid "как возвращённую?"
+msgstr "qaytarilgan deb?"
+
+msgid "Вернуть"
+msgstr "Qaytarish"
+
+msgid "Возврат оформляет работник библиопункта"
+msgstr "Qaytarishni kutubxona nuqtasi xodimi rasmiylashtiradi"
+
+msgid "Книг на руках нет."
+msgstr "Qo'lingizda kitob yo'q."
+
+msgid "Мои заявки"
+msgstr "Mening so'rovlarim"
+
+msgid "Новая заявка"
+msgstr "Yangi so'rov"
+
+msgid "Дата"
+msgstr "Sana"
+
+msgid "Ответ библиотеки"
+msgstr "Kutubxona javobi"
+
+msgid "приобретена для вас"
+msgstr "siz uchun sotib olindi"
+
+msgid "не из каталога"
+msgstr "katalogdan emas"
+
+msgid "Отменить заявку?"
+msgstr "So'rovni bekor qilasizmi?"
+
+msgid "Отменить"
+msgstr "Bekor qilish"
+
+msgid "Заявок пока нет."
+msgstr "Hozircha so'rovlar yo'q."
+
+msgid "Перейти в каталог"
+msgstr "Katalogga o'tish"
+
+msgid "Моя очередь"
+msgstr "Mening navbatim"
+
+msgid "Место в очереди"
+msgstr "Navbatdagi o'rin"
+
+msgid "История чтения"
+msgstr "O'qish tarixi"
+
+msgid "Возвращена"
+msgstr "Qaytarilgan"
+
+msgid "Дней"
+msgstr "Kunlar"
+
+msgid "Геолокация не поддерживается вашим браузером."
+msgstr "Geolokatsiya brauzeringizda qo'llab-quvvatlanmaydi."
+
+msgid "Определяем..."
+msgstr "Aniqlanmoqda..."
+
+msgid "Ближайшая:"
+msgstr "Eng yaqini:"
+
+msgid "книг:"
+msgstr "kitob:"
+
+msgid "Открыть библиопункт"
+msgstr "Kutubxona nuqtasini ochish"
+
+msgid "Не удалось получить геолокацию. Проверьте разрешение в браузере."
+msgstr "Geolokatsiyani aniqlab bo'lmadi. Brauzerdagi ruxsatni tekshiring."
+
+msgid "Взять книгу"
+msgstr "Kitob olish"
+
+msgid "Введите инвентарный номер с <strong>этикетки книги</strong>, которую держите в руках. Номер не отображается в каталоге — это защита от злоупотреблений."
+msgstr "Qo'lingizdagi kitobning <strong>yorlig'idagi</strong> inventar raqamini kiriting. Raqam katalogda ko'rsatilmaydi — bu suiiste'moldan himoya."
+
+msgid "Инвентарный номер"
+msgstr "Inventar raqami"
+
+msgid "Например: КН-00123"
+msgstr "Masalan: КН-00123"
+
+msgid "Отметить как взятую"
+msgstr "Olingan deb belgilash"
+
+msgid "Где найти инвентарный номер?"
+msgstr "Inventar raqamini qayerdan topaman?"
+
+msgid "Инвентарный номер напечатан на этикетке, приклеенной к книге (обычно на обложке или первой странице). Там же есть штрих-код."
+msgstr "Inventar raqami kitobga yopishtirilgan yorliqda bosilgan (odatda muqova yoki birinchi sahifada). Shu yerda shtrix-kod ham bor."
+
+msgid "книги"
+msgstr "kitoblari"
+
+msgid "Поиск по названию или автору…"
+msgstr "Nomi yoki muallifi bo'yicha qidirish…"
+
+msgid "— Все жанры —"
+msgstr "— Barcha janrlar —"
+
+msgid "Сбросить"
+msgstr "Tozalash"
+
+msgid "Найдено книг:"
+msgstr "Topilgan kitoblar:"
+
+msgid "По вашему запросу ничего не найдено."
+msgstr "So'rovingiz bo'yicha hech narsa topilmadi."
+
+msgid "В этом библиопункте сейчас нет книг."
+msgstr "Bu kutubxona nuqtasida hozircha kitob yo'q."
+
+msgid "Карта библиопунктов"
+msgstr "Kutubxona nuqtalari xaritasi"
+
+msgid "Библиопункты на карте"
+msgstr "Xaritadagi kutubxona nuqtalari"
+
+msgid "Показано на карте: <strong>%(mapped)s</strong> из %(total)s"
+msgstr "Xaritada ko'rsatilgan: <strong>%(mapped)s</strong> / %(total)s"
+
+msgid "Координаты библиопунктов ещё не указаны. Откройте библиопункт в панели администратора и кликните по карте."
+msgstr "Kutubxona nuqtalarining koordinatalari hali kiritilmagan. Admin panelida kutubxona nuqtasini oching va xaritada bosing."
+
+msgid "Найти ближайший библиопункт"
+msgstr "Eng yaqin kutubxona nuqtasini topish"
+
+msgid "Ближайший библиопункт:"
+msgstr "Eng yaqin kutubxona nuqtasi:"
+
+msgid "Перейти"
+msgstr "O'tish"
+
+msgid "книг"
+msgstr "kitob"
+
+msgid "Открыть"
+msgstr "Ochish"
+
+msgid "Вы здесь"
+msgstr "Siz shu yerdasiz"
+
+msgid "Всего экземпляров"
+msgstr "Jami nusxalar"
+
+msgid "экз."
+msgstr "dona"
+
+msgid "Импорт"
+msgstr "Import"
+
+msgid "Поиск по названию, автору, инв. номеру..."
+msgstr "Nomi, muallifi, inventar raqami bo'yicha qidirish..."
+
+msgid "Все статусы"
+msgstr "Barcha holatlar"
+
+msgid "Все жанры"
+msgstr "Barcha janrlar"
+
+msgid "Все языки"
+msgstr "Barcha tillar"
+
+msgid "Найти"
+msgstr "Qidirish"
+
+msgid "Выбрано:"
+msgstr "Tanlandi:"
+
+msgid "Печать этикеток (все экземпляры)"
+msgstr "Yorliqlarni chop etish (barcha nusxalar)"
+
+msgid "Удалить выбранные (со всеми экземплярами)"
+msgstr "Tanlanganlarni o'chirish (barcha nusxalari bilan)"
+
+msgid "Снять выбор"
+msgstr "Tanlovni bekor qilish"
+
+msgid "Выбрать все"
+msgstr "Barchasini tanlash"
+
+msgid "Название"
+msgstr "Nomi"
+
+msgid "Год"
+msgstr "Yil"
+
+msgid "Экземпляров"
+msgstr "Nusxalar"
+
+msgid "Страницы"
+msgstr "Sahifalar"
+
+msgid "Назад"
+msgstr "Orqaga"
+
+msgid "Страница %(num)s из %(total)s"
+msgstr "%(num)s / %(total)s sahifa"
+
+msgid "Вперёд"
+msgstr "Oldinga"
+
+msgid "Каталог пуст."
+msgstr "Katalog bo'sh."
+
+msgid "Добавить первую книгу"
+msgstr "Birinchi kitobni qo'shish"
+
+msgid "Утеряна"
+msgstr "Yo'qolgan"
+
+msgid "Назад к каталогу"
+msgstr "Katalogga qaytish"
+
+msgid "Экземпляр сейчас <strong>в библиопункте</strong>"
+msgstr "Nusxa hozir <strong>kutubxona nuqtasida</strong>"
+
+msgid "Статус можно изменить только после возврата."
+msgstr "Holatni faqat qaytarilgandan keyin o'zgartirish mumkin."
+
+msgid "В очереди на этот экземпляр: %(n)s"
+msgstr "Bu nusxaga navbatda: %(n)s"
+
+msgid "книга свободна, свяжитесь с читателями:"
+msgstr "kitob bo'sh, kitobxonlar bilan bog'laning:"
+
+msgid "с %(d)s"
+msgstr "%(d)s dan"
+
+msgid "Обложка"
+msgstr "Muqova"
+
+msgid "Удалить обложку"
+msgstr "Muqovani o'chirish"
+
+msgid "Инв. номер"
+msgstr "Inventar raqami"
+
+msgid "Все экземпляры этой книги (%(n)s)"
+msgstr "Bu kitobning barcha nusxalari (%(n)s)"
+
+msgid "Данные книги (общие для всех экземпляров)"
+msgstr "Kitob ma'lumotlari (barcha nusxalar uchun umumiy)"
+
+msgid "Распечатать этикетку"
+msgstr "Yorliqni chop etish"
+
+msgid "Удалить экземпляр"
+msgstr "Nusxani o'chirish"
+
+msgid "Данные книги"
+msgstr "Kitob ma'lumotlari"
+
+msgid "Где сейчас"
+msgstr "Hozir qayerda"
+
+msgid "Этикетка"
+msgstr "Yorliq"
+
+msgid "Редактировать"
+msgstr "Tahrirlash"
+
+msgid "Удалить"
+msgstr "O'chirish"
+
+msgid "Нет экземпляров."
+msgstr "Nusxalar yo'q."
+
+msgid "Добавить первый"
+msgstr "Birinchisini qo'shish"
+
+msgid "уже %(n)s экз. Укажите инвентарный номер нового."
+msgstr "allaqachon %(n)s dona bor. Yangisining inventar raqamini kiriting."
+
+msgid "Вы действительно хотите удалить эту книгу?"
+msgstr "Bu kitobni rostdan o'chirmoqchimisiz?"
+
+msgid "Автор:"
+msgstr "Muallif:"
+
+msgid "Да, удалить"
+msgstr "Ha, o'chirish"
+
+msgid "Удалить книгу"
+msgstr "Kitobni o'chirish"
+
+msgid "Удалить книги"
+msgstr "Kitoblarni o'chirish"
+
+msgid "Удалить книги (%(n)s)"
+msgstr "Kitoblarni o'chirish (%(n)s)"
+
+msgid "Вы действительно хотите удалить эти книги вместе со всеми их экземплярами?"
+msgstr "Bu kitoblarni barcha nusxalari bilan birga rostdan o'chirmoqchimisiz?"
+
+msgid "Экземпляры с историей выдач читателям удалить нельзя (это защита от потери истории) — такие книги будут пропущены, об этом сообщится после удаления."
+msgstr "Kitobxonlarga berilgan tarixi bo'lgan nusxalarni o'chirib bo'lmaydi (bu tarixni yo'qotishdan himoya) — bunday kitoblar o'tkazib yuboriladi, bu haqda o'chirishdan keyin xabar beriladi."
+
+msgid "Да, удалить %(n)s"
+msgstr "Ha, %(n)s ta o'chirish"
+
+msgid "Добавить жанр"
+msgstr "Janr qo'shish"
+
+msgid "Код"
+msgstr "Kod"
+
+msgid "Латиница, CAPS. Напр.: SCIENCE"
+msgstr "Lotin harflari, katta harflar bilan. Masalan: SCIENCE"
+
+msgid "Книг"
+msgstr "Kitoblar"
+
+msgid "Удалить жанр"
+msgstr "Janrni o'chirish"
+
+msgid "Жанры не добавлены"
+msgstr "Janrlar qo'shilmagan"
+
+msgid "Добавить язык"
+msgstr "Til qo'shish"
+
+msgid "Напр.: KK"
+msgstr "Masalan: KK"
+
+msgid "Удалить язык"
+msgstr "Tilni o'chirish"
+
+msgid "Языки не добавлены"
+msgstr "Tillar qo'shilmagan"
+
+msgid "Запросить книгу"
+msgstr "Kitob so'rash"
+
+msgid "Запросить книгу, которой нет в каталоге"
+msgstr "Katalogda yo'q kitobni so'rash"
+
+msgid "Если вы не нашли нужную книгу в каталоге — оставьте заявку. Библиотекарь рассмотрит её и постарается добавить книгу."
+msgstr "Agar kerakli kitobni katalogda topa olmasangiz — so'rov qoldiring. Kutubxonachi uni ko'rib chiqadi va kitobni qo'shishga harakat qiladi."
+
+msgid "Импорт MARC"
+msgstr "MARC importi"
+
+msgid "Загрузить MARC-файл"
+msgstr "MARC faylini yuklash"
+
+msgid "Поддерживаются форматы <code>.mrc</code> и <code>.marc</code> (стандарт MARC21). Если у записи есть поле <code>001</code> — оно станет инвентарным номером."
+msgstr "<code>.mrc</code> va <code>.marc</code> formatlari qo'llab-quvvatlanadi (MARC21 standarti). Agar yozuvda <code>001</code> maydoni bo'lsa — u inventar raqami bo'ladi."
+
+msgid "Загрузить и проверить"
+msgstr "Yuklash va tekshirish"
+
+msgid "Маппинг полей MARC → Книга"
+msgstr "MARC maydonlari → Kitob moslashuvi"
+
+msgid "Жанр (приближённо)"
+msgstr "Janr (taxminan)"
+
+msgid "Найдено записей: %(total)s"
+msgstr "Topilgan yozuvlar: %(total)s"
+
+msgid "Ошибок при чтении: %(n)s"
+msgstr "O'qishda xatolar: %(n)s"
+
+msgid "Превью — первые 5 записей"
+msgstr "Ko'rib chiqish — birinchi 5 ta yozuv"
+
+msgid "нет"
+msgstr "yo'q"
+
+msgid "Импортировать все %(total)s записей"
+msgstr "Barcha %(total)s ta yozuvni import qilish"
+
+msgid "Загрузить другой файл"
+msgstr "Boshqa faylni yuklash"
+
+msgid "Ошибки при чтении файла:"
+msgstr "Faylni o'qishdagi xatolar:"
+
+msgid "Запись %(idx)s: %(reason)s"
+msgstr "Yozuv %(idx)s: %(reason)s"
+
+msgid "Результат импорта"
+msgstr "Import natijasi"
+
+msgid "Создано"
+msgstr "Yaratildi"
+
+msgid "Обновлено"
+msgstr "Yangilandi"
+
+msgid "Пропущено"
+msgstr "O'tkazib yuborildi"
+
+msgid "Пропущенные записи"
+msgstr "O'tkazib yuborilgan yozuvlar"
+
+msgid "Название / идентификатор"
+msgstr "Nomi / identifikator"
+
+msgid "Причина"
+msgstr "Sababi"
+
+msgid "Перейти к каталогу"
+msgstr "Katalogga o'tish"
+
+msgid "Импортировать ещё"
+msgstr "Yana import qilish"
+
+msgid "Нет инвентарного номера"
+msgstr "Inventar raqami yo'q"
+
+msgid "Нет названия"
+msgstr "Nomi yo'q"
+
+msgid "Импорт Excel"
+msgstr "Excel importi"
+
+msgid "Импорт из Excel"
+msgstr "Excel'dan import"
+
+msgid "Загрузить файл"
+msgstr "Faylni yuklash"
+
+msgid "Скачать шаблон"
+msgstr "Andozani yuklab olish"
+
+msgid "Просмотреть"
+msgstr "Ko'rib chiqish"
+
+msgid "Предпросмотр"
+msgstr "Oldindan ko'rish"
+
+msgid "%(total)s строк"
+msgstr "%(total)s qator"
+
+msgid "Показаны первые 20 из %(total)s строк."
+msgstr "Birinchi 20 ta / jami %(total)s qator ko'rsatildi."
+
+msgid "Импортировать %(total)s книг"
+msgstr "%(total)s ta kitobni import qilish"
+
+msgid "Результат импорта Excel"
+msgstr "Excel import natijasi"
+
+msgid "Добавлено"
+msgstr "Qo'shildi"
+
+msgid "Возможные дубликаты (%(n)s):"
+msgstr "Ehtimoliy dublikatlar (%(n)s):"
+
+msgid "инв. <code>%(inv)s</code> похожа на уже существующую <code>%(dupe_inv)s</code>"
+msgstr "inv. <code>%(inv)s</code> mavjud <code>%(dupe_inv)s</code>ga o'xshaydi"
+
+msgid "Пропущенные строки"
+msgstr "O'tkazib yuborilgan qatorlar"
+
+msgid "Ещё импорт"
+msgstr "Yana import"
+
+msgid "Нет инв. номера"
+msgstr "Inventar raqami yo'q"
+
+msgid "Экземпляр существующей книги"
+msgstr "Mavjud kitobning nusxasi"
+
+msgid "Обновление"
+msgstr "Yangilanish"
+
+msgid "Новая"
+msgstr "Yangi"
+
+msgid "Распечатать"
+msgstr "Chop etish"
+
+msgid "Этикеток: %(n)s"
+msgstr "Yorliqlar: %(n)s"
+
+msgid "Скрыть неактивные"
+msgstr "Faol bo'lmaganlarni yashirish"
+
+msgid "Показать неактивные"
+msgstr "Faol bo'lmaganlarni ko'rsatish"
+
+msgid "Тип"
+msgstr "Turi"
+
+msgid "Контакт"
+msgstr "Aloqa"
+
+msgid "Последняя доставка"
+msgstr "Oxirgi yetkazib berish"
+
+msgid "Активна"
+msgstr "Faol"
+
+msgid "Неактивна"
+msgstr "Faol emas"
+
+msgid "Не отображается в публичном каталоге"
+msgstr "Ommaviy katalogda ko'rsatilmaydi"
+
+msgid "Скрыт"
+msgstr "Yashirilgan"
+
+msgid "Библиопунктов пока нет."
+msgstr "Hozircha kutubxona nuqtalari yo'q."
+
+msgid "Скрыт из каталога"
+msgstr "Katalogdan yashirilgan"
+
+msgid "Информация"
+msgstr "Ma'lumot"
+
+msgid "Изменить"
+msgstr "O'zgartirish"
+
+msgid "Контактное лицо"
+msgstr "Aloqa uchun shaxs"
+
+msgid "Заметки"
+msgstr "Eslatmalar"
+
+msgid "Добавлена"
+msgstr "Qo'shilgan"
+
+msgid "Кабинет организации"
+msgstr "Tashkilot kabineti"
+
+msgid "Логин:"
+msgstr "Login:"
+
+msgid "Создан:"
+msgstr "Yaratilgan:"
+
+msgid "Открыть кабинет"
+msgstr "Kabinetni ochish"
+
+msgid "Удалить аккаунт организации?"
+msgstr "Tashkilot akkountini o'chirasizmi?"
+
+msgid "Удалить аккаунт"
+msgstr "Akkountni o'chirish"
+
+msgid "Аккаунт для входа не создан."
+msgstr "Kirish uchun akkount yaratilmagan."
+
+msgid "Создать аккаунт"
+msgstr "Akkount yaratish"
+
+msgid "Работники библиопункта"
+msgstr "Kutubxona nuqtasi xodimlari"
+
+msgid "Активен"
+msgstr "Faol"
+
+msgid "Неактивен"
+msgstr "Faol emas"
+
+msgid "Деактивировать"
+msgstr "Faolsizlantirish"
+
+msgid "Активировать"
+msgstr "Faollashtirish"
+
+msgid "Работников нет."
+msgstr "Xodimlar yo'q."
+
+msgid "QR-код"
+msgstr "QR-kod"
+
+msgid "Скачать"
+msgstr "Yuklab olish"
+
+msgid "QR-код не сгенерирован"
+msgstr "QR-kod yaratilmagan"
+
+msgid "Пересохранить для генерации"
+msgstr "Yaratish uchun qayta saqlash"
+
+msgid "Книги в библиопункте"
+msgstr "Kutubxona nuqtasidagi kitoblar"
+
+msgid "Поиск по названию…"
+msgstr "Nomi bo'yicha qidirish…"
+
+msgid "Инв. №"
+msgstr "Inv. №"
+
+msgid "Ничего не найдено по запросу «%(q)s»"
+msgstr "«%(q)s» so'rovi bo'yicha hech narsa topilmadi"
+
+msgid "Книг в библиопункте нет"
+msgstr "Kutubxona nuqtasida kitob yo'q"
+
+msgid "История доставок"
+msgstr "Yetkazib berish tarixi"
+
+msgid "Партия"
+msgstr "Partiya"
+
+msgid "Доставок ещё не было"
+msgstr "Hali yetkazib berishlar bo'lmagan"
+
+msgid "Нельзя удалить"
+msgstr "O'chirib bo'lmaydi"
+
+msgid "у библиопункта есть история партий доставки."
+msgstr "kutubxona nuqtasida yetkazib berish partiyalari tarixi bor."
+
+msgid "Чтобы библиопункт исчез из активных списков, но история сохранилась — снимите галочку «Активна» в редактировании библиопункта вместо удаления."
+msgstr "Kutubxona nuqtasi faol ro'yxatlardan yo'qolishi, lekin tarixi saqlanishi uchun — o'chirish o'rniga tahrirlashda «Faol» belgisini olib tashlang."
+
+msgid "Открыть редактирование"
+msgstr "Tahrirlashni ochish"
+
+msgid "Удалить библиопункт «%(name)s»"
+msgstr "«%(name)s» kutubxona nuqtasini o'chirish"
+
+msgid "Вы действительно хотите удалить библиопункт?"
+msgstr "Kutubxona nuqtasini rostdan o'chirmoqchimisiz?"
+
+msgid "Аккаунт организации «%(username)s» тоже будет удалён."
+msgstr "«%(username)s» tashkilot akkounti ham o'chiriladi."
+
+msgid "Да, удалить библиопункт"
+msgstr "Ha, kutubxona nuqtasini o'chirish"
+
+msgid "Добавить тип"
+msgstr "Tur qo'shish"
+
+msgid "Латиница, CAPS. Напр.: KINDERGARTEN"
+msgstr "Lotin harflari, katta harflar bilan. Masalan: KINDERGARTEN"
+
+msgid "Доступность"
+msgstr "Ochiqlik"
+
+msgid "Открытый"
+msgstr "Ochiq"
+
+msgid "Закрытый"
+msgstr "Yopiq"
+
+msgid "Удалить тип"
+msgstr "Turni o'chirish"
+
+msgid "Типы не добавлены"
+msgstr "Turlar qo'shilmagan"
+
+msgid "Типы"
+msgstr "Turlar"
+
+msgid "Редактировать:"
+msgstr "Tahrirlash:"
+
+msgid "Открытый тип"
+msgstr "Ochiq tur"
+
+msgid "Библиопункт активен (отображается в списке)"
+msgstr "Kutubxona nuqtasi faol (ro'yxatda ko'rinadi)"
+
+msgid "Показывать в публичном каталоге"
+msgstr "Ommaviy katalogda ko'rsatish"
+
+msgid "Найти на карте по этому адресу"
+msgstr "Shu manzil bo'yicha xaritadan topish"
+
+msgid "Местоположение на карте"
+msgstr "Xaritadagi joylashuv"
+
+msgid "Кликните по карте, чтобы указать координаты библиопункта."
+msgstr "Kutubxona nuqtasi koordinatalarini belgilash uchun xaritani bosing."
+
+msgid "Широта"
+msgstr "Kenglik"
+
+msgid "Долгота"
+msgstr "Uzunlik"
+
+msgid "Проверьте координаты."
+msgstr "Koordinatalarni tekshiring."
+
+msgid "Убрать метку"
+msgstr "Belgini olib tashlash"
+
+msgid "Создать"
+msgstr "Yaratish"
+
+msgid "Сначала укажите адрес."
+msgstr "Avval manzilni kiriting."
+
+msgid "Ищем на карте…"
+msgstr "Xaritadan qidirilmoqda…"
+
+msgid "Ничего не найдено. Уточните адрес или укажите точку кликом по карте."
+msgstr "Hech narsa topilmadi. Manzilni aniqlashtiring yoki xaritada nuqtani bosib ko'rsating."
+
+msgid "Не удалось выполнить поиск. Проверьте интернет-соединение."
+msgstr "Qidiruvni amalga oshirib bo'lmadi. Internet aloqasini tekshiring."
+
+msgid "Телефон контакта"
+msgstr "Aloqa telefoni"
+
+msgid "Партии доставки"
+msgstr "Yetkazib berish partiyalari"
+
+msgid "Новая партия"
+msgstr "Yangi partiya"
+
+msgid "Скрыть возвращённые"
+msgstr "Qaytarilganlarni yashirish"
+
+msgid "Показать возвращённые"
+msgstr "Qaytarilganlarni ko'rsatish"
+
+msgid "Дата доставки"
+msgstr "Yetkazib berish sanasi"
+
+msgid "Дата возврата"
+msgstr "Qaytarish sanasi"
+
+msgid "Партий пока нет."
+msgstr "Hozircha partiyalar yo'q."
+
+msgid "Создать первую"
+msgstr "Birinchisini yaratish"
+
+msgid "Создать партию"
+msgstr "Partiya yaratish"
+
+msgid "Партия #%(pk)s"
+msgstr "Partiya #%(pk)s"
+
+msgid "Возвращена %(d)s"
+msgstr "%(d)s qaytarilgan"
+
+msgid "Скачать акт (PDF)"
+msgstr "Aktni yuklab olish (PDF)"
+
+msgid "Отметить партию как возвращённую? Все книги будут переведены в «В библиотеке»."
+msgstr "Partiyani qaytarilgan deb belgilaysizmi? Barcha kitoblar «Kutubxonada» holatiga o'tkaziladi."
+
+msgid "Отметить возвращённой"
+msgstr "Qaytarilgan deb belgilash"
+
+msgid "Удалить партию"
+msgstr "Partiyani o'chirish"
+
+msgid "Добавить книгу по инв. номеру"
+msgstr "Inventar raqami bo'yicha kitob qo'shish"
+
+msgid "Введите инвентарный номер и нажмите Enter или кнопку «Добавить». Поддерживается USB штрих-код сканер."
+msgstr "Inventar raqamini kiriting va Enter yoki «Qo'shish» tugmasini bosing. USB shtrix-kod skaner qo'llab-quvvatlanadi."
+
+msgid "Книги в партии"
+msgstr "Partiyadagi kitoblar"
+
+msgid "Удалить книгу из партии?"
+msgstr "Kitobni partiyadan o'chirasizmi?"
+
+msgid "Удалить из партии"
+msgstr "Partiyadan o'chirish"
+
+msgid "Книг ещё нет. Добавьте по инвентарному номеру."
+msgstr "Hali kitob yo'q. Inventar raqami bo'yicha qo'shing."
+
+msgid "Удалить партию #%(pk)s"
+msgstr "Partiya #%(pk)sni o'chirish"
+
+msgid "часть книг этой партии сейчас на руках у читателей:"
+msgstr "bu partiyaning ba'zi kitoblari hozir kitobxonlar qo'lida:"
+
+msgid "Вы действительно хотите удалить партию #%(pk)s?"
+msgstr "Partiya #%(pk)sni rostdan o'chirmoqchimisiz?"
+
+msgid "Библиопункт:"
+msgstr "Kutubxona nuqtasi:"
+
+msgid "Книг в партии:"
+msgstr "Partiyadagi kitoblar:"
+
+msgid "Книги, которые числятся за этой партией и ещё не возвращены, будут переведены в статус «В библиотеке». Сама партия и записи о доставке удалятся безвозвратно."
+msgstr "Ushbu partiyaga tegishli va hali qaytarilmagan kitoblar «Kutubxonada» holatiga o'tkaziladi. Partiyaning o'zi va yetkazib berish yozuvlari butunlay o'chiriladi."
+
+msgid "Да, удалить партию"
+msgstr "Ha, partiyani o'chirish"
+
+msgid "Примечание"
+msgstr "Izoh"
+
+msgid "Заявки читателей"
+msgstr "Kitobxonlar so'rovlari"
+
+msgid "%(n)s новых"
+msgstr "%(n)s ta yangi"
+
+msgid "— Все статусы —"
+msgstr "— Barcha holatlar —"
+
+msgid "нет телефона"
+msgstr "telefon yo'q"
+
+msgid "не указана"
+msgstr "ko'rsatilmagan"
+
+msgid "Действия"
+msgstr "Amallar"
+
+msgid "Читатель"
+msgstr "Kitobxon"
+
+msgid "Книга / Запрос"
+msgstr "Kitob / So'rov"
+
+msgid "Одобрить"
+msgstr "Ma'qullash"
+
+msgid "Закупаем"
+msgstr "Xarid qilinmoqda"
+
+msgid "Отклонить"
+msgstr "Rad etish"
+
+msgid "Отклонить заявку #%(pk)s?"
+msgstr "#%(pk)s so'rovni rad etasizmi?"
+
+msgid "Привязать книгу и выполнить"
+msgstr "Kitobni bog'lash va bajarish"
+
+msgid "Подробнее"
+msgstr "Batafsil"
+
+msgid "Заявок с таким статусом нет."
+msgstr "Bunday holatdagi so'rovlar yo'q."
+
+msgid "Заявка #%(pk)s"
+msgstr "So'rov #%(pk)s"
+
+msgid "Телефон не указан"
+msgstr "Telefon ko'rsatilmagan"
+
+msgid "Читатель с %(d)s"
+msgstr "%(d)s dan kitobxon"
+
+msgid "Запрошенная книга"
+msgstr "So'ralgan kitob"
+
+msgid "Инв. номер:"
+msgstr "Inventar raqami:"
+
+msgid "Нет в каталоге"
+msgstr "Katalogda yo'q"
+
+msgid "Не указана"
+msgstr "Ko'rsatilmagan"
+
+msgid "Детали"
+msgstr "Tafsilotlar"
+
+msgid "Желаемый библиопункт"
+msgstr "Xohlagan kutubxona nuqtasi"
+
+msgid "Дата заявки"
+msgstr "So'rov sanasi"
+
+msgid "Сообщение читателя"
+msgstr "Kitobxon xabari"
+
+msgid "Заявка выполнена."
+msgstr "So'rov bajarildi."
+
+msgid "Книга доставлена в библиопункт."
+msgstr "Kitob kutubxona nuqtasiga yetkazildi."
+
+msgid "Заявка отклонена."
+msgstr "So'rov rad etildi."
+
+msgid "Читатель уведомлён."
+msgstr "Kitobxonga xabar berildi."
+
+msgid "Заявка отменена читателем."
+msgstr "So'rov kitobxon tomonidan bekor qilindi."
+
+msgid "Новая заявка — выберите действие"
+msgstr "Yangi so'rov — amalni tanlang"
+
+msgid "Заявка одобрена — следующий шаг"
+msgstr "So'rov ma'qullandi — keyingi qadam"
+
+msgid "Книга в процессе закупки"
+msgstr "Kitob xarid qilinmoqda"
+
+msgid "книга есть"
+msgstr "kitob bor"
+
+msgid "Перевести в статус «Закупается»?"
+msgstr "«Xarid qilinmoqda» holatiga o'tkazilsinmi?"
+
+msgid "нет в наличии"
+msgstr "mavjud emas"
+
+msgid "Отклонить заявку?"
+msgstr "So'rovni rad etasizmi?"
+
+msgid "отказ"
+msgstr "rad etish"
+
+msgid "Напишите ответ читателю ниже, он увидит его в личном кабинете."
+msgstr "Quyida kitobxonga javob yozing, u shaxsiy kabinetida ko'radi."
+
+msgid "Выполнена"
+msgstr "Bajarildi"
+
+msgid "привязать книгу"
+msgstr "kitobni bog'lash"
+
+msgid "нужно купить"
+msgstr "sotib olish kerak"
+
+msgid "Книга в процессе закупки. Когда появится в библиотеке — отметьте как выполненную."
+msgstr "Kitob xarid qilinmoqda. Kutubxonada paydo bo'lganda — bajarildi deb belgilang."
+
+msgid "Куплена — добавить в каталог"
+msgstr "Sotib olindi — katalogga qo'shish"
+
+msgid "Не удалось купить? Отклонить заявку?"
+msgstr "Sotib olib bo'lmadimi? So'rovni rad etasizmi?"
+
+msgid "Не смогли купить"
+msgstr "Sotib ololmadik"
+
+msgid "Текущее сообщение:"
+msgstr "Joriy xabar:"
+
+msgid "Сохранить ответ"
+msgstr "Javobni saqlash"
+
+msgid "Заявка завершена — ответ изменить нельзя."
+msgstr "So'rov yakunlangan — javobni o'zgartirib bo'lmaydi."
+
+msgid "Выполнить заявку #%(pk)s"
+msgstr "#%(pk)s so'rovni bajarish"
+
+msgid "Вариант 1 — Найти в каталоге"
+msgstr "1-variant — Katalogdan topish"
+
+msgid "Если книга уже добавлена в каталог — найдите её здесь."
+msgstr "Agar kitob katalogga allaqachon qo'shilgan bo'lsa — uni shu yerdan toping."
+
+msgid "Инв."
+msgstr "Inv."
+
+msgid "Выбрать"
+msgstr "Tanlash"
+
+msgid "Ничего не найдено по «%(search_q)s»"
+msgstr "«%(search_q)s» bo'yicha hech narsa topilmadi"
+
+msgid "Добавьте книгу через форму справа →"
+msgstr "Kitobni o'ngdagi forma orqali qo'shing →"
+
+msgid "Введите название или автора для поиска"
+msgstr "Qidirish uchun nomi yoki muallifini kiriting"
+
+msgid "Вариант 2 — Добавить новую книгу"
+msgstr "2-variant — Yangi kitob qo'shish"
+
+msgid "Поля заполнены из заявки читателя. Укажите инвентарный номер купленного экземпляра."
+msgstr "Maydonlar kitobxon so'rovidan to'ldirilgan. Sotib olingan nusxaning inventar raqamini kiriting."
+
+msgid "Ответ читателю"
+msgstr "Kitobxonga javob"
+
+msgid "Мы приобрели эту книгу специально для вас!"
+msgstr "Biz bu kitobni siz uchun maxsus sotib oldik!"
+
+msgid "Добавить книгу и выполнить заявку"
+msgstr "Kitob qo'shish va so'rovni bajarish"
+
+msgid "Поиск по имени, логину, телефону…"
+msgstr "Ism, login, telefon bo'yicha qidirish…"
+
+msgid "Активных заявок"
+msgstr "Faol so'rovlar"
+
+msgid "Зарегистрирован"
+msgstr "Ro'yxatdan o'tgan"
+
+msgid "Заблокирован"
+msgstr "Bloklangan"
+
+msgid "Читателей пока нет."
+msgstr "Hozircha kitobxonlar yo'q."
+
+msgid "у читателя есть история выдач книг."
+msgstr "kitobxonda kitob berish tarixi bor."
+
+msgid "Используйте блокировку, чтобы читатель не мог брать книги и подавать заявки, но история выдач сохранилась."
+msgstr "Kitobxon kitob ololmasligi va so'rov qoldira olmasligi uchun, lekin berish tarixi saqlanib qolishi uchun bloklashdan foydalaning."
+
+msgid "Вы действительно хотите удалить читателя?"
+msgstr "Kitobxonni rostdan o'chirmoqchimisiz?"
+
+msgid "Будет удалён аккаунт читателя и вся история его заявок. Это необратимо."
+msgstr "Kitobxon akkounti va uning barcha so'rovlar tarixi o'chiriladi. Bu qaytarib bo'lmaydi."
+
+msgid "Да, удалить читателя"
+msgstr "Ha, kitobxonni o'chirish"
+
+msgid "Профиль"
+msgstr "Profil"
+
+msgid "Разблокировать"
+msgstr "Blokdan chiqarish"
+
+msgid "Заблокировать читателя?"
+msgstr "Kitobxonni bloklaysizmi?"
+
+msgid "Заблокировать"
+msgstr "Bloklash"
+
+msgid "Сейчас на руках"
+msgstr "Hozir qo'lida"
+
+msgid "Заявок нет"
+msgstr "So'rovlar yo'q"
+
+msgid "История пуста"
+msgstr "Tarix bo'sh"
+
+msgid "Вход — кабинет организации"
+msgstr "Kirish — tashkilot kabineti"
+
+msgid "Кабинет организации"
+msgstr "Tashkilot kabineti"
+
+msgid "Вход для ответственных лиц библиопунктов"
+msgstr "Kutubxona nuqtalari mas'ullari uchun kirish"
+
+msgid "Добавить работника"
+msgstr "Xodim qo'shish"
+
+msgid "Работник сможет войти через <strong>/login/</strong> и попадёт в кабинет работника. Также автоматически создаётся профиль читателя."
+msgstr "Xodim <strong>/login/</strong> orqali kirib, xodim kabinetiga tushadi. Shuningdek, avtomatik ravishda kitobxon profili yaratiladi."
+
+msgid "Аккаунт организации"
+msgstr "Tashkilot akkounti"
+
+msgid "Создать аккаунт организации"
+msgstr "Tashkilot akkountini yaratish"
+
+msgid "Создайте логин и пароль для входа в кабинет организации"
+msgstr "Tashkilot kabinetiga kirish uchun login va parol yarating"
+
+msgid "Передайте их ответственному лицу библиопункта."
+msgstr "Ularni kutubxona nuqtasi mas'uliga bering."
+
+msgid "Выдать книгу"
+msgstr "Kitob berish"
+
+msgid "Оформить выдачу читателю"
+msgstr "Kitobxonga berishni rasmiylashtirish"
+
+msgid "Принять возврат"
+msgstr "Qaytarishni qabul qilish"
+
+msgid "%(n)s книг на руках"
+msgstr "%(n)s kitob qo'lda"
+
+msgid "Список и регистрация"
+msgstr "Ro'yxat va ro'yxatdan o'tkazish"
+
+msgid "Личные книги и заявки"
+msgstr "Shaxsiy kitoblar va so'rovlar"
+
+msgid "Выдать"
+msgstr "Berish"
+
+msgid "Дата выдачи"
+msgstr "Berilgan sana"
+
+msgid "Принять возврат книги"
+msgstr "Kitob qaytarilishini qabul qilish"
+
+msgid "Шаг 1 — Найти книгу по инв. номеру"
+msgstr "1-qadam — Kitobni inventar raqami bo'yicha topish"
+
+msgid "Введите номер с этикетки книги, отсканируйте штрих-код или камерой."
+msgstr "Kitob yorlig'idagi raqamni kiriting, shtrix-kodni skanerlang yoki kamera bilan o'qiting."
+
+msgid "Книга найдена:"
+msgstr "Kitob topildi:"
+
+msgid "Шаг 2 — Выбрать читателя"
+msgstr "2-qadam — Kitobxonni tanlash"
+
+msgid "Читатель библиопункта"
+msgstr "Kutubxona nuqtasi kitobxoni"
+
+msgid "— выберите читателя —"
+msgstr "— kitobxonni tanlang —"
+
+msgid "Оформить выдачу"
+msgstr "Berishni rasmiylashtirish"
+
+msgid "В этом библиопункте ещё нет зарегистрированных читателей."
+msgstr "Bu kutubxona nuqtasida hali ro'yxatdan o'tgan kitobxonlar yo'q."
+
+msgid "Зарегистрировать читателя"
+msgstr "Kitobxonni ro'yxatdan o'tkazish"
+
+msgid "Читатели библиопункта"
+msgstr "Kutubxona nuqtasi kitobxonlari"
+
+msgid "Зарегистрировать"
+msgstr "Ro'yxatdan o'tkazish"
+
+msgid "На руках"
+msgstr "Qo'lda"
+
+msgid "Читателей ещё нет."
+msgstr "Hali kitobxonlar yo'q."
+
+msgid "Зарегистрировать первого"
+msgstr "Birinchisini ro'yxatdan o'tkazish"
+
+msgid "Регистрация читателя"
+msgstr "Kitobxonni ro'yxatdan o'tkazish"
+
+msgid "Читатель будет прикреплён к библиопункту «%(name)s» автоматически."
+msgstr "Kitobxon avtomatik ravishda «%(name)s» kutubxona nuqtasiga biriktiriladi."
+
+msgid "Выдана"
+msgstr "Berilgan"
+
+msgid "Принято"
+msgstr "Qabul qilindi"
+
+msgid "Все книги возвращены."
+msgstr "Barcha kitoblar qaytarildi."
+
+msgid "Книг сейчас"
+msgstr "Hozirgi kitoblar"
+
+msgid "Доставок"
+msgstr "Yetkazib berishlar"
+
+msgid "Книг в библиопункте сейчас нет."
+msgstr "Kutubxona nuqtasida hozir kitob yo'q."
+
+msgid "Вход для сотрудников"
+msgstr "Xodimlar uchun kirish"
+
+msgid "Панель сотрудника"
+msgstr "Xodim paneli"
+
+msgid "Вход для читателей:"
+msgstr "Kitobxonlar uchun kirish:"
+
+msgid "здесь"
+msgstr "bu yerda"
+
+msgid "Первоначальная настройка"
+msgstr "Dastlabki sozlash"
+
+msgid "Создание первого администратора"
+msgstr "Birinchi administratorni yaratish"
+
+msgid "Настройка системы"
+msgstr "Tizimni sozlash"
+
+msgid "Система запускается впервые. Создайте учётную запись администратора."
+msgstr "Tizim birinchi marta ishga tushmoqda. Administrator hisobini yarating."
+
+msgid "Создать администратора"
+msgstr "Administrator yaratish"
+
+msgid "Добавить сотрудника"
+msgstr "Xodim qo'shish"
+
+msgid "Роль"
+msgstr "Rol"
+
+msgid "Администратор"
+msgstr "Administrator"
+
+msgid "Заблокировать сотрудника?"
+msgstr "Xodimni bloklaysizmi?"
+
+msgid "Активировать сотрудника?"
+msgstr "Xodimni faollashtirasizmi?"
+
+msgid "Сотрудников нет"
+msgstr "Xodimlar yo'q"
+
+msgid "Главная панель"
+msgstr "Bosh panel"
+
+msgid "Книг всего"
+msgstr "Jami kitoblar"
+
+msgid "В библиотеке:"
+msgstr "Kutubxonada:"
+
+msgid "Открыть каталог"
+msgstr "Katalogni ochish"
+
+msgid "В доставке"
+msgstr "Yetkazilmoqda"
+
+msgid "Активных партий:"
+msgstr "Faol partiyalar:"
+
+msgid "Все партии"
+msgstr "Barcha partiyalar"
+
+msgid "Займов активных:"
+msgstr "Faol berilganlar:"
+
+msgid "просрочено:"
+msgstr "muddati o'tgan:"
+
+msgid "Все читатели"
+msgstr "Barcha kitobxonlar"
+
+msgid "Библиопунктов:"
+msgstr "Kutubxona nuqtalari:"
+
+msgid "Все заявки"
+msgstr "Barcha so'rovlar"
+
+msgid "Просроченные займы"
+msgstr "Muddati o'tgan berishlar"
+
+msgid "Дней держит"
+msgstr "Necha kun ushlab turibdi"
+
+msgid "дн."
+msgstr "kun"
+
+msgid "Активные партии"
+msgstr "Faol partiyalar"
+
+msgid "Все"
+msgstr "Barchasi"
+
+msgid "Нет активных партий"
+msgstr "Faol partiyalar yo'q"
+
+msgid "Заявки на рассмотрении"
+msgstr "Ko'rib chiqilayotgan so'rovlar"
+
+msgid "Нет новых заявок"
+msgstr "Yangi so'rovlar yo'q"
+
+msgid "Книги на руках у читателей (%(n)s)"
+msgstr "Kitobxonlar qo'lidagi kitoblar (%(n)s)"
+
+msgid "Анонимный"
+msgstr "Anonim"
+
+msgid "Нет активных займов"
+msgstr "Faol berishlar yo'q"
+
+msgid "Журнал действий сотрудников"
+msgstr "Xodimlar amallari jurnali"
+
+msgid "Когда"
+msgstr "Qachon"
+
+msgid "Сотрудник"
+msgstr "Xodim"
+
+msgid "Действие"
+msgstr "Amal"
+
+msgid "Система"
+msgstr "Tizim"
+
+msgid "Журнал пока пуст."
+msgstr "Jurnal hozircha bo'sh."
+
+msgid "7 дней"
+msgstr "7 kun"
+
+msgid "30 дней"
+msgstr "30 kun"
+
+msgid "90 дней"
+msgstr "90 kun"
+
+msgid "Год"
+msgstr "Yil"
+
+msgid "Выдано книг"
+msgstr "Berilgan kitoblar"
+
+msgid "Возвращено книг"
+msgstr "Qaytarilgan kitoblar"
+
+msgid "Заявок выполнено"
+msgstr "Bajarilgan so'rovlar"
+
+msgid "Выдачи книг по неделям"
+msgstr "Haftalar bo'yicha kitob berish"
+
+msgid "Нет данных о выдачах за этот период"
+msgstr "Bu davr uchun berish ma'lumotlari yo'q"
+
+msgid "Популярные жанры"
+msgstr "Mashhur janrlar"
+
+msgid "Нет данных"
+msgstr "Ma'lumot yo'q"
+
+msgid "Популярные книги"
+msgstr "Mashhur kitoblar"
+
+msgid "Активность по библиопунктам"
+msgstr "Kutubxona nuqtalari bo'yicha faollik"
+
+msgid "Сканировать камерой"
+msgstr "Kamera bilan skanerlash"
+
+msgid "Наведите камеру на штрих-код книги"
+msgstr "Kamerani kitob shtrix-kodiga qarating"
+
+msgid "Не удалось включить камеру. Проверьте разрешение в браузере или введите номер вручную."
+msgstr "Kamerani yoqib bo'lmadi. Brauzerdagi ruxsatni tekshiring yoki raqamni qo'lda kiriting."
+
+msgid "Одобрена"
+msgstr "Ma'qullangan"
+
+msgid "Закупается"
+msgstr "Xarid qilinmoqda"
+
+msgid "Отклонена"
+msgstr "Rad etilgan"
+
+msgid "Отменена"
+msgstr "Bekor qilingan"
+
+msgid "Читателей"
+msgstr "Kitobxonlar"
+
+msgid "Новых заявок"
+msgstr "Yangi so'rovlar"
+
+msgid "Добавить экземпляр"
+msgstr "Nusxa qo'shish"
+
+msgid "Добавить"
+msgstr "Qo'shish"
+
+msgid "Экземпляры"
+msgstr "Nusxalar"
+
+msgid "Библиопункт"
+msgstr "Kutubxona nuqtasi"
+
+msgid "Книг в партии"
+msgstr "Partiyadagi kitoblar"
+
+msgid "Удалить библиопункт"
+msgstr "Kutubxona nuqtasini o'chirish"
+
+msgid "Редактировать тип"
+msgstr "Turni tahrirlash"
+
+msgid "Инвентарный номер…"
+msgstr "Inventar raqami…"
+
+msgid "Удалить читателя"
+msgstr "Kitobxonni o'chirish"
+
+msgid "Добавлен"
+msgstr "Qo'shilgan"
+
+msgid "— Жанр —"
+msgstr "— Janr —"
+
+msgid "— Язык —"
+msgstr "— Til —"
+
+msgid "Новый сотрудник"
+msgstr "Yangi xodim"
+
+msgid "Редактировать сотрудника"
+msgstr "Xodimni tahrirlash"
+
+msgid "Читатель может прийти и взять книгу сам (как в махалле). Если не отмечено — точка закрытая: выдачу оформляет работник."
+msgstr "Kitobxon o'zi kelib kitobni olishi mumkin (mahalladagi kabi). Agar belgilanmagan bo'lsa — nuqta yopiq: berishni xodim rasmiylashtiradi."
+
+msgid "Если выключено — библиопункт не появляется на карте, в фильтре каталога и в бейджах книг (книга просто покажется «в библиопункте», без названия). Страница по QR-коду продолжит работать напрямую."
+msgstr "O'chirilgan bo'lsa — kutubxona nuqtasi xaritada, katalog filtrida va kitob belgilarida ko'rinmaydi (kitob shunchaki «kutubxona nuqtasida» deb ko'rsatiladi, nomisiz). QR-kod orqali sahifa bevosita ishlashda davom etadi."
+
+msgid "Поддерживаются форматы .mrc и .marc (MARC21)"
+msgstr ".mrc va .marc formatlari qo'llab-quvvatlanadi (MARC21)"
+
+msgid "Формат .xlsx"
+msgstr ".xlsx formati"

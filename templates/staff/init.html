@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Первоначальная настройка{% endblock %}
+{% block title %}{% translate "Первоначальная настройка" %}{% endblock %}
 
 {% block body %}
 <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
@@ -8,21 +9,22 @@
         <div class="text-center mb-4">
             <i class="bi bi-book fs-1 text-primary"></i>
             <h2 class="mt-2">{{ LIBRARY_NAME }}</h2>
-            <p class="text-muted">Создание первого администратора</p>
+            <p class="text-muted">{% translate "Создание первого администратора" %}</p>
+            <div>{% include "includes/lang_switcher.html" %}</div>
         </div>
         <div class="card shadow">
             <div class="card-header bg-primary text-white text-center">
-                <h5 class="mb-0"><i class="bi bi-person-gear"></i> Настройка системы</h5>
+                <h5 class="mb-0"><i class="bi bi-person-gear"></i> {% translate "Настройка системы" %}</h5>
             </div>
             <div class="card-body p-4">
                 <div class="alert alert-info small mb-4">
-                    Система запускается впервые. Создайте учётную запись администратора.
+                    {% translate "Система запускается впервые. Создайте учётную запись администратора." %}
                 </div>
                 <form method="post" novalidate>
                     {% csrf_token %}
                     {% for field in form %}
                     <div class="mb-3">
-                        <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                        <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{% translate field.label %}</label>
                         {{ field }}
                         {% for error in field.errors %}
                         <div class="text-danger small mt-1">{{ error }}</div>
@@ -36,7 +38,7 @@
                     {% endif %}
                     <div class="d-grid mt-4">
                         <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="bi bi-check-circle"></i> Создать администратора
+                            <i class="bi bi-check-circle"></i> {% translate "Создать администратора" %}
                         </button>
                     </div>
                 </form>

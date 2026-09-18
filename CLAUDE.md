@@ -48,6 +48,24 @@ python manage.py runserver
 - [x] Фаза 12: Разделение книги на BookTitle (название/издание) и Book (экземпляр) — объединяет
       дубликаты в каталоге в одну запись, при этом каждый физический экземпляр (инв. номер,
       статус, местонахождение) остаётся отдельным и может доставляться в разные библиопункты
+- [x] Фаза 13: Узбекская локализация (латиница) — переключатель RU/UZ во всех разделах
+      (публичный каталог, кабинет читателя, кабинет работника/организации, панель библиотекаря)
+
+## Локализация (RU/UZ)
+- Стандартный Django i18n: `{% translate %}` / `{% blocktranslate %}` в шаблонах,
+  `gettext_lazy`/`gettext` в моделях и формах (для `choices=` и списков жанров/языков/типов —
+  иначе `{{ form.field }}` рендерит `<select>` в обход шаблонного перевода).
+  Переводить `{{ form.field.label }}`/`{{ form.field.help_text }}` и переменные вроде
+  `{{ title }}` тоже нужно через `{% translate ... %}` (перевод по значению — безопасно, если
+  строки нет в каталоге, тег просто вернёт её как есть).
+- Переводы лежат в `locale/uz/LC_MESSAGES/django.po` (русский текст — msgid, его не нужно
+  дублировать в `locale/ru/...`, т.к. `LANGUAGE_CODE = 'ru'` и исходные строки уже на русском).
+- **На Windows GNU gettext обычно не установлен**, поэтому `manage.py compilemessages` не
+  работает. Вместо него — `python scripts/compile_locale.py` (чистый Python, через `polib`,
+  без системных зависимостей). Запускать после любых правок `.po`.
+- `python scripts/check_missing_translations.py` — находит строки в `{% translate "..." %}` /
+  `{% blocktranslate %}`, которых ещё нет в `django.po`. Полезно после добавления новых
+  шаблонов/строк.
 
 ## Известные ограничения окружения
 - **WeasyPrint (PDF-акты партий) на Windows** требует нативные библиотеки GTK3 (Pango/GObject/Cairo) — без них `pip install weasyprint` работает, но `HTML(...).write_pdf()` падает с `OSError: cannot load library 'libgobject-2.0-0'`. Нужно поставить GTK3 runtime for Windows (https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer) и перезапустить терминал/сервер.

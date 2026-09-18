@@ -1,23 +1,23 @@
 {% extends "admin_base.html" %}
+{% load i18n %}
 
-{% block title %}Удалить книги{% endblock %}
+{% block title %}{% translate "Удалить книги" %}{% endblock %}
 {% block nav_catalog %}active{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-7">
-        <h1 class="h4 mb-3">Удалить книги ({{ titles|length }})</h1>
+        <h1 class="h4 mb-3">{% blocktranslate with n=titles|length %}Удалить книги ({{ n }}){% endblocktranslate %}</h1>
         <div class="alert alert-danger">
-            <p class="mb-2">Вы действительно хотите удалить эти книги вместе со всеми их экземплярами?</p>
+            <p class="mb-2">{% translate "Вы действительно хотите удалить эти книги вместе со всеми их экземплярами?" %}</p>
             <ul class="mb-0">
                 {% for book_title in titles %}
-                <li>{{ book_title.title }} <span class="text-muted">({{ book_title.author }}) — {{ book_title.copies_count }} экз.</span></li>
+                <li>{{ book_title.title }} <span class="text-muted">({{ book_title.author }}) — {{ book_title.copies_count }} {% translate "экз." %}</span></li>
                 {% endfor %}
             </ul>
         </div>
         <p class="text-muted small">
-            Экземпляры с историей выдач читателям удалить нельзя (это защита от потери истории) —
-            такие книги будут пропущены, об этом сообщится после удаления.
+            {% translate "Экземпляры с историей выдач читателям удалить нельзя (это защита от потери истории) — такие книги будут пропущены, об этом сообщится после удаления." %}
         </p>
         <form method="post">
             {% csrf_token %}
@@ -25,9 +25,9 @@
             <input type="hidden" name="ids" value="{{ book_title.pk }}">
             {% endfor %}
             <button type="submit" class="btn btn-danger">
-                <i class="bi bi-trash"></i> Да, удалить {{ titles|length }}
+                <i class="bi bi-trash"></i> {% blocktranslate with n=titles|length %}Да, удалить {{ n }}{% endblocktranslate %}
             </button>
-            <a href="{% url 'catalog_admin:index' %}" class="btn btn-outline-secondary ms-2">Отмена</a>
+            <a href="{% url 'catalog_admin:index' %}" class="btn btn-outline-secondary ms-2">{% translate "Отмена" %}</a>
         </form>
     </div>
 </div>

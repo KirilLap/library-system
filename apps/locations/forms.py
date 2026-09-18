@@ -1,9 +1,10 @@
 from django import forms
+from django.utils.translation import gettext as _
 from .models import Location, LocationType
 
 
 def _type_choices():
-    return list(LocationType.objects.values_list('code', 'name'))
+    return [(code, _(name)) for code, name in LocationType.objects.values_list('code', 'name')]
 
 
 class LocationForm(forms.ModelForm):
