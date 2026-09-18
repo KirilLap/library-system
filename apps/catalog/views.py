@@ -4,32 +4,41 @@ from openpyxl.styles import Font, PatternFill, Alignment
 
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import ProtectedError, Q
+from django.db.models import Count, ProtectedError, Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
 from apps.staff.decorators import librarian_required, admin_required
-from .forms import BookForm, MARCImportForm, ExcelImportForm, GenreForm, LanguageForm
+from .forms import BookTitleForm, BookCopyForm, NewBookForm, MARCImportForm, ExcelImportForm, GenreForm, LanguageForm
 from .marc_utils import parse_marc_file
-from .models import Book, Genre, Language
+from .models import Book, BookTitle, Genre, Language
+
+
+def _delete_book_copy(book):
+    """Удаляет экземпляр книги; если это была последняя копия — удаляет и
+    саму библиографическую запись. Поднимает ProtectedError, если есть история выдач."""
+    book_title = book.book_title
+    book.delete()
+    if not book_title.copies.exists():
+        book_title.delete()
 
 
 @librarian_required
 def book_list(request):
-    qs = Book.objects.all()
+    qs = BookTitle.objects.annotate(num_copies=Count('copies', distinct=True))
 
     q = request.GET.get('q', '').strip()
     if q:
         qs = qs.filter(
             Q(title__icontains=q) |
             Q(author__icontains=q) |
-            Q(inventory_number__icontains=q)
-        )
+            Q(copies__inventory_number__icontains=q)
+        ).distinct()
 
     status = request.GET.get('status', '')
     if status:
-        qs = qs.filter(status=status)
+        qs = qs.filter(copies__status=status).distinct()
 
     genre = request.GET.get('genre', '')
     if genre:
@@ -39,6 +48,7 @@ def book_list(request):
     if language:
         qs = qs.filter(language=language)
 
+    qs = qs.order_by('title')
     paginator = Paginator(qs, 50)
     page_obj = paginator.get_page(request.GET.get('page'))
 
@@ -51,25 +61,74 @@ def book_list(request):
         'status_choices': Book.STATUS_CHOICES,
         'genre_choices': Genre.objects.values_list('code', 'name'),
         'language_choices': Language.objects.values_list('code', 'name'),
-        'total': qs.count(),
+        'total': BookTitle.objects.count(),
+        'total_copies': Book.objects.count(),
+    })
+
+
+@librarian_required
+def book_title_detail(request, pk):
+    book_title = get_object_or_404(BookTitle, pk=pk)
+
+    if request.method == 'POST':
+        form = BookTitleForm(request.POST, request.FILES, instance=book_title)
+        if form.is_valid():
+            form.save()
+            if hasattr(form, 'duplicate_warning'):
+                messages.warning(request, form.duplicate_warning)
+            messages.success(request, f'Книга «{book_title.title}» обновлена.')
+            return redirect('catalog_admin:book_title_detail', pk=book_title.pk)
+    else:
+        form = BookTitleForm(instance=book_title)
+
+    copies = book_title.copies.all().order_by('inventory_number')
+    return render(request, 'catalog/book_title_detail.html', {
+        'book_title': book_title,
+        'form': form,
+        'copies': copies,
     })
 
 
 @librarian_required
 def book_create(request):
     if request.method == 'POST':
-        form = BookForm(request.POST, request.FILES)
+        form = NewBookForm(request.POST, request.FILES)
         if form.is_valid():
             book = form.save()
-            if hasattr(form, 'duplicate_warning'):
-                messages.warning(request, form.duplicate_warning)
+            if hasattr(form, 'duplicate_title'):
+                dupe = form.duplicate_title
+                messages.warning(
+                    request,
+                    f'Книга добавлена, но похожая запись «{dupe.title}» ({dupe.author}) уже есть в каталоге '
+                    f'({dupe.copies_count} экз.). Если это та же книга — удалите новую и добавьте '
+                    f'экземпляр к существующей записи.'
+                )
             messages.success(request, f'Книга «{book.title}» добавлена.')
-            return redirect('catalog_admin:index')
+            return redirect('catalog_admin:book_update', pk=book.pk)
     else:
-        form = BookForm()
+        form = NewBookForm()
     return render(request, 'catalog/book_form.html', {
         'form': form,
         'title': 'Добавить книгу',
+    })
+
+
+@librarian_required
+def book_copy_create(request, title_pk):
+    book_title = get_object_or_404(BookTitle, pk=title_pk)
+    if request.method == 'POST':
+        form = BookCopyForm(request.POST)
+        if form.is_valid():
+            copy = form.save(commit=False)
+            copy.book_title = book_title
+            copy.save()
+            messages.success(request, f'Экземпляр «{copy.inventory_number}» добавлен к «{book_title.title}».')
+            return redirect('catalog_admin:book_title_detail', pk=book_title.pk)
+    else:
+        form = BookCopyForm()
+    return render(request, 'catalog/book_copy_form.html', {
+        'form': form,
+        'book_title': book_title,
     })
 
 
@@ -79,11 +138,13 @@ def book_update(request, pk):
     if request.method == 'POST':
         old_status = book.status
         old_status_display = book.get_status_display()
-        form = BookForm(request.POST, request.FILES, instance=book)
-        if form.is_valid():
-            form.save()
-            if hasattr(form, 'duplicate_warning'):
-                messages.warning(request, form.duplicate_warning)
+        title_form = BookTitleForm(request.POST, request.FILES, instance=book.book_title)
+        copy_form = BookCopyForm(request.POST, instance=book)
+        if title_form.is_valid() and copy_form.is_valid():
+            title_form.save()
+            copy_form.save()
+            if hasattr(title_form, 'duplicate_warning'):
+                messages.warning(request, title_form.duplicate_warning)
             messages.success(request, f'Книга «{book.title}» обновлена.')
             if book.status != old_status:
                 from apps.staff.models import ActionLog
@@ -92,14 +153,17 @@ def book_update(request, pk):
                     f'Книга «{book.title}» (инв. {book.inventory_number}): статус '
                     f'«{old_status_display}» → «{book.get_status_display()}»',
                 )
-            return redirect('catalog_admin:index')
+            return redirect('catalog_admin:book_title_detail', pk=book.book_title_id)
     else:
-        form = BookForm(instance=book)
+        title_form = BookTitleForm(instance=book.book_title)
+        copy_form = BookCopyForm(instance=book)
     return render(request, 'catalog/book_form.html', {
-        'form': form,
+        'title_form': title_form,
+        'copy_form': copy_form,
         'book': book,
         'title': f'Редактировать: {book.title}',
         'current_location': book.current_location,
+        'sibling_copies_count': book.book_title.copies.exclude(pk=book.pk).count(),
     })
 
 
@@ -109,40 +173,51 @@ def book_delete(request, pk):
     if request.method == 'POST':
         title = book.title
         inv = book.inventory_number
+        book_title_id = book.book_title_id
         try:
-            book.delete()
+            _delete_book_copy(book)
         except ProtectedError:
             messages.error(
                 request,
                 f'Нельзя удалить книгу «{title}»: есть история выдач читателям.'
             )
             return redirect('catalog_admin:book_update', pk=pk)
-        messages.success(request, f'Книга «{title}» удалена.')
+        messages.success(request, f'Экземпляр «{title}» (инв. {inv}) удалён.')
         from apps.staff.models import ActionLog
-        ActionLog.log(request.user, f'Удалил книгу «{title}» (инв. {inv})')
+        ActionLog.log(request.user, f'Удалил экземпляр книги «{title}» (инв. {inv})')
+        if BookTitle.objects.filter(pk=book_title_id).exists():
+            return redirect('catalog_admin:book_title_detail', pk=book_title_id)
         return redirect('catalog_admin:index')
     return render(request, 'catalog/book_confirm_delete.html', {'book': book})
 
 
 @librarian_required
 def book_bulk_delete(request):
+    """Массовое удаление книг (названий) вместе со всеми их экземплярами."""
     ids = request.POST.getlist('ids') if request.method == 'POST' else request.GET.getlist('ids')
-    books = Book.objects.filter(pk__in=ids).order_by('title')
+    titles = BookTitle.objects.filter(pk__in=ids).order_by('title')
 
-    if not books.exists():
+    if not titles.exists():
         messages.warning(request, 'Не выбрано ни одной книги.')
         return redirect('catalog_admin:index')
 
     if request.method == 'POST':
         deleted_titles = []
         skipped = []
-        for book in list(books):
-            title = book.title
-            try:
-                book.delete()
-                deleted_titles.append(title)
-            except ProtectedError:
-                skipped.append(f'«{title}» (инв. {book.inventory_number})')
+        for book_title in list(titles):
+            name = book_title.title
+            copies = list(book_title.copies.all())
+            protected = []
+            for copy in copies:
+                try:
+                    copy.delete()
+                except ProtectedError:
+                    protected.append(copy.inventory_number)
+            if protected:
+                skipped.append(f'«{name}» (экз. {", ".join(protected)} — есть история выдач)')
+            else:
+                book_title.delete()
+                deleted_titles.append(name)
 
         if deleted_titles:
             messages.success(request, f'Удалено книг: {len(deleted_titles)}.')
@@ -152,11 +227,11 @@ def book_bulk_delete(request):
         if skipped:
             messages.error(
                 request,
-                'Не удалось удалить (есть история выдач читателям): ' + '; '.join(skipped)
+                'Удалено не полностью (есть история выдач у части экземпляров): ' + '; '.join(skipped)
             )
         return redirect('catalog_admin:index')
 
-    return render(request, 'catalog/book_bulk_confirm_delete.html', {'books': books})
+    return render(request, 'catalog/book_bulk_confirm_delete.html', {'titles': titles})
 
 
 @librarian_required
@@ -179,6 +254,13 @@ def marc_import(request):
     return render(request, 'catalog/marc_import.html', {'form': form, 'has_data': False})
 
 
+def _find_or_create_book_title(title, author, defaults):
+    book_title = BookTitle.objects.filter(title__iexact=title, author__iexact=author).first()
+    if book_title:
+        return book_title, False
+    return BookTitle.objects.create(title=title, author=author, **defaults), True
+
+
 @librarian_required
 @require_POST
 def marc_confirm(request):
@@ -195,26 +277,34 @@ def marc_confirm(request):
         if not inv:
             skipped.append({'title': data.get('title') or '—', 'reason': 'Нет инвентарного номера'})
             continue
-        if not data.get('title', '').strip():
+        title = data.get('title', '').strip()
+        if not title:
             skipped.append({'title': f'инв. {inv}', 'reason': 'Нет названия'})
             continue
+        author = data.get('author', '')
         try:
-            _, is_created = Book.objects.update_or_create(
-                inventory_number=inv,
-                defaults={
-                    'title': data['title'].strip(),
-                    'author': data.get('author', ''),
+            existing = Book.objects.filter(inventory_number=inv).select_related('book_title').first()
+            if existing:
+                bt = existing.book_title
+                bt.title = title
+                bt.author = author
+                bt.isbn = data.get('isbn', '')
+                bt.publisher = data.get('publisher', '')
+                bt.year = data.get('year')
+                bt.genre = data.get('genre', 'OTHER')
+                bt.marc_data = data.get('marc_data')
+                bt.save()
+                updated += 1
+            else:
+                bt, _ = _find_or_create_book_title(title, author, {
                     'isbn': data.get('isbn', ''),
                     'publisher': data.get('publisher', ''),
                     'year': data.get('year'),
                     'genre': data.get('genre', 'OTHER'),
                     'marc_data': data.get('marc_data'),
-                },
-            )
-            if is_created:
+                })
+                Book.objects.create(book_title=bt, inventory_number=inv)
                 created += 1
-            else:
-                updated += 1
         except Exception as e:
             skipped.append({'title': data.get('title', inv), 'reason': str(e)})
 
@@ -226,7 +316,7 @@ def marc_confirm(request):
 
 
 # ──────────────────────────────
-# Labels / barcodes
+# Labels / barcodes (по экземплярам)
 # ──────────────────────────────
 
 @librarian_required
@@ -242,6 +332,17 @@ def book_labels_batch(request):
         messages.warning(request, 'Не выбрано ни одной книги.')
         return redirect('catalog_admin:index')
     books = Book.objects.filter(pk__in=ids)
+    return render(request, 'catalog/book_label.html', {'books': books})
+
+
+@librarian_required
+def book_title_labels_batch(request):
+    """Печать этикеток для всех экземпляров выбранных названий (из каталога, сгруппированного по книгам)."""
+    title_ids = request.GET.getlist('ids')
+    if not title_ids:
+        messages.warning(request, 'Не выбрано ни одной книги.')
+        return redirect('catalog_admin:index')
+    books = Book.objects.filter(book_title_id__in=title_ids).order_by('book_title__title', 'inventory_number')
     return render(request, 'catalog/book_label.html', {'books': books})
 
 
@@ -345,16 +446,16 @@ def excel_confirm(request):
 
         author = (row.get('author') or '').strip()
 
-        # Duplicate check: same title+author but different inventory_number
-        dupe_qs = Book.objects.filter(
+        # Предупреждение: то же название+автор уже есть под другим инв. номером
+        dupe_qs = BookTitle.objects.filter(
             title__iexact=title, author__iexact=author
-        ).exclude(inventory_number=inv)
-        if dupe_qs.exists():
+        )
+        if dupe_qs.exists() and not Book.objects.filter(inventory_number=inv).exists():
             dupe = dupe_qs.first()
             duplicates.append({
                 'title': title,
                 'inv': inv,
-                'dupe_inv': dupe.inventory_number,
+                'dupe_inv': ', '.join(dupe.copies.values_list('inventory_number', flat=True)) or '—',
             })
 
         year_raw = row.get('year')
@@ -373,23 +474,30 @@ def excel_confirm(request):
             lang = default_lang
 
         try:
-            _, is_created = Book.objects.update_or_create(
-                inventory_number=inv,
-                defaults={
-                    'title':       title,
-                    'author':      author,
-                    'year':        year,
-                    'publisher':   (row.get('publisher') or ''),
-                    'isbn':        (row.get('isbn') or ''),
-                    'genre':       genre,
-                    'language':    lang,
-                    'description': (row.get('description') or ''),
-                },
-            )
-            if is_created:
-                created += 1
-            else:
+            existing = Book.objects.filter(inventory_number=inv).select_related('book_title').first()
+            if existing:
+                bt = existing.book_title
+                bt.title = title
+                bt.author = author
+                bt.year = year
+                bt.publisher = (row.get('publisher') or '')
+                bt.isbn = (row.get('isbn') or '')
+                bt.genre = genre
+                bt.language = lang
+                bt.description = (row.get('description') or '')
+                bt.save()
                 updated += 1
+            else:
+                bt, _ = _find_or_create_book_title(title, author, {
+                    'year': year,
+                    'publisher': (row.get('publisher') or ''),
+                    'isbn': (row.get('isbn') or ''),
+                    'genre': genre,
+                    'language': lang,
+                    'description': (row.get('description') or ''),
+                })
+                Book.objects.create(book_title=bt, inventory_number=inv)
+                created += 1
         except Exception as e:
             skipped.append({'title': title, 'reason': str(e)})
 
@@ -424,7 +532,7 @@ def genre_list(request):
 @require_POST
 def genre_delete(request, pk):
     genre = get_object_or_404(Genre, pk=pk)
-    if Book.objects.filter(genre=genre.code).exists():
+    if BookTitle.objects.filter(genre=genre.code).exists():
         messages.error(request, f'Нельзя удалить: жанр «{genre.name}» используется в книгах.')
     else:
         genre.delete()
@@ -455,7 +563,7 @@ def language_list(request):
 @require_POST
 def language_delete(request, pk):
     lang = get_object_or_404(Language, pk=pk)
-    if Book.objects.filter(language=lang.code).exists():
+    if BookTitle.objects.filter(language=lang.code).exists():
         messages.error(request, f'Нельзя удалить: язык «{lang.name}» используется в книгах.')
     else:
         lang.delete()
@@ -491,11 +599,11 @@ def _parse_excel(file_obj):
             elif Book.objects.filter(inventory_number=inv).exists():
                 record['row_status'] = 'update'
                 record['row_status_text'] = 'Обновление'
-            elif title and author and Book.objects.filter(
+            elif title and author and BookTitle.objects.filter(
                 title__iexact=title, author__iexact=author
-            ).exclude(inventory_number=inv).exists():
+            ).exists():
                 record['row_status'] = 'duplicate'
-                record['row_status_text'] = 'Возможный дубликат'
+                record['row_status_text'] = 'Экземпляр существующей книги'
             else:
                 record['row_status'] = 'new'
                 record['row_status_text'] = 'Новая'

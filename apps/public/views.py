@@ -18,7 +18,7 @@ def book_list(request):
         book=OuterRef('pk'), is_returned=False
     ).order_by('-added_at')
 
-    books = Book.objects.exclude(status='LOST').annotate(
+    books = Book.objects.exclude(status='LOST').select_related('book_title').annotate(
         current_location_id=Subquery(current_item.values('batch__location_id')[:1]),
         current_location_name=Subquery(current_item.values('batch__location__name')[:1]),
         current_location_type=Subquery(current_item.values('batch__location__type')[:1]),
@@ -34,11 +34,11 @@ def book_list(request):
 
     if q:
         from django.db.models import Q
-        books = books.filter(Q(title__icontains=q) | Q(author__icontains=q))
+        books = books.filter(Q(book_title__title__icontains=q) | Q(book_title__author__icontains=q))
     if genre:
-        books = books.filter(genre=genre)
+        books = books.filter(book_title__genre=genre)
     if language:
-        books = books.filter(language=language)
+        books = books.filter(book_title__language=language)
     if status_filter:
         books = books.filter(status=status_filter)
     if location_filter:
@@ -49,9 +49,9 @@ def book_list(request):
             books = books.none()
 
     if sort == 'location':
-        books = books.order_by('current_location_name', 'title')
+        books = books.order_by('current_location_name', 'book_title__title')
     else:
-        books = books.order_by('title')
+        books = books.order_by('book_title__title')
 
     return render(request, 'catalog/public_book_list.html', {
         'books': books,

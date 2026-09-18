@@ -16,7 +16,7 @@
         {% if book and book.status == 'IN_DELIVERY' %}
         <div class="alert alert-info">
             <i class="bi bi-info-circle"></i>
-            Книга сейчас <strong>в библиопункте</strong>{% if current_location %}: <strong>{{ current_location.name }}</strong>{% endif %}.
+            Экземпляр сейчас <strong>в библиопункте</strong>{% if current_location %}: <strong>{{ current_location.name }}</strong>{% endif %}.
             Статус можно изменить только после возврата.
         </div>
         {% endif %}
@@ -24,7 +24,7 @@
         {% if book and book.queue_entries.all %}
         <div class="alert {% if book.status == 'IN_LIBRARY' %}alert-warning{% else %}alert-light border{% endif %}">
             <i class="bi bi-hourglass-split"></i>
-            <strong>В очереди на эту книгу: {{ book.queue_entries.count }}</strong>
+            <strong>В очереди на этот экземпляр: {{ book.queue_entries.count }}</strong>
             {% if book.status == 'IN_LIBRARY' %}— книга свободна, свяжитесь с читателями:{% endif %}
             <ul class="mb-0 mt-1">
                 {% for entry in book.queue_entries.all %}
@@ -56,6 +56,11 @@
                 <div>
                     <div class="fw-semibold">{{ book.title|truncatechars:60 }}</div>
                     <div class="text-muted small">{{ book.author }}</div>
+                    {% if sibling_copies_count %}
+                    <a href="{% url 'catalog_admin:book_title_detail' book.book_title_id %}" class="small">
+                        Все экземпляры этой книги ({{ sibling_copies_count|add:1 }}) →
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -67,6 +72,85 @@
                     {% csrf_token %}
                     <div class="row g-3">
 
+                        {% if book %}
+                        {# ── Редактирование: два блока — библиография (title_form) и экземпляр (copy_form) ── #}
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">
+                                {{ copy_form.inventory_number.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ copy_form.inventory_number }}
+                            {% for err in copy_form.inventory_number.errors %}
+                            <div class="text-danger small">{{ err }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ copy_form.status.label }}</label>
+                            {{ copy_form.status }}
+                        </div>
+
+                        <div class="col-12"><hr class="mt-0 mb-2"><h6 class="text-muted">Данные книги (общие для всех экземпляров)</h6></div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">
+                                {{ title_form.title.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ title_form.title }}
+                            {% for err in title_form.title.errors %}
+                            <div class="text-danger small">{{ err }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label">{{ title_form.author.label }}</label>
+                            {{ title_form.author }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ title_form.year.label }}</label>
+                            {{ title_form.year }}
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label">{{ title_form.publisher.label }}</label>
+                            {{ title_form.publisher }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ title_form.isbn.label }}</label>
+                            {{ title_form.isbn }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ title_form.genre.label }}</label>
+                            {{ title_form.genre }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ title_form.language.label }}</label>
+                            {{ title_form.language }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">{{ title_form.description.label }}</label>
+                            {{ title_form.description }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">{{ title_form.cover.label }}</label>
+                            {{ title_form.cover }}
+                            {% if book.cover %}
+                            <div class="form-check mt-2">
+                                {{ title_form.cover_clear }}
+                                <label class="form-check-label text-danger" for="{{ title_form.cover_clear.id_for_label }}">
+                                    {{ title_form.cover_clear.label }}
+                                </label>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% else %}
+                        {# ── Создание новой книги (form = NewBookForm) ── #}
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">
                                 {{ form.inventory_number.label }} <span class="text-danger">*</span>
@@ -78,8 +162,8 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">{{ form.barcode.label }}</label>
-                            {{ form.barcode }}
+                            <label class="form-label">{{ form.status.label }}</label>
+                            {{ form.status }}
                         </div>
 
                         <div class="col-12">
@@ -122,28 +206,14 @@
                             {{ form.language }}
                         </div>
 
-                        <div class="col-md-4">
-                            <label class="form-label">{{ form.status.label }}</label>
-                            {{ form.status }}
-                        </div>
-
                         <div class="col-12">
                             <label class="form-label">{{ form.description.label }}</label>
                             {{ form.description }}
                         </div>
 
-                        {% if book %}
                         <div class="col-12">
                             <label class="form-label">{{ form.cover.label }}</label>
                             {{ form.cover }}
-                            {% if book.cover %}
-                            <div class="form-check mt-2">
-                                {{ form.cover_clear }}
-                                <label class="form-check-label text-danger" for="{{ form.cover_clear.id_for_label }}">
-                                    {{ form.cover_clear.label }}
-                                </label>
-                            </div>
-                            {% endif %}
                         </div>
                         {% endif %}
 
@@ -163,7 +233,7 @@
                         </a>
                         <a href="{% url 'catalog_admin:book_delete' book.pk %}"
                            class="btn btn-outline-danger ms-auto">
-                            <i class="bi bi-trash"></i> Удалить книгу
+                            <i class="bi bi-trash"></i> Удалить экземпляр
                         </a>
                         {% endif %}
                     </div>

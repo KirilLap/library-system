@@ -1,0 +1,47 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Добавить экземпляр{% endblock %}
+{% block nav_catalog %}active{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h4 mb-0">Добавить экземпляр</h1>
+            <a href="{% url 'catalog_admin:book_title_detail' book_title.pk %}" class="btn btn-outline-secondary btn-sm">
+                ← Назад
+            </a>
+        </div>
+        <p class="text-muted">
+            «{{ book_title.title }}» <span class="text-muted">({{ book_title.author }})</span> —
+            уже {{ book_title.copies_count }} экз. Укажите инвентарный номер нового.
+        </p>
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            {{ form.inventory_number.label }} <span class="text-danger">*</span>
+                        </label>
+                        {{ form.inventory_number }}
+                        {% for err in form.inventory_number.errors %}
+                        <div class="text-danger small">{{ err }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.status.label }}</label>
+                        {{ form.status }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Добавить
+                    </button>
+                    <a href="{% url 'catalog_admin:book_title_detail' book_title.pk %}" class="btn btn-outline-secondary">
+                        Отмена
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

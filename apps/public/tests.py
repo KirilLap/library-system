@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from apps.catalog.models import Book
+from apps.catalog.models import Book, BookTitle
 from apps.deliveries.models import DeliveryBatch, DeliveryItem
 from apps.locations.models import Location
 from apps.readers.models import BookQueue, BookRequest, Loan, Reader
@@ -15,9 +15,16 @@ _MEDIA_ROOT = tempfile.mkdtemp(prefix='library_test_media_')
 
 
 def make_book(inventory_number, **kwargs):
-    defaults = dict(title='Тестовая книга', author='Тестовый автор', status='IN_LIBRARY')
+    title_fields = {}
+    for key in ('title', 'author', 'year', 'publisher', 'genre', 'language', 'description', 'isbn'):
+        if key in kwargs:
+            title_fields[key] = kwargs.pop(key)
+    title_defaults = dict(title='Тестовая книга', author='Тестовый автор')
+    title_defaults.update(title_fields)
+    book_title = BookTitle.objects.create(**title_defaults)
+    defaults = dict(status='IN_LIBRARY')
     defaults.update(kwargs)
-    return Book.objects.create(inventory_number=inventory_number, **defaults)
+    return Book.objects.create(book_title=book_title, inventory_number=inventory_number, **defaults)
 
 
 def make_reader(username, phone='+998900000000', **kwargs):

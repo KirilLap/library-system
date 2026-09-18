@@ -100,20 +100,20 @@ def stats_view(request):
 
     top_genres = (
         loans_in_period
-        .values('book__genre')
+        .values('book__book_title__genre')
         .annotate(n=Count('id'))
         .order_by('-n')[:8]
     )
     from apps.catalog.models import Genre
     genre_names = dict(Genre.objects.values_list('code', 'name'))
     top_genres = [
-        {'name': genre_names.get(g['book__genre'], g['book__genre'] or '—'), 'count': g['n']}
+        {'name': genre_names.get(g['book__book_title__genre'], g['book__book_title__genre'] or '—'), 'count': g['n']}
         for g in top_genres
     ]
 
     top_books = (
         loans_in_period
-        .values('book__id', 'book__title', 'book__author')
+        .values('book__book_title__id', 'book__book_title__title', 'book__book_title__author')
         .annotate(n=Count('id'))
         .order_by('-n')[:10]
     )

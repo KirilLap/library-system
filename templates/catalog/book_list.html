@@ -8,6 +8,7 @@
     <h1 class="h4 mb-0">
         Каталог книг
         <span class="badge bg-secondary fs-6">{{ total }}</span>
+        <span class="badge bg-light text-dark fs-6 border" title="Всего экземпляров">{{ total_copies }} экз.</span>
     </h1>
     <div class="d-flex gap-2">
         <div class="dropdown">
@@ -32,7 +33,7 @@
 <form method="get" class="row g-2 mb-3" id="filter-form">
     <div class="col-md-4">
         <input type="text" name="q" value="{{ q }}" class="form-control"
-               placeholder="Поиск по названию, автору, инв. номеру, штрих-коду...">
+               placeholder="Поиск по названию, автору, инв. номеру...">
     </div>
     <div class="col-md-2">
         <select name="status" class="form-select">
@@ -72,13 +73,13 @@
 
 {% if page_obj.object_list %}
 
-<div class="d-flex align-items-center gap-2 mb-2" id="batch-toolbar" style="display:none!important">
+<div class="align-items-center gap-2 mb-2" id="batch-toolbar" style="display:none">
     <span class="text-muted small" id="selected-count">Выбрано: 0</span>
     <a href="#" id="btn-print-selected" class="btn btn-sm btn-outline-secondary" target="_blank">
-        <i class="bi bi-printer"></i> Печать этикеток
+        <i class="bi bi-printer"></i> Печать этикеток (все экземпляры)
     </a>
     <a href="#" id="btn-delete-selected" class="btn btn-sm btn-outline-danger">
-        <i class="bi bi-trash"></i> Удалить выбранные
+        <i class="bi bi-trash"></i> Удалить выбранные (со всеми экземплярами)
     </a>
     <button type="button" class="btn btn-sm btn-link text-muted" id="btn-deselect-all">Снять выбор</button>
 </div>
@@ -90,45 +91,37 @@
                 <th style="width:36px">
                     <input type="checkbox" id="check-all" class="form-check-input" title="Выбрать все">
                 </th>
-                <th>Инв. номер</th>
                 <th>Название</th>
                 <th>Автор</th>
                 <th>Год</th>
                 <th>Жанр</th>
                 <th>Язык</th>
-                <th>Статус</th>
-                <th>Где сейчас</th>
+                <th>Экземпляров</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
-            {% for book in page_obj %}
+            {% for book_title in page_obj %}
             <tr>
                 <td>
-                    <input type="checkbox" class="form-check-input book-check" value="{{ book.pk }}">
-                </td>
-                <td><code class="text-dark">{{ book.inventory_number }}</code></td>
-                <td>{{ book.title|truncatechars:55 }}</td>
-                <td class="text-muted">{{ book.author|truncatechars:35 }}</td>
-                <td>{{ book.year|default:"—" }}</td>
-                <td>{{ book.get_genre_display }}</td>
-                <td>{{ book.get_language_display }}</td>
-                <td>
-                    <span class="badge bg-{{ book.get_status_badge_class }}">
-                        {{ book.get_status_display }}
-                    </span>
+                    <input type="checkbox" class="form-check-input title-check" value="{{ book_title.pk }}">
                 </td>
                 <td>
-                    {% if book.status == 'IN_DELIVERY' %}
-                        {% with loc=book.current_location %}
-                            {% if loc %}<small>{{ loc.name }}</small>{% else %}—{% endif %}
-                        {% endwith %}
-                    {% else %}—{% endif %}
+                    <a href="{% url 'catalog_admin:book_title_detail' book_title.pk %}" class="text-decoration-none">
+                        {{ book_title.title|truncatechars:55 }}
+                    </a>
+                </td>
+                <td class="text-muted">{{ book_title.author|truncatechars:35 }}</td>
+                <td>{{ book_title.year|default:"—" }}</td>
+                <td>{{ book_title.get_genre_display }}</td>
+                <td>{{ book_title.get_language_display }}</td>
+                <td>
+                    <span class="badge bg-secondary">{{ book_title.num_copies }}</span>
                 </td>
                 <td>
-                    <a href="{% url 'catalog_admin:book_update' book.pk %}"
+                    <a href="{% url 'catalog_admin:book_title_detail' book_title.pk %}"
                        class="btn btn-sm btn-outline-secondary">
-                        <i class="bi bi-pencil"></i>
+                        <i class="bi bi-eye"></i>
                     </a>
                 </td>
             </tr>
@@ -184,43 +177,43 @@
     var printBtn = document.getElementById('btn-print-selected');
     var deleteBtn = document.getElementById('btn-delete-selected');
     var deselectBtn = document.getElementById('btn-deselect-all');
-    var labelUrl = '{% url "catalog_admin:book_labels_batch" %}';
     var bulkDeleteUrl = '{% url "catalog_admin:book_bulk_delete" %}';
+    var labelUrl = '{% url "catalog_admin:book_title_labels_batch" %}';
 
     function getChecked() {
-        return Array.from(document.querySelectorAll('.book-check:checked'));
+        return Array.from(document.querySelectorAll('.title-check:checked'));
     }
 
     function update() {
         var checked = getChecked();
         if (checked.length > 0) {
-            toolbar.style.removeProperty('display');
+            toolbar.style.display = 'flex';
             countEl.textContent = 'Выбрано: ' + checked.length;
             var ids = checked.map(function (c) { return 'ids=' + c.value; }).join('&');
-            printBtn.href = labelUrl + '?' + ids;
             deleteBtn.href = bulkDeleteUrl + '?' + ids;
+            printBtn.href = labelUrl + '?' + ids;
         } else {
             toolbar.style.display = 'none';
         }
         checkAll.indeterminate = checked.length > 0 &&
-            checked.length < document.querySelectorAll('.book-check').length;
+            checked.length < document.querySelectorAll('.title-check').length;
         checkAll.checked = checked.length > 0 &&
-            checked.length === document.querySelectorAll('.book-check').length;
+            checked.length === document.querySelectorAll('.title-check').length;
     }
 
-    document.querySelectorAll('.book-check').forEach(function (cb) {
+    document.querySelectorAll('.title-check').forEach(function (cb) {
         cb.addEventListener('change', update);
     });
 
     checkAll.addEventListener('change', function () {
-        document.querySelectorAll('.book-check').forEach(function (cb) {
+        document.querySelectorAll('.title-check').forEach(function (cb) {
             cb.checked = checkAll.checked;
         });
         update();
     });
 
     deselectBtn.addEventListener('click', function () {
-        document.querySelectorAll('.book-check').forEach(function (cb) {
+        document.querySelectorAll('.title-check').forEach(function (cb) {
             cb.checked = false;
         });
         update();

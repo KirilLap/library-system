@@ -209,7 +209,7 @@ def worker_return(request):
     from apps.readers.models import Loan
     active_loans = Loan.objects.filter(
         location=location, is_returned=False
-    ).select_related('book', 'reader__user').order_by('book__title')
+    ).select_related('book__book_title', 'reader__user').order_by('book__book_title__title')
 
     if request.method == 'POST':
         loan_pk = request.POST.get('loan_pk')

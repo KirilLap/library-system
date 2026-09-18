@@ -363,7 +363,7 @@ def request_fulfill_with_book(request, pk):
         return redirect('readers_admin_extra:request_detail', pk=pk)
 
     from apps.catalog.models import Book, Genre, Language
-    from apps.catalog.forms import BookForm
+    from apps.catalog.forms import NewBookForm
     from django.db.models import Q
 
     # Поиск существующей книги
@@ -371,11 +371,11 @@ def request_fulfill_with_book(request, pk):
     found_books = []
     if search_q:
         found_books = Book.objects.filter(
-            Q(title__icontains=search_q) | Q(author__icontains=search_q)
-        ).order_by('title')[:20]
+            Q(book_title__title__icontains=search_q) | Q(book_title__author__icontains=search_q)
+        ).select_related('book_title').order_by('book_title__title')[:20]
 
     # Выбор книги из каталога
-    form = BookForm(initial={
+    form = NewBookForm(initial={
         'title': req.requested_title,
         'author': req.requested_author,
     })
@@ -409,7 +409,7 @@ def request_fulfill_with_book(request, pk):
 
         elif action == 'create':
             # Создать новую книгу
-            form = BookForm(request.POST, request.FILES)
+            form = NewBookForm(request.POST, request.FILES)
             if form.is_valid():
                 book = form.save()
                 req.book = book

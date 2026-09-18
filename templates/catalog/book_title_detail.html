@@ -1,0 +1,153 @@
+{% extends "admin_base.html" %}
+
+{% block title %}{{ book_title.title }}{% endblock %}
+{% block nav_catalog %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">{{ book_title.title }}</h1>
+    <a href="{% url 'catalog_admin:index' %}" class="btn btn-outline-secondary btn-sm">
+        ← Назад к каталогу
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header fw-semibold">Данные книги</div>
+            <div class="card-body">
+                {% if book_title.cover %}
+                <img src="{{ book_title.cover.url }}" alt="Обложка"
+                     style="width:90px;height:120px;object-fit:cover;border-radius:4px;border:1px solid #dee2e6;float:right;margin-left:12px">
+                {% else %}
+                <div style="width:90px;height:120px;border-radius:4px;background:{{ book_title.cover_placeholder_color }};
+                            display:flex;align-items:center;justify-content:center;
+                            font-size:2rem;font-weight:bold;color:#fff;float:right;margin-left:12px">
+                    {{ book_title.cover_placeholder_letter }}
+                </div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">
+                                {{ form.title.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% for err in form.title.errors %}
+                            <div class="text-danger small">{{ err }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">{{ form.author.label }}</label>
+                            {{ form.author }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.year.label }}</label>
+                            {{ form.year }}
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">{{ form.publisher.label }}</label>
+                            {{ form.publisher }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.isbn.label }}</label>
+                            {{ form.isbn }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.genre.label }}</label>
+                            {{ form.genre }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.language.label }}</label>
+                            {{ form.language }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">{{ form.description.label }}</label>
+                            {{ form.description }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">{{ form.cover.label }}</label>
+                            {{ form.cover }}
+                            {% if book_title.cover %}
+                            <div class="form-check mt-2">
+                                {{ form.cover_clear }}
+                                <label class="form-check-label text-danger" for="{{ form.cover_clear.id_for_label }}">
+                                    {{ form.cover_clear.label }}
+                                </label>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">
+                        <i class="bi bi-check-lg"></i> Сохранить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="h6 mb-0">Экземпляры <span class="badge bg-secondary">{{ copies|length }}</span></h2>
+            <a href="{% url 'catalog_admin:book_copy_create' book_title.pk %}" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-lg"></i> Добавить экземпляр
+            </a>
+        </div>
+
+        {% if copies %}
+        <div class="table-responsive">
+            <table class="table table-hover table-sm align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Инв. номер</th>
+                        <th>Статус</th>
+                        <th>Где сейчас</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for copy in copies %}
+                    <tr>
+                        <td><code class="text-dark">{{ copy.inventory_number }}</code></td>
+                        <td>
+                            <span class="badge bg-{{ copy.get_status_badge_class }}">
+                                {{ copy.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if copy.status == 'IN_DELIVERY' %}
+                                {% with loc=copy.current_location %}
+                                    {% if loc %}<small>{{ loc.name }}</small>{% else %}—{% endif %}
+                                {% endwith %}
+                            {% else %}—{% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'catalog_admin:book_label' copy.pk %}" target="_blank"
+                               class="btn btn-sm btn-outline-secondary" title="Этикетка">
+                                <i class="bi bi-printer"></i>
+                            </a>
+                            <a href="{% url 'catalog_admin:book_update' copy.pk %}"
+                               class="btn btn-sm btn-outline-secondary" title="Редактировать">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'catalog_admin:book_delete' copy.pk %}"
+                               class="btn btn-sm btn-outline-danger" title="Удалить">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+            Нет экземпляров.
+            <a href="{% url 'catalog_admin:book_copy_create' book_title.pk %}">Добавить первый</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

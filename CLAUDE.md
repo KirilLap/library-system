@@ -45,6 +45,9 @@ python manage.py runserver
 - [x] Фаза 9: Динамические жанры/языки + проверка дубликатов
 - [x] Фаза 10: Карта библиопунктов (Leaflet + OpenStreetMap)
 - [x] Фаза 11: Выдача книг, кабинет работника (в git-истории по ошибке помечена как «Фаза 7»)
+- [x] Фаза 12: Разделение книги на BookTitle (название/издание) и Book (экземпляр) — объединяет
+      дубликаты в каталоге в одну запись, при этом каждый физический экземпляр (инв. номер,
+      статус, местонахождение) остаётся отдельным и может доставляться в разные библиопункты
 
 ## Известные ограничения окружения
 - **WeasyPrint (PDF-акты партий) на Windows** требует нативные библиотеки GTK3 (Pango/GObject/Cairo) — без них `pip install weasyprint` работает, но `HTML(...).write_pdf()` падает с `OSError: cannot load library 'libgobject-2.0-0'`. Нужно поставить GTK3 runtime for Windows (https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer) и перезапустить терминал/сервер.
