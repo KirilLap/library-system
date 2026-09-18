@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.org_dashboard, name='index'),
     path('login/', views.org_login, name='login'),
     path('logout/', views.org_logout, name='logout'),
+    path('set-language/', views.set_language, name='set_language'),
     path('dashboard/', views.org_dashboard, name='dashboard'),
 
     # Worker cabinet (personal, login via /login/)

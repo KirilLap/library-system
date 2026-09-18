@@ -9,7 +9,7 @@
         <span class="navbar-brand">
             <i class="bi bi-book"></i> {{ LIBRARY_NAME }}
         </span>
-        {% include "includes/lang_switcher.html" %}
+        {% include "includes/lang_switcher.html" with remember_for_reader=True %}
     </div>
 </nav>
 

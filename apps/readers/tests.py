@@ -389,5 +389,41 @@ class ReaderDeleteTests(TestCase):
         self.assertTrue(Reader.objects.filter(pk=reader.pk).exists())
 
 
+@override_settings(MEDIA_ROOT=_MEDIA_ROOT)
+class LanguagePreferenceTests(TestCase):
+    """Выбор языка читателем запоминается в профиле и применяется при следующем входе."""
+
+    def setUp(self):
+        self.reader = make_reader('reader_lang')
+
+    def test_switching_language_saves_it_to_profile(self):
+        self.client.force_login(self.reader.user)
+        self.client.post(reverse('main:set_language'), {'language': 'uz', 'next': '/catalog/'})
+        self.reader.refresh_from_db()
+        self.assertEqual(self.reader.language, 'uz')
+
+    def test_switching_language_ignored_for_unknown_code(self):
+        self.client.force_login(self.reader.user)
+        self.client.post(reverse('main:set_language'), {'language': 'xx', 'next': '/catalog/'})
+        self.reader.refresh_from_db()
+        self.assertEqual(self.reader.language, '')
+
+    def test_login_activates_saved_language(self):
+        self.reader.language = 'uz'
+        self.reader.save(update_fields=['language'])
+        response = self.client.post(reverse('main:login'), {
+            'username': self.reader.user.username, 'password': 'pass12345',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.cookies['django_language'].value, 'uz')
+
+    def test_login_without_saved_language_leaves_cookie_untouched(self):
+        response = self.client.post(reverse('main:login'), {
+            'username': self.reader.user.username, 'password': 'pass12345',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertNotIn('django_language', response.cookies)
+
+
 def tearDownModule():
     shutil.rmtree(_MEDIA_ROOT, ignore_errors=True)

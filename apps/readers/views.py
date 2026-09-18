@@ -1,7 +1,8 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -9,6 +10,18 @@ from django.views.decorators.http import require_POST
 from apps.staff.decorators import librarian_required
 from .forms import ReaderRegistrationForm, StyledAuthForm, BookRequestForm, RequestStatusForm, ReaderProfileForm, FreeBookRequestForm
 from .models import Reader, BookRequest, Loan
+
+
+def _set_language_cookie(response, lang_code):
+    response.set_cookie(
+        settings.LANGUAGE_COOKIE_NAME, lang_code,
+        max_age=settings.LANGUAGE_COOKIE_AGE,
+        path=settings.LANGUAGE_COOKIE_PATH,
+        domain=settings.LANGUAGE_COOKIE_DOMAIN,
+        secure=settings.LANGUAGE_COOKIE_SECURE,
+        httponly=settings.LANGUAGE_COOKIE_HTTPONLY,
+        samesite=settings.LANGUAGE_COOKIE_SAMESITE,
+    )
 
 
 # ──────────────────────────────
@@ -40,11 +53,22 @@ def login_view(request):
             login(request, user)
             next_url = request.GET.get('next')
             if next_url:
-                return redirect(next_url)
+                response = redirect(next_url)
             # Redirect workers to their cabinet
-            if hasattr(user, 'worker_profile') and user.worker_profile.is_active:
-                return redirect('organizations:worker_cabinet')
-            return redirect('main:my')
+            elif hasattr(user, 'worker_profile') and user.worker_profile.is_active:
+                response = redirect('organizations:worker_cabinet')
+            else:
+                response = redirect('main:my')
+            # Язык — на аккаунте читателя, а не куки браузера: если он уже
+            # выбирал язык раньше, вход должен открываться на нём даже с
+            # другого устройства или после очистки куки.
+            try:
+                lang = user.reader_profile.language
+            except Exception:
+                lang = ''
+            if lang:
+                _set_language_cookie(response, lang)
+            return response
     else:
         form = StyledAuthForm(request)
     return render(request, 'readers/login.html', {'form': form})
@@ -54,6 +78,29 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('main:home')
+
+
+@require_POST
+def set_language(request):
+    """Переключение языка для читателя/работника библиопункта — как встроенный
+    django set_language, но дополнительно запоминает выбор в профиле читателя
+    (если он вошёл в систему), чтобы язык не зависел от куки браузера."""
+    lang_code = request.POST.get('language')
+    next_url = request.POST.get('next') or request.META.get('HTTP_REFERER') or '/'
+    valid = bool(lang_code) and lang_code in dict(settings.LANGUAGES)
+
+    if valid and request.user.is_authenticated:
+        try:
+            profile = request.user.reader_profile
+            profile.language = lang_code
+            profile.save(update_fields=['language'])
+        except Exception:
+            pass
+
+    response = HttpResponseRedirect(next_url)
+    if valid:
+        _set_language_cookie(response, lang_code)
+    return response
 
 
 # ──────────────────────────────

@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -11,6 +13,18 @@ from .models import OrgAccount, LocationWorker
 
 ORG_LOGIN_URL = '/org/login/'
 WORKER_LOGIN_URL = '/login/'
+
+
+def _set_language_cookie(response, lang_code):
+    response.set_cookie(
+        settings.LANGUAGE_COOKIE_NAME, lang_code,
+        max_age=settings.LANGUAGE_COOKIE_AGE,
+        path=settings.LANGUAGE_COOKIE_PATH,
+        domain=settings.LANGUAGE_COOKIE_DOMAIN,
+        secure=settings.LANGUAGE_COOKIE_SECURE,
+        httponly=settings.LANGUAGE_COOKIE_HTTPONLY,
+        samesite=settings.LANGUAGE_COOKIE_SAMESITE,
+    )
 
 
 def org_required(func):
@@ -61,12 +75,18 @@ def org_login(request):
         if form.is_valid():
             user = form.get_user()
             try:
-                _ = user.org_account
+                org_account = user.org_account
             except OrgAccount.DoesNotExist:
                 messages.error(request, 'Этот аккаунт не привязан ни к одной организации.')
                 return render(request, 'organizations/login.html', {'form': form})
             login(request, user)
-            return redirect('organizations:dashboard')
+            response = redirect('organizations:dashboard')
+            # Язык — на аккаунте организации, а не куки браузера: если уже
+            # выбирали язык раньше, вход должен открываться на нём даже с
+            # другого устройства или после очистки куки.
+            if org_account.language:
+                _set_language_cookie(response, org_account.language)
+            return response
     else:
         form = OrgLoginForm(request)
     return render(request, 'organizations/login.html', {'form': form})
@@ -76,6 +96,29 @@ def org_login(request):
 def org_logout(request):
     logout(request)
     return redirect('organizations:login')
+
+
+@require_POST
+def set_language(request):
+    """Переключение языка для кабинета организации — как встроенный django
+    set_language, но дополнительно запоминает выбор в аккаунте организации
+    (если она вошла в систему), чтобы язык не зависел от куки браузера."""
+    lang_code = request.POST.get('language')
+    next_url = request.POST.get('next') or request.META.get('HTTP_REFERER') or '/org/'
+    valid = bool(lang_code) and lang_code in dict(settings.LANGUAGES)
+
+    if valid and request.user.is_authenticated:
+        try:
+            org_account = request.user.org_account
+            org_account.language = lang_code
+            org_account.save(update_fields=['language'])
+        except Exception:
+            pass
+
+    response = HttpResponseRedirect(next_url)
+    if valid:
+        _set_language_cookie(response, lang_code)
+    return response
 
 
 # ──────────────────────────────

@@ -10,7 +10,7 @@ from apps.catalog.models import Book, BookTitle
 from apps.deliveries.models import DeliveryBatch, DeliveryItem
 from apps.locations.models import Location
 from apps.readers.models import Loan, Reader
-from .models import LocationWorker
+from .models import LocationWorker, OrgAccount
 
 _MEDIA_ROOT = tempfile.mkdtemp(prefix='library_test_media_')
 
@@ -43,6 +43,11 @@ def deliver_book(book, location):
 def make_worker(location, username='worker1'):
     user = User.objects.create_user(username=username, password='pass12345')
     return LocationWorker.objects.create(user=user, location=location, is_active=True)
+
+
+def make_org_account(location, username='org1'):
+    user = User.objects.create_user(username=username, password='pass12345')
+    return OrgAccount.objects.create(user=user, location=location)
 
 
 def make_reader(username, **kwargs):
@@ -146,6 +151,43 @@ class WorkerReturnTests(TestCase):
         self.assertEqual(response.status_code, 404)
         self.loan.refresh_from_db()
         self.assertFalse(self.loan.is_returned)
+
+
+@override_settings(MEDIA_ROOT=_MEDIA_ROOT)
+class LanguagePreferenceTests(TestCase):
+    """Выбор языка организацией запоминается в аккаунте и применяется при следующем входе."""
+
+    def setUp(self):
+        self.location = make_location()
+        self.org = make_org_account(self.location)
+
+    def test_switching_language_saves_it_to_account(self):
+        self.client.force_login(self.org.user)
+        self.client.post(reverse('organizations:set_language'), {'language': 'uz', 'next': '/org/'})
+        self.org.refresh_from_db()
+        self.assertEqual(self.org.language, 'uz')
+
+    def test_switching_language_ignored_for_unknown_code(self):
+        self.client.force_login(self.org.user)
+        self.client.post(reverse('organizations:set_language'), {'language': 'xx', 'next': '/org/'})
+        self.org.refresh_from_db()
+        self.assertEqual(self.org.language, '')
+
+    def test_login_activates_saved_language(self):
+        self.org.language = 'uz'
+        self.org.save(update_fields=['language'])
+        response = self.client.post(reverse('organizations:login'), {
+            'username': self.org.user.username, 'password': 'pass12345',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.cookies['django_language'].value, 'uz')
+
+    def test_login_without_saved_language_leaves_cookie_untouched(self):
+        response = self.client.post(reverse('organizations:login'), {
+            'username': self.org.user.username, 'password': 'pass12345',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertNotIn('django_language', response.cookies)
 
 
 def tearDownModule():

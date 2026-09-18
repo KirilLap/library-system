@@ -14,6 +14,10 @@ class Reader(models.Model):
     )
     is_blocked = models.BooleanField(default=False, verbose_name='Заблокирован')
     notes = models.TextField(blank=True, verbose_name='Заметки библиотекаря')
+    language = models.CharField(
+        max_length=10, blank=True, verbose_name='Язык интерфейса',
+        help_text='Запоминается при переключении языка и применяется при следующем входе.',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -13,6 +13,7 @@ urlpatterns = [
     path('', home, name='home'),
     path('login/', reader_views.login_view, name='login'),
     path('logout/', reader_views.logout_view, name='logout'),
+    path('set-language/', reader_views.set_language, name='set_language'),
     path('my/', reader_views.my_cabinet, name='my'),
     path('my/request/<int:pk>/cancel/', reader_views.my_request_cancel, name='cancel_request'),
     path('my/take/', reader_views.take_book, name='take_book'),

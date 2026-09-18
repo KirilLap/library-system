@@ -24,7 +24,7 @@
                 </li>
             </ul>
             <div class="d-flex align-items-center gap-3">
-                {% include "includes/lang_switcher.html" %}
+                {% include "includes/lang_switcher.html" with remember_for_reader=True %}
                 {% if LIBRARY_PHONE %}
                 <span class="text-primary fw-bold" style="font-size:18px;">
                     <i class="bi bi-telephone"></i> {{ LIBRARY_PHONE }}

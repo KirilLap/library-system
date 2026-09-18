@@ -8,7 +8,7 @@
             <i class="bi bi-building"></i> {{ LIBRARY_NAME }}
         </span>
         <div class="ms-auto d-flex align-items-center gap-3">
-            {% include "includes/lang_switcher.html" %}
+            {% include "includes/lang_switcher.html" with remember_for_org=True %}
             {% if user.is_authenticated %}
             <span class="text-white-50 small">
                 <i class="bi bi-geo-alt"></i>

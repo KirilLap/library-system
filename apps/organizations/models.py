@@ -11,6 +11,10 @@ class OrgAccount(models.Model):
         on_delete=models.CASCADE,
         related_name='org_account',
     )
+    language = models.CharField(
+        max_length=10, blank=True, verbose_name='Язык интерфейса',
+        help_text='Запоминается при переключении языка и применяется при следующем входе.',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
