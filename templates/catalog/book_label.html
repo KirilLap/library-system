@@ -86,9 +86,25 @@
 
 <div class="no-print">
     <button onclick="window.print()">🖨 Распечатать</button>
-    <a href="javascript:history.back()">← Назад</a>
+    <a href="{% url 'catalog_admin:index' %}" id="btn-back">← Назад</a>
     <span>Этикеток: {{ books|length }}</span>
 </div>
+
+<script>
+// Страница открывается в новой вкладке (каталог остаётся открытым в исходной),
+// поэтому history.back() тут не сработает — пробуем закрыть вкладку, а если
+// браузер не даёт (например, если это не единственная страница в истории
+// вкладки) — переходим в каталог как раньше.
+var backBtn = document.getElementById('btn-back');
+var backUrl = backBtn.href;
+backBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.close();
+    setTimeout(function () {
+        window.location.href = backUrl;
+    }, 300);
+});
+</script>
 
 <div class="labels-grid">
     {% for book in books %}

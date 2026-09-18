@@ -1,0 +1,34 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Удалить книги{% endblock %}
+{% block nav_catalog %}active{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-7">
+        <h1 class="h4 mb-3">Удалить книги ({{ books|length }})</h1>
+        <div class="alert alert-danger">
+            <p class="mb-2">Вы действительно хотите удалить эти книги?</p>
+            <ul class="mb-0">
+                {% for book in books %}
+                <li><code>{{ book.inventory_number }}</code> — {{ book.title }} <span class="text-muted">({{ book.author }})</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <p class="text-muted small">
+            Книги с историей выдач читателям удалить нельзя (это защита от потери истории) —
+            они будут пропущены, об этом сообщится после удаления.
+        </p>
+        <form method="post">
+            {% csrf_token %}
+            {% for book in books %}
+            <input type="hidden" name="ids" value="{{ book.pk }}">
+            {% endfor %}
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Да, удалить {{ books|length }}
+            </button>
+            <a href="{% url 'catalog_admin:index' %}" class="btn btn-outline-secondary ms-2">Отмена</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

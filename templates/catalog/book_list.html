@@ -77,6 +77,9 @@
     <a href="#" id="btn-print-selected" class="btn btn-sm btn-outline-secondary" target="_blank">
         <i class="bi bi-printer"></i> Печать этикеток
     </a>
+    <a href="#" id="btn-delete-selected" class="btn btn-sm btn-outline-danger">
+        <i class="bi bi-trash"></i> Удалить выбранные
+    </a>
     <button type="button" class="btn btn-sm btn-link text-muted" id="btn-deselect-all">Снять выбор</button>
 </div>
 
@@ -179,8 +182,10 @@
     var toolbar  = document.getElementById('batch-toolbar');
     var countEl  = document.getElementById('selected-count');
     var printBtn = document.getElementById('btn-print-selected');
+    var deleteBtn = document.getElementById('btn-delete-selected');
     var deselectBtn = document.getElementById('btn-deselect-all');
     var labelUrl = '{% url "catalog_admin:book_labels_batch" %}';
+    var bulkDeleteUrl = '{% url "catalog_admin:book_bulk_delete" %}';
 
     function getChecked() {
         return Array.from(document.querySelectorAll('.book-check:checked'));
@@ -193,6 +198,7 @@
             countEl.textContent = 'Выбрано: ' + checked.length;
             var ids = checked.map(function (c) { return 'ids=' + c.value; }).join('&');
             printBtn.href = labelUrl + '?' + ids;
+            deleteBtn.href = bulkDeleteUrl + '?' + ids;
         } else {
             toolbar.style.display = 'none';
         }

@@ -4,7 +4,7 @@ from openpyxl.styles import Font, PatternFill, Alignment
 
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import ProtectedError, Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
@@ -109,12 +109,54 @@ def book_delete(request, pk):
     if request.method == 'POST':
         title = book.title
         inv = book.inventory_number
-        book.delete()
+        try:
+            book.delete()
+        except ProtectedError:
+            messages.error(
+                request,
+                f'Нельзя удалить книгу «{title}»: есть история выдач читателям.'
+            )
+            return redirect('catalog_admin:book_update', pk=pk)
         messages.success(request, f'Книга «{title}» удалена.')
         from apps.staff.models import ActionLog
         ActionLog.log(request.user, f'Удалил книгу «{title}» (инв. {inv})')
         return redirect('catalog_admin:index')
     return render(request, 'catalog/book_confirm_delete.html', {'book': book})
+
+
+@librarian_required
+def book_bulk_delete(request):
+    ids = request.POST.getlist('ids') if request.method == 'POST' else request.GET.getlist('ids')
+    books = Book.objects.filter(pk__in=ids).order_by('title')
+
+    if not books.exists():
+        messages.warning(request, 'Не выбрано ни одной книги.')
+        return redirect('catalog_admin:index')
+
+    if request.method == 'POST':
+        deleted_titles = []
+        skipped = []
+        for book in list(books):
+            title = book.title
+            try:
+                book.delete()
+                deleted_titles.append(title)
+            except ProtectedError:
+                skipped.append(f'«{title}» (инв. {book.inventory_number})')
+
+        if deleted_titles:
+            messages.success(request, f'Удалено книг: {len(deleted_titles)}.')
+            from apps.staff.models import ActionLog
+            names = ', '.join(deleted_titles[:5]) + ('…' if len(deleted_titles) > 5 else '')
+            ActionLog.log(request.user, f'Массово удалил книг: {len(deleted_titles)} ({names})')
+        if skipped:
+            messages.error(
+                request,
+                'Не удалось удалить (есть история выдач читателям): ' + '; '.join(skipped)
+            )
+        return redirect('catalog_admin:index')
+
+    return render(request, 'catalog/book_bulk_confirm_delete.html', {'books': books})
 
 
 @librarian_required
