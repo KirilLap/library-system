@@ -92,7 +92,7 @@
             </ul>
             <ul class="navbar-nav align-items-lg-center gap-lg-2">
                 <li class="nav-item">
-                    {% include "includes/lang_switcher.html" %}
+                    {% include "includes/lang_switcher.html" with remember_for_staff=True %}
                 </li>
                 {% if user.is_authenticated %}
                 <li class="nav-item dropdown">

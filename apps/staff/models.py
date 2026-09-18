@@ -14,6 +14,10 @@ class StaffProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='staff_profile')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     is_active = models.BooleanField(default=True, verbose_name='Активен')
+    language = models.CharField(
+        max_length=10, blank=True, verbose_name='Язык интерфейса',
+        help_text='Запоминается при переключении языка и применяется при следующем входе.',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

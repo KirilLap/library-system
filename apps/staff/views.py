@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -161,6 +163,18 @@ def init_view(request):
     return render(request, 'staff/init.html', {'form': form})
 
 
+def _set_language_cookie(response, lang_code):
+    response.set_cookie(
+        settings.LANGUAGE_COOKIE_NAME, lang_code,
+        max_age=settings.LANGUAGE_COOKIE_AGE,
+        path=settings.LANGUAGE_COOKIE_PATH,
+        domain=settings.LANGUAGE_COOKIE_DOMAIN,
+        secure=settings.LANGUAGE_COOKIE_SECURE,
+        httponly=settings.LANGUAGE_COOKIE_HTTPONLY,
+        samesite=settings.LANGUAGE_COOKIE_SAMESITE,
+    )
+
+
 def login_view(request):
     if request.user.is_authenticated:
         try:
@@ -171,8 +185,19 @@ def login_view(request):
     if request.method == 'POST':
         form = StaffLoginForm(request.POST)
         if form.is_valid():
-            login(request, form.get_user())
-            return redirect(request.GET.get('next') or '/admin-panel/')
+            user = form.get_user()
+            login(request, user)
+            response = redirect(request.GET.get('next') or '/admin-panel/')
+            try:
+                lang = user.staff_profile.language
+            except Exception:
+                lang = ''
+            # Язык — на аккаунте сотрудника, а не куки браузера: если он уже
+            # выбирал язык раньше, каждый вход должен открываться на нём,
+            # даже с другого компьютера или после очистки куки.
+            if lang:
+                _set_language_cookie(response, lang)
+            return response
     else:
         form = StaffLoginForm()
     return render(request, 'staff/login.html', {'form': form})
@@ -182,6 +207,29 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('/admin-panel/login/')
+
+
+@require_POST
+def set_language(request):
+    """Переключение языка панели сотрудника — как встроенный django set_language,
+    но дополнительно запоминает выбор в профиле сотрудника (если он вошёл в систему),
+    чтобы язык не зависел от куки конкретного браузера."""
+    lang_code = request.POST.get('language')
+    next_url = request.POST.get('next') or request.META.get('HTTP_REFERER') or '/admin-panel/'
+    valid = bool(lang_code) and lang_code in dict(settings.LANGUAGES)
+
+    if valid and request.user.is_authenticated:
+        try:
+            profile = request.user.staff_profile
+            profile.language = lang_code
+            profile.save(update_fields=['language'])
+        except Exception:
+            pass
+
+    response = HttpResponseRedirect(next_url)
+    if valid:
+        _set_language_cookie(response, lang_code)
+    return response
 
 
 @admin_required

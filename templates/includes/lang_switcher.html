@@ -1,6 +1,6 @@
 {% load i18n %}
 {% get_current_language as CURRENT_LANGUAGE %}
-<form action="{% url 'set_language' %}" method="post" class="d-inline">
+<form action="{% if remember_for_staff %}{% url 'staff:set_language' %}{% else %}{% url 'set_language' %}{% endif %}" method="post" class="d-inline">
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.get_full_path }}">
     {% if CURRENT_LANGUAGE == 'uz' %}

@@ -165,5 +165,41 @@ class ActionLogTests(TestCase):
         self.assertNotEqual(response.status_code, 200)
 
 
+@override_settings(MEDIA_ROOT=_MEDIA_ROOT)
+class LanguagePreferenceTests(TestCase):
+    """Выбор языка сотрудником запоминается в профиле и применяется при следующем входе."""
+
+    def setUp(self):
+        self.user = make_admin()
+
+    def test_switching_language_saves_it_to_profile(self):
+        self.client.force_login(self.user)
+        self.client.post(reverse('staff:set_language'), {'language': 'uz', 'next': '/admin-panel/'})
+        self.user.staff_profile.refresh_from_db()
+        self.assertEqual(self.user.staff_profile.language, 'uz')
+
+    def test_switching_language_ignored_for_unknown_code(self):
+        self.client.force_login(self.user)
+        self.client.post(reverse('staff:set_language'), {'language': 'xx', 'next': '/admin-panel/'})
+        self.user.staff_profile.refresh_from_db()
+        self.assertEqual(self.user.staff_profile.language, '')
+
+    def test_login_activates_saved_language(self):
+        self.user.staff_profile.language = 'uz'
+        self.user.staff_profile.save(update_fields=['language'])
+        response = self.client.post(reverse('staff:login'), {
+            'username': self.user.username, 'password': 'pass12345',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.cookies['django_language'].value, 'uz')
+
+    def test_login_without_saved_language_leaves_cookie_untouched(self):
+        response = self.client.post(reverse('staff:login'), {
+            'username': self.user.username, 'password': 'pass12345',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertNotIn('django_language', response.cookies)
+
+
 def tearDownModule():
     shutil.rmtree(_MEDIA_ROOT, ignore_errors=True)

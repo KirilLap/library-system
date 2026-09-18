@@ -11,6 +11,7 @@ urlpatterns = [
     path('init/', views.init_view, name='init'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('set-language/', views.set_language, name='set_language'),
     path('staff/', views.staff_list, name='list'),
     path('staff/create/', views.staff_create, name='create'),
     path('staff/<int:pk>/edit/', views.staff_edit, name='edit'),
