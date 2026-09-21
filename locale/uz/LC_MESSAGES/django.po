@@ -1763,3 +1763,24 @@ msgstr ".mrc va .marc formatlari qo'llab-quvvatlanadi (MARC21)"
 
 msgid "Формат .xlsx"
 msgstr ".xlsx formati"
+
+msgid "Библиотека"
+msgstr "Kutubxona"
+
+msgid "Количество книг"
+msgstr "Kitoblar soni"
+
+msgid "Акт доставки книг №%(n)s"
+msgstr "Kitoblarni yetkazib berish dalolatnomasi №%(n)s"
+
+msgid "Итого книг"
+msgstr "Jami kitoblar"
+
+msgid "Сдал (библиотекарь)"
+msgstr "Topshirdi (kutubxonachi)"
+
+msgid "Принял (ответственный)"
+msgstr "Qabul qildi (mas'ul shaxs)"
+
+msgid "Скачать акт (Word)"
+msgstr "Aktni yuklab olish (Word)"

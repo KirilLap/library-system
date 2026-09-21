@@ -181,20 +181,35 @@ def batch_delete(request, pk):
 
 
 # ──────────────────────────────
-# PDF act download
+# Act download (PDF / Word)
 # ──────────────────────────────
+
+def _download_act(request, pk, ext, content_type, error_label):
+    from . import act_data
+    batch = get_object_or_404(DeliveryBatch.objects.select_related('location'), pk=pk)
+    try:
+        if ext == 'pdf':
+            from .pdf_utils import generate_batch_pdf as generate
+        else:
+            from .docx_utils import generate_batch_docx as generate
+        content = generate(batch)
+    except Exception as e:
+        messages.error(request, f'Ошибка генерации {error_label}: {e}')
+        return redirect('deliveries_admin:detail', pk=pk)
+
+    response = HttpResponse(content, content_type=content_type)
+    response['Content-Disposition'] = f'attachment; filename="{act_data.act_filename(batch, ext)}"'
+    return response
+
 
 @librarian_required
 def batch_pdf(request, pk):
-    batch = get_object_or_404(DeliveryBatch.objects.select_related('location'), pk=pk)
-    try:
-        from .pdf_utils import generate_batch_pdf
-        pdf_bytes = generate_batch_pdf(batch)
-    except Exception as e:
-        messages.error(request, f'Ошибка генерации PDF: {e}')
-        return redirect('deliveries_admin:detail', pk=pk)
+    return _download_act(request, pk, 'pdf', 'application/pdf', 'PDF')
 
-    response = HttpResponse(pdf_bytes, content_type='application/pdf')
-    filename = f'act_batch_{batch.pk}_{batch.delivery_date}.pdf'
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
-    return response
+
+@librarian_required
+def batch_docx(request, pk):
+    return _download_act(
+        request, pk, 'docx',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'Word',
+    )

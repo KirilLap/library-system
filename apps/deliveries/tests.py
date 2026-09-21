@@ -73,3 +73,59 @@ class BatchDeleteTests(TestCase):
 
 def tearDownModule():
     shutil.rmtree(_MEDIA_ROOT, ignore_errors=True)
+
+
+@override_settings(MEDIA_ROOT=_MEDIA_ROOT)
+class ActDownloadTests(TestCase):
+    def setUp(self):
+        self.client.force_login(make_librarian())
+        self.location = make_location(name="Ko'chma nuqta", contact_person='Иванов И.')
+        self.batch = DeliveryBatch.objects.create(location=self.location, note='Хрупкие книги')
+        for n, title in (('INV-901', 'Русская ономастика'), ('INV-902', "O'zbek ertaklari")):
+            book = make_book(n, title=title, author='Автор', year=1983)
+            DeliveryItem.objects.create(batch=self.batch, book=book)
+
+    def _docx_text(self, response):
+        import io
+        from docx import Document
+        doc = Document(io.BytesIO(response.content))
+        parts = [p.text for p in doc.paragraphs]
+        for table in doc.tables:
+            for row in table.rows:
+                parts.extend(cell.text for cell in row.cells)
+        return '\n'.join(parts)
+
+    def test_pdf_download(self):
+        response = self.client.get(reverse('deliveries_admin:pdf', args=[self.batch.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+        self.assertTrue(response.content.startswith(b'%PDF'))
+        self.assertIn('.pdf', response['Content-Disposition'])
+
+    def test_word_download_contains_batch_data(self):
+        response = self.client.get(reverse('deliveries_admin:docx', args=[self.batch.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('wordprocessingml', response['Content-Type'])
+        self.assertIn('.docx', response['Content-Disposition'])
+        text = self._docx_text(response)
+        for expected in ('INV-901', 'INV-902', 'Русская ономастика', "Ko'chma nuqta",
+                         'Иванов И.', 'Хрупкие книги', 'Итого книг'):
+            self.assertIn(expected, text)
+
+    def test_word_act_follows_active_language(self):
+        self.client.cookies['django_language'] = 'uz'
+        response = self.client.get(reverse('deliveries_admin:docx', args=[self.batch.pk]))
+        text = self._docx_text(response)
+        self.assertIn('Jami kitoblar', text)
+        self.assertNotIn('Итого книг', text)
+
+    def test_pdf_in_uzbek_does_not_fail(self):
+        self.client.cookies['django_language'] = 'uz'
+        response = self.client.get(reverse('deliveries_admin:pdf', args=[self.batch.pk]))
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+
+    def test_requires_login(self):
+        self.client.logout()
+        for name in ('pdf', 'docx'):
+            response = self.client.get(reverse(f'deliveries_admin:{name}', args=[self.batch.pk]))
+            self.assertEqual(response.status_code, 302)

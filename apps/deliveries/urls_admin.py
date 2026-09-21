@@ -11,4 +11,5 @@ urlpatterns = [
     path('<int:pk>/return/', views.batch_return, name='return'),
     path('<int:pk>/delete/', views.batch_delete, name='delete'),
     path('<int:pk>/pdf/', views.batch_pdf, name='pdf'),
+    path('<int:pk>/docx/', views.batch_docx, name='docx'),
 ]

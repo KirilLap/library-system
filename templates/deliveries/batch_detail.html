@@ -44,6 +44,9 @@
             <a href="{% url 'deliveries_admin:pdf' batch.pk %}" class="btn btn-outline-primary">
                 <i class="bi bi-file-pdf"></i> {% translate "Скачать акт (PDF)" %}
             </a>
+            <a href="{% url 'deliveries_admin:docx' batch.pk %}" class="btn btn-outline-primary">
+                <i class="bi bi-file-earmark-word"></i> {% translate "Скачать акт (Word)" %}
+            </a>
 
             {% if not batch.is_returned %}
             <form method="post" action="{% url 'deliveries_admin:return' batch.pk %}"

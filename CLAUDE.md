@@ -14,7 +14,7 @@ python manage.py runserver
 ## Стек
 - Django 5, Python 3.11, SQLite (разработка)
 - Bootstrap 5 CDN, без сборки фронтенда
-- pymarc, WeasyPrint, qrcode[pil]
+- pymarc, ReportLab (PDF), python-docx (Word), qrcode[pil]
 
 ## Структура URL
 - /admin-panel/           — кабинет библиотекаря
@@ -37,7 +37,7 @@ python manage.py runserver
 - [x] Фаза 1: Скелет проекта
 - [x] Фаза 2: Каталог книг + MARC-импорт
 - [x] Фаза 3: Библиопункты + QR-коды
-- [x] Фаза 4: Партии + ввод инв. номеров + PDF (генерация PDF требует GTK3-рантайм для WeasyPrint — см. ниже)
+- [x] Фаза 4: Партии + ввод инв. номеров + PDF и Word (акты доставки; чистый Python, без системных зависимостей)
 - [x] Фаза 5: Публичный каталог + читатели + заявки
 - [x] Фаза 6: Кабинет организации
 - [x] Фаза 7: Роли сотрудников (ADMIN / LIBRARIAN)
@@ -67,5 +67,6 @@ python manage.py runserver
   `{% blocktranslate %}`, которых ещё нет в `django.po`. Полезно после добавления новых
   шаблонов/строк.
 
-## Известные ограничения окружения
-- **WeasyPrint (PDF-акты партий) на Windows** требует нативные библиотеки GTK3 (Pango/GObject/Cairo) — без них `pip install weasyprint` работает, но `HTML(...).write_pdf()` падает с `OSError: cannot load library 'libgobject-2.0-0'`. Нужно поставить GTK3 runtime for Windows (https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer) и перезапустить терминал/сервер.
+## Акты доставки (PDF и Word)
+- `apps/deliveries/act_data.py` — общее содержимое акта (на текущем языке RU/UZ), `pdf_utils.py` — ReportLab, `docx_utils.py` — python-docx.
+- Шрифт DejaVu Sans лежит в `apps/deliveries/fonts/` (кириллица + узбекская латиница) — ни системные шрифты, ни GTK/WeasyPrint не нужны, работает на Windows и Linux.
