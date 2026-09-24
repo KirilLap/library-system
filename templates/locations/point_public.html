@@ -1,7 +1,14 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{{ location.name }} — {% translate "книги" %}{% endblock %}
+
+{% block body_class %}theme-soft public-page{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="{% static 'css/soft-ui.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block body %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -24,7 +31,7 @@
         {% load l10n %}
         {% if location.latitude and location.longitude %}
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-        <div id="point-map" style="height:220px;border-radius:8px;border:1px solid #dee2e6" class="mb-2"></div>
+        <div id="point-map" style="height:220px;border-radius:var(--radius-lg,8px);border:1px solid var(--border,#dee2e6);overflow:hidden" class="mb-2"></div>
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <script>
         (function(){

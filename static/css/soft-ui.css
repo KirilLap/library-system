@@ -1,0 +1,397 @@
+/*
+ * "Мягкий" (soft UI) дизайн — пилот для кабинета библиотекаря.
+ * Слой поверх Bootstrap 5 (CDN, без сборки): переопределяет внешний вид
+ * стандартных классов внутри body.theme-soft, не трогая остальные разделы
+ * системы (публичный каталог, кабинет читателя/организации).
+ */
+
+:root {
+    --bg: #EDF1F7;
+    --surface: #FFFFFF;
+    --surface-2: #F5F7FB;
+    --text: #1C2733;
+    --muted: #5B6572;
+    --border: rgba(15, 23, 42, .07);
+    --navy: #16243F;
+    --navy-2: #1F3A63;
+    --accent: #2E5C9A;
+    --accent-amber: #D99A44;
+
+    --soft-primary: 46, 92, 154;
+    --soft-success: 61, 138, 92;
+    --soft-warning: 176, 118, 46;
+    --soft-danger: 191, 82, 79;
+    --soft-secondary: 100, 113, 130;
+
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, .04);
+    --shadow-md: 0 16px 32px -20px rgba(15, 23, 42, .28);
+}
+
+body.theme-soft {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body.theme-soft h1, body.theme-soft h2, body.theme-soft h3,
+body.theme-soft h4, body.theme-soft h5, body.theme-soft h6 {
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+
+/* ── Навигация ───────────────────────────────────────────────── */
+
+body.theme-soft .navbar.bg-white {
+    box-shadow: 0 1px 0 var(--border), 0 12px 24px -20px rgba(15, 23, 42, .25);
+    border-bottom: none !important;
+}
+
+body.theme-soft .navbar-light .navbar-nav .nav-link {
+    color: var(--muted);
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    padding-left: .7rem;
+    padding-right: .7rem;
+    transition: color .15s ease, background-color .15s ease;
+}
+
+body.theme-soft .navbar-light .navbar-nav .nav-link:hover {
+    color: var(--accent);
+    background: rgba(var(--soft-primary), .07);
+}
+
+body.theme-soft footer.bg-light {
+    background: var(--surface-2) !important;
+    border-top: none !important;
+}
+
+body.theme-soft footer {
+    border-color: var(--border) !important;
+}
+
+/* ── Текстовые и рамочные утилиты Bootstrap ─────────────────────
+   Приводим стандартные text-*/border-* к тем же приглушённым тонам,
+   что и всё остальное (badge/card/btn), чтобы не было двух синих. */
+
+body.theme-soft .text-primary   { color: var(--accent) !important; }
+body.theme-soft .text-success   { color: rgb(var(--soft-success)) !important; }
+body.theme-soft .text-danger    { color: rgb(var(--soft-danger)) !important; }
+body.theme-soft .text-warning   { color: #8A5A20 !important; }
+body.theme-soft .text-secondary { color: var(--muted) !important; }
+
+body.theme-soft .border-primary   { border-color: rgba(var(--soft-primary), .35) !important; }
+body.theme-soft .border-success   { border-color: rgba(var(--soft-success), .35) !important; }
+body.theme-soft .border-danger    { border-color: rgba(var(--soft-danger), .35) !important; }
+body.theme-soft .border-warning   { border-color: rgba(217, 154, 68, .4) !important; }
+body.theme-soft .border-secondary { border-color: rgba(var(--soft-secondary), .35) !important; }
+
+body.theme-soft .card.border-primary,
+body.theme-soft .card.border-success,
+body.theme-soft .card.border-danger,
+body.theme-soft .card.border-warning,
+body.theme-soft .card.border-secondary {
+    background: var(--surface);
+    box-shadow: var(--shadow-sm), var(--shadow-md);
+}
+
+body.theme-soft .navbar.bg-dark {
+    background: linear-gradient(135deg, var(--navy), var(--navy-2)) !important;
+    box-shadow: 0 14px 28px -20px rgba(22, 36, 63, .7);
+}
+
+body.theme-soft .navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, .78);
+    border-radius: var(--radius-sm);
+    padding-left: .6rem;
+    padding-right: .6rem;
+    transition: color .15s ease, background-color .15s ease;
+}
+
+body.theme-soft .navbar-dark .navbar-nav .nav-link:hover,
+body.theme-soft .navbar-dark .navbar-nav .nav-link:focus {
+    color: #fff;
+    background: rgba(255, 255, 255, .08);
+}
+
+body.theme-soft .navbar-dark .navbar-nav .nav-link.active {
+    color: var(--accent-amber);
+}
+
+body.theme-soft .dropdown-menu {
+    border: none;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: .4rem;
+}
+
+body.theme-soft .dropdown-item {
+    border-radius: var(--radius-sm);
+    padding: .5rem .75rem;
+}
+
+body.theme-soft .dropdown-item:hover,
+body.theme-soft .dropdown-item:focus {
+    background: rgba(var(--soft-primary), .08);
+}
+
+/* ── Карточки ────────────────────────────────────────────────── */
+
+body.theme-soft .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm), var(--shadow-md);
+}
+
+body.theme-soft .card-header {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+}
+
+body.theme-soft .card:first-child .card-header {
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+}
+
+body.theme-soft .card-footer {
+    background: transparent;
+    border-top: 1px solid var(--border);
+}
+
+/* Цветные сводные карточки (было: сплошная заливка bg-primary/success/…) —
+   теперь мягкий тон + акцентная иконка вместо плашки на весь блок. */
+body.theme-soft .card.bg-primary,
+body.theme-soft .card.bg-success,
+body.theme-soft .card.bg-warning,
+body.theme-soft .card.bg-danger,
+body.theme-soft .card.bg-secondary,
+body.theme-soft .card.bg-info {
+    background: var(--surface) !important;
+    border: 1px solid var(--border);
+}
+
+body.theme-soft .card.bg-primary { border-left: 3px solid var(--accent); }
+body.theme-soft .card.bg-success { border-left: 3px solid rgb(var(--soft-success)); }
+body.theme-soft .card.bg-warning { border-left: 3px solid var(--accent-amber); }
+body.theme-soft .card.bg-danger  { border-left: 3px solid rgb(var(--soft-danger)); }
+body.theme-soft .card.bg-secondary { border-left: 3px solid rgb(var(--soft-secondary)); }
+
+body.theme-soft .card.bg-primary.text-white,
+body.theme-soft .card.bg-success.text-white,
+body.theme-soft .card.bg-warning.text-white,
+body.theme-soft .card.bg-danger.text-white,
+body.theme-soft .card.bg-secondary.text-white {
+    color: var(--text) !important;
+}
+
+body.theme-soft .card.bg-primary .opacity-50, body.theme-soft .card.bg-primary .opacity-75,
+body.theme-soft .card.bg-success .opacity-50, body.theme-soft .card.bg-success .opacity-75,
+body.theme-soft .card.bg-warning .opacity-50, body.theme-soft .card.bg-warning .opacity-75,
+body.theme-soft .card.bg-danger .opacity-50, body.theme-soft .card.bg-danger .opacity-75,
+body.theme-soft .card.bg-secondary .opacity-50, body.theme-soft .card.bg-secondary .opacity-75 {
+    opacity: 1 !important;
+    color: var(--muted) !important;
+}
+
+body.theme-soft .card.bg-primary i.bi { color: var(--accent); }
+body.theme-soft .card.bg-success i.bi { color: rgb(var(--soft-success)); }
+body.theme-soft .card.bg-warning i.bi { color: var(--accent-amber); }
+body.theme-soft .card.bg-danger i.bi  { color: rgb(var(--soft-danger)); }
+body.theme-soft .card.bg-secondary i.bi { color: rgb(var(--soft-secondary)); }
+
+body.theme-soft .card.bg-primary .card-footer.text-white   { color: var(--accent) !important; font-weight: 600; }
+body.theme-soft .card.bg-success .card-footer.text-white   { color: rgb(var(--soft-success)) !important; font-weight: 600; }
+body.theme-soft .card.bg-warning .card-footer.text-white,
+body.theme-soft .card.bg-warning .card-footer.text-dark    { color: var(--accent-amber) !important; font-weight: 600; }
+body.theme-soft .card.bg-danger .card-footer.text-white    { color: rgb(var(--soft-danger)) !important; font-weight: 600; }
+body.theme-soft .card.bg-secondary .card-footer.text-white { color: rgb(var(--soft-secondary)) !important; font-weight: 600; }
+
+body.theme-soft .card.border-danger {
+    border-color: rgba(var(--soft-danger), .35) !important;
+}
+
+body.theme-soft .card-header.bg-danger.bg-opacity-10 {
+    background: rgba(var(--soft-danger), .08) !important;
+}
+
+body.theme-soft .card-header.bg-primary.text-white {
+    background: rgba(var(--soft-primary), .1) !important;
+    color: var(--accent) !important;
+    border-bottom: 1px solid rgba(var(--soft-primary), .16);
+}
+
+body.theme-soft .card-header.bg-primary.bg-opacity-10 {
+    background: rgba(var(--soft-primary), .08) !important;
+    color: var(--accent);
+}
+
+body.theme-soft .card-header.bg-success.bg-opacity-10 {
+    background: rgba(var(--soft-success), .08) !important;
+    color: rgb(var(--soft-success));
+}
+
+/* Обложки книг в каталоге */
+body.theme-soft .book-cover-placeholder {
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+}
+
+body.theme-soft .card > .book-cover-placeholder:first-child,
+body.theme-soft .card > .book-cover:first-child {
+    margin: -1px -1px 0;
+    width: calc(100% + 2px) !important;
+}
+
+body.theme-soft .row-cols-lg-4 .card {
+    transition: transform .15s ease, box-shadow .15s ease;
+    overflow: hidden;
+}
+
+body.theme-soft .row-cols-lg-4 .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 22px 40px -22px rgba(15, 23, 42, .35);
+}
+
+/* Табличная строка "просрочено" */
+body.theme-soft .table-danger,
+body.theme-soft .table-danger > * {
+    --bs-table-bg: rgba(var(--soft-danger), .08);
+    --bs-table-color: var(--text);
+}
+
+/* ── Таблицы ─────────────────────────────────────────────────── */
+
+body.theme-soft .table {
+    --bs-table-bg: transparent;
+    color: var(--text);
+}
+
+body.theme-soft .table thead.table-light,
+body.theme-soft .table > :not(caption) > * > th {
+    background: var(--surface-2);
+    color: var(--muted);
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    font-weight: 700;
+}
+
+body.theme-soft .table td, body.theme-soft .table th {
+    border-color: var(--border);
+}
+
+body.theme-soft .table-hover > tbody > tr:hover > * {
+    background: rgba(var(--soft-primary), .05);
+}
+
+/* ── Кнопки ──────────────────────────────────────────────────── */
+
+body.theme-soft .btn {
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+}
+
+body.theme-soft .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 10px 20px -12px rgba(46, 92, 154, .6);
+}
+
+body.theme-soft .btn-primary:hover, body.theme-soft .btn-primary:focus {
+    background: #26497D;
+    border-color: #26497D;
+}
+
+body.theme-soft .btn-outline-secondary {
+    border-color: var(--border);
+    color: var(--muted);
+}
+
+body.theme-soft .btn-outline-secondary:hover {
+    background: var(--surface-2);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+body.theme-soft .btn-warning {
+    background: var(--accent-amber);
+    border-color: var(--accent-amber);
+    color: #3B2E17;
+}
+
+body.theme-soft .btn-danger {
+    background: rgb(var(--soft-danger));
+    border-color: rgb(var(--soft-danger));
+}
+
+body.theme-soft .btn-outline-primary { border-color: rgba(var(--soft-primary), .45); color: var(--accent); }
+body.theme-soft .btn-outline-primary:hover { background: var(--accent); border-color: var(--accent); }
+
+body.theme-soft .btn-outline-success { border-color: rgba(var(--soft-success), .45); color: rgb(var(--soft-success)); }
+body.theme-soft .btn-outline-success:hover { background: rgb(var(--soft-success)); border-color: rgb(var(--soft-success)); }
+
+body.theme-soft .btn-outline-danger { border-color: rgba(var(--soft-danger), .45); color: rgb(var(--soft-danger)); }
+body.theme-soft .btn-outline-danger:hover { background: rgb(var(--soft-danger)); border-color: rgb(var(--soft-danger)); }
+
+/* ── Значки (badges) ─────────────────────────────────────────── */
+
+body.theme-soft .badge {
+    font-weight: 600;
+    border-radius: 999px;
+    padding: .38em .7em;
+}
+
+body.theme-soft .badge.bg-primary   { background: rgba(var(--soft-primary), .14) !important;   color: var(--accent) !important; }
+body.theme-soft .badge.bg-success   { background: rgba(var(--soft-success), .14) !important;   color: rgb(var(--soft-success)) !important; }
+body.theme-soft .badge.bg-warning   { background: rgba(var(--accent-amber-rgb, 217, 154, 68), .18) !important; color: #8A5A20 !important; }
+body.theme-soft .badge.bg-danger    { background: rgba(var(--soft-danger), .14) !important;    color: rgb(var(--soft-danger)) !important; }
+body.theme-soft .badge.bg-secondary { background: rgba(var(--soft-secondary), .14) !important; color: rgb(var(--soft-secondary)) !important; }
+body.theme-soft .badge.bg-info      { background: rgba(var(--soft-primary), .14) !important;   color: var(--accent) !important; }
+body.theme-soft .badge.bg-light     { background: var(--surface-2) !important; color: var(--muted) !important; }
+
+body.theme-soft .badge.bg-primary-subtle   { background: rgba(var(--soft-primary), .12) !important;   color: var(--accent) !important;              border-color: rgba(var(--soft-primary), .25) !important; }
+body.theme-soft .badge.bg-success-subtle   { background: rgba(var(--soft-success), .12) !important;   color: rgb(var(--soft-success)) !important;   border-color: rgba(var(--soft-success), .25) !important; }
+body.theme-soft .badge.bg-danger-subtle    { background: rgba(var(--soft-danger), .12) !important;    color: rgb(var(--soft-danger)) !important;    border-color: rgba(var(--soft-danger), .25) !important; }
+body.theme-soft .badge.bg-warning-subtle   { background: rgba(217, 154, 68, .16) !important;           color: #8A5A20 !important;                    border-color: rgba(217, 154, 68, .3) !important; }
+body.theme-soft .badge.bg-secondary-subtle { background: rgba(var(--soft-secondary), .12) !important;  color: rgb(var(--soft-secondary)) !important; border-color: rgba(var(--soft-secondary), .25) !important; }
+
+body.theme-soft .badge-status-in_library  { background-color: rgba(var(--soft-success), .14) !important; color: rgb(var(--soft-success)) !important; }
+body.theme-soft .badge-status-in_delivery { background-color: rgba(var(--soft-primary), .14) !important; color: var(--accent) !important; }
+body.theme-soft .badge-status-lost        { background-color: rgba(var(--soft-danger), .14) !important; color: rgb(var(--soft-danger)) !important; }
+
+/* ── Оповещения ──────────────────────────────────────────────── */
+
+body.theme-soft .alert {
+    border: none;
+    border-radius: var(--radius-md);
+}
+
+body.theme-soft .alert-success { background: rgba(var(--soft-success), .12); color: rgb(var(--soft-success)); }
+body.theme-soft .alert-danger  { background: rgba(var(--soft-danger), .12);  color: rgb(var(--soft-danger)); }
+body.theme-soft .alert-warning { background: rgba(217, 154, 68, .16);        color: #8A5A20; }
+body.theme-soft .alert-info    { background: rgba(var(--soft-primary), .1);  color: var(--accent); }
+body.theme-soft .alert-primary { background: rgba(var(--soft-primary), .1);  color: var(--accent); }
+body.theme-soft .alert-secondary { background: var(--surface-2); color: var(--muted); }
+
+/* ── Формы ───────────────────────────────────────────────────── */
+
+body.theme-soft .form-control,
+body.theme-soft .form-select {
+    border-radius: var(--radius-sm);
+    border-color: var(--border);
+    background: var(--surface);
+}
+
+body.theme-soft .form-control:focus,
+body.theme-soft .form-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 .2rem rgba(46, 92, 154, .15);
+}
+
+body.theme-soft .form-text {
+    color: var(--muted);
+}

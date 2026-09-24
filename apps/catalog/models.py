@@ -29,8 +29,8 @@ class Language(models.Model):
 
 
 _PLACEHOLDER_COLORS = [
-    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e',
-    '#e74a3b', '#6f42c1', '#fd7e14', '#20c997',
+    '#2E5C9A', '#3D6B94', '#3D8A5C', '#5B6572',
+    '#B8823A', '#A5673D', '#6B5B95', '#46708C',
 ]
 
 

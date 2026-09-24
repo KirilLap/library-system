@@ -14,13 +14,13 @@
     <div class="col-md-8">
         <div class="d-flex gap-3 mb-3">
             {% if book.cover %}
-            <img src="{{ book.cover.url }}" alt="{{ book.title }}"
-                 style="width:90px;height:130px;object-fit:cover;border-radius:4px;flex-shrink:0;border:1px solid #dee2e6">
+            <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="book-cover"
+                 style="width:90px;height:130px;object-fit:cover;border-radius:12px;flex-shrink:0;border:1px solid #dee2e6">
             {% else %}
-            <div style="width:90px;height:130px;border-radius:4px;flex-shrink:0;
+            <div class="book-cover-placeholder" style="width:90px;height:130px;border-radius:12px;flex-shrink:0;
                         background:{{ book.cover_placeholder_color }};
                         display:flex;align-items:center;justify-content:center;
-                        font-size:2.5rem;font-weight:bold;color:rgba(255,255,255,0.85)">
+                        font-size:2.5rem;font-weight:bold;color:rgba(255,255,255,0.9)">
                 {{ book.cover_placeholder_letter }}
             </div>
             {% endif %}

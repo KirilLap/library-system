@@ -78,12 +78,12 @@
     <div class="col">
         <div class="card h-100 shadow-sm">
             {% if book.cover %}
-            <img src="{{ book.cover.url }}" alt="{{ book.title }}"
+            <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="book-cover"
                  style="width:100%;height:160px;object-fit:cover">
             {% else %}
-            <div style="width:100%;height:160px;background:{{ book.cover_placeholder_color }};
+            <div class="book-cover-placeholder" style="width:100%;height:160px;background:{{ book.cover_placeholder_color }};
                         display:flex;align-items:center;justify-content:center;
-                        font-size:3rem;font-weight:bold;color:rgba(255,255,255,0.85)">
+                        font-size:3rem;font-weight:bold;color:rgba(255,255,255,0.9)">
                 {{ book.cover_placeholder_letter }}
             </div>
             {% endif %}

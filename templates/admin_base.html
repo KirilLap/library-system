@@ -1,5 +1,12 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
+
+{% block body_class %}theme-soft{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="{% static 'css/soft-ui.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block body %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
