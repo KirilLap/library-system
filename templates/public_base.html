@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% load i18n static %}
 
 {% block body_class %}theme-soft public-page{% endblock %}
@@ -12,7 +13,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
     <div class="container">
         <a class="navbar-brand fw-bold" href="/">
-            <i class="bi bi-book-half text-primary"></i> {{ LIBRARY_NAME }}
+            <img src="{% static 'img/logo.png' %}" alt="" height="36" class="me-2"> {{ LIBRARY_NAME }}
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
