@@ -165,6 +165,9 @@ msgstr "Tashkilot"
 msgid "Школа"
 msgstr "Maktab"
 
+msgid "Университет"
+msgstr "Universitet"
+
 msgid "Адрес и подробности →"
 msgstr "Manzil va batafsil →"
 
