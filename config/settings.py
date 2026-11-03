@@ -1,16 +1,41 @@
 import os
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 load_dotenv()
 
+
+def env_bool(name, default=False):
+    return os.getenv(name, str(default)).strip().lower() in ('1', 'true', 'yes', 'on')
+
+
+def env_list(name, default=''):
+    return [x.strip() for x in os.getenv(name, default).split(',') if x.strip()]
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-change-me')
+_INSECURE_KEY = 'django-insecure-fallback-key-change-me'
+SECRET_KEY = os.getenv('SECRET_KEY', _INSECURE_KEY)
 
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+# На сервере DEBUG должен быть выключен. На своём компьютере поставьте DEBUG=True в .env
+DEBUG = env_bool('DEBUG', False)
 
-ALLOWED_HOSTS = ['*']
+if not DEBUG and SECRET_KEY == _INSECURE_KEY:
+    raise ImproperlyConfigured('Задайте SECRET_KEY в файле .env (при DEBUG=False это обязательно).')
+
+# Адреса, по которым открывается сайт (через запятую): домен и/или IP сервера.
+ALLOWED_HOSTS = env_list('ALLOWED_HOSTS', '127.0.0.1,localhost')
+
+# Полные адреса с http:// или https:// (через запятую), нужны для форм входа за HTTPS.
+CSRF_TRUSTED_ORIGINS = env_list('CSRF_TRUSTED_ORIGINS')
+
+# Включайте USE_HTTPS=True только когда на сайте уже работает HTTPS.
+USE_HTTPS = env_bool('USE_HTTPS', False)
+if USE_HTTPS:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 LIBRARY_NAME = os.getenv('LIBRARY_NAME', 'Библиотека')
 LIBRARY_PHONE = os.getenv('LIBRARY_PHONE', '')
@@ -100,7 +125,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-SITE_URL = 'http://127.0.0.1:8000'
+# Адрес сайта: по нему строятся QR-коды библиопунктов.
+SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000').rstrip('/')
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/my/'
@@ -111,3 +137,11 @@ LOGIN_REDIRECT_URL = '/my/'
 # the origin cross-site — enough to identify the app to OSM, without leaking
 # full page paths.
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+# Ошибки сервера попадают в журнал: journalctl -u library
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {'console': {'class': 'logging.StreamHandler'}},
+    'root': {'handlers': ['console'], 'level': 'WARNING'},
+}
