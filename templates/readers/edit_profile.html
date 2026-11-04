@@ -7,15 +7,6 @@
 <div class="row justify-content-center">
     <div class="col-md-6">
 
-        {% if not request.user.reader_profile.phone %}
-        <div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
-            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
-            <div>
-                <strong>{% translate "Укажите номер телефона" %}</strong> — {% translate "без него вы не сможете подавать заявки и брать книги. Библиотекарь использует его для связи с вами." %}
-            </div>
-        </div>
-        {% endif %}
-
         <div class="card shadow-sm">
             <div class="card-header">
                 <i class="bi bi-person-gear"></i> {% translate "Редактировать профиль" %}

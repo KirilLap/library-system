@@ -33,7 +33,23 @@
     <a id="nearest-link" href="#" class="ms-2 btn btn-sm btn-outline-success">{% translate "Перейти" %}</a>
 </div>
 
+<div class="row g-2 mt-1 mb-2">
+    <div class="col-sm-8">
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="search" id="points-search" class="form-control"
+                   placeholder="{% translate 'Поиск по названию или адресу…' %}">
+        </div>
+    </div>
+    <div class="col-sm-4 d-grid">
+        <button type="button" id="btn-showall" class="btn btn-outline-secondary">
+            <i class="bi bi-arrows-fullscreen"></i> {% translate "Показать все" %}
+        </button>
+    </div>
+</div>
+
 <div id="points-list" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mt-1"></div>
+<p id="points-empty" class="text-muted text-center py-4 d-none">{% translate "Ничего не найдено" %}</p>
 
 {% endif %}
 
@@ -90,9 +106,11 @@ var I18N = {
 
     // Render cards list
     var list = document.getElementById('points-list');
+    var cards = [];
     POINTS.forEach(function (p) {
         var col = document.createElement('div');
         col.className = 'col';
+        col.setAttribute('data-search', (p.name + ' ' + p.address).toLowerCase());
         col.innerHTML = '<div class="card h-100 shadow-sm" style="cursor:pointer" data-slug="' + p.slug + '">'
             + '<div class="card-body">'
             + '<h6 class="card-title mb-1">' + p.name + '</h6>'
@@ -109,7 +127,33 @@ var I18N = {
             markers[p.slug].openPopup();
         });
         list.appendChild(col);
+        cards.push({p: p, col: col});
     });
+
+    // Поиск по списку и кнопка «Показать все»
+    var searchInput = document.getElementById('points-search');
+    var emptyMsg = document.getElementById('points-empty');
+
+    function applySearch() {
+        var q = searchInput.value.trim().toLowerCase();
+        var visible = 0;
+        cards.forEach(function (c) {
+            var show = !q || c.col.getAttribute('data-search').indexOf(q) !== -1;
+            c.col.classList.toggle('d-none', !show);
+            if (show) visible++;
+        });
+        emptyMsg.classList.toggle('d-none', visible > 0);
+    }
+    searchInput.addEventListener('input', applySearch);
+
+    function showAll() {
+        searchInput.value = '';
+        applySearch();
+        map.closePopup();
+        var bounds = L.latLngBounds(POINTS.map(function (p) { return [p.lat, p.lng]; }));
+        map.fitBounds(bounds, {padding: [30, 30], maxZoom: 15});
+    }
+    document.getElementById('btn-showall').addEventListener('click', showAll);
 
     // Haversine distance in km
     function haversine(lat1, lng1, lat2, lng2) {
@@ -150,6 +194,13 @@ var I18N = {
                 if (d < minDist) { minDist = d; nearest = p; }
                 return {p: p, d: d};
             }).sort(function (a, b) { return a.d - b.d; });
+
+            // Список: ближайшие сверху
+            sorted.forEach(function (item) {
+                cards.forEach(function (c) {
+                    if (c.p === item.p) list.appendChild(c.col);
+                });
+            });
 
             // Update distance labels
             sorted.forEach(function (item) {

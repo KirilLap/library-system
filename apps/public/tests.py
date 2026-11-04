@@ -69,12 +69,11 @@ class BookRequestFromCatalogTests(TestCase):
         self.client.post(reverse('catalog:request', args=[self.book.pk]), {'message': 'вторая'})
         self.assertEqual(BookRequest.objects.filter(book=self.book, reader=self.reader).count(), 1)
 
-    def test_request_requires_phone(self):
+    def test_request_does_not_require_phone(self):
         reader = make_reader('nophone', phone='')
         self.client.force_login(reader.user)
-        response = self.client.post(reverse('catalog:request', args=[self.book.pk]), {'message': 'хочу'})
-        self.assertRedirects(response, reverse('main:edit_profile'))
-        self.assertEqual(BookRequest.objects.count(), 0)
+        self.client.post(reverse('catalog:request', args=[self.book.pk]), {'message': 'хочу'})
+        self.assertEqual(BookRequest.objects.filter(reader=reader).count(), 1)
 
     def test_blocked_reader_cannot_request(self):
         self.reader.is_blocked = True
@@ -160,12 +159,11 @@ class BookQueueTests(TestCase):
         self.assertRedirects(response, reverse('catalog:detail', args=[self.book.pk]))
         self.assertFalse(BookQueue.objects.filter(book=self.book, reader=self.reader).exists())
 
-    def test_queue_requires_phone(self):
+    def test_queue_does_not_require_phone(self):
         reader = make_reader('nophone', phone='')
         self.client.force_login(reader.user)
-        response = self.client.post(reverse('catalog:queue_join', args=[self.book.pk]))
-        self.assertRedirects(response, reverse('main:edit_profile'))
-        self.assertEqual(BookQueue.objects.count(), 0)
+        self.client.post(reverse('catalog:queue_join', args=[self.book.pk]))
+        self.assertTrue(BookQueue.objects.filter(book=self.book, reader=reader).exists())
 
     def test_blocked_reader_cannot_join_queue(self):
         self.reader.is_blocked = True

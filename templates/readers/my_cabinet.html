@@ -14,18 +14,6 @@
 </div>
 {% endif %}
 
-{% if phone_missing %}
-<div class="alert alert-warning d-flex align-items-center justify-content-between mb-3 py-2">
-    <span>
-        <i class="bi bi-telephone-x"></i>
-        <strong>{% translate "Укажите номер телефона" %}</strong> — {% translate "без него нельзя брать книги и подавать заявки" %}
-    </span>
-    <a href="/my/profile/" class="btn btn-sm btn-warning">
-        <i class="bi bi-pencil"></i> {% translate "Указать телефон" %}
-    </a>
-</div>
-{% endif %}
-
 {% if open_points %}
 <div class="card shadow-sm mb-3" id="nearest-point-card">
     <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2 py-2">
@@ -61,15 +49,24 @@
                 <dl class="mb-0">
                     <dt class="text-muted small">{% translate "Имя" %}</dt>
                     <dd class="fs-5">{{ reader.full_name }}</dd>
+                    {% if reader.card_id %}
+                    <dt class="text-muted small">{% translate "ID читателя" %}</dt>
+                    <dd class="fw-semibold">{{ reader.card_id }}</dd>
+                    {% endif %}
                     <dt class="text-muted small">{% translate "Логин" %}</dt>
                     <dd>{{ reader.user.username }}</dd>
-                    {% if reader.user.email %}
-                    <dt class="text-muted small">Email</dt>
-                    <dd>{{ reader.user.email }}</dd>
+                    {% if reader.birth_year %}
+                    <dt class="text-muted small">{% translate "Год рождения" %}</dt>
+                    <dd>{{ reader.birth_year }}</dd>
                     {% endif %}
-                    {% if reader.phone %}
-                    <dt class="text-muted small">{% translate "Телефон" %}</dt>
-                    <dd>{{ reader.phone }}</dd>
+                    {% if reader.nearest_location %}
+                    <dt class="text-muted small">{% translate "Ближайший библиопункт" %}</dt>
+                    <dd>
+                        <i class="bi bi-geo-alt"></i>
+                        <a href="/p/{{ reader.nearest_location.slug }}/" class="text-decoration-none">
+                            {{ reader.nearest_location.name }}
+                        </a>
+                    </dd>
                     {% endif %}
                     {% if reader.affiliated_location %}
                     <dt class="text-muted small">{% translate "Прикреплённый библиопункт" %}</dt>

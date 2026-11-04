@@ -12,9 +12,9 @@
 {% block body %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <span class="navbar-brand">
+        <a class="navbar-brand" href="/org/">
             <img src="{% static 'img/logo.png' %}" alt="" height="36" class="me-2">{{ LIBRARY_NAME }}
-        </span>
+        </a>
         <div class="ms-auto d-flex align-items-center gap-3">
             {% include "includes/lang_switcher.html" with remember_for_org=True %}
             {% if user.is_authenticated %}

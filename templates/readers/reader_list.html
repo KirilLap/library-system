@@ -7,10 +7,13 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2><i class="bi bi-people"></i> {% translate "Читатели" %}</h2>
+    <a href="{% url 'readers_admin:create' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i> {% translate "Добавить читателя" %}
+    </a>
 </div>
 
 <form method="get" class="mb-3 d-flex gap-2" style="max-width:400px;">
-    <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Поиск по имени, логину, телефону…' %}"
+    <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Поиск по имени, логину и ID…' %}"
            class="form-control">
     <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
     {% if q %}<a href="?" class="btn btn-outline-secondary"><i class="bi bi-x"></i></a>{% endif %}
@@ -22,8 +25,10 @@
         <thead class="table-dark">
             <tr>
                 <th>{% translate "Имя" %}</th>
+                <th>{% translate "ID читателя" %}</th>
                 <th>{% translate "Логин" %}</th>
-                <th>{% translate "Телефон" %}</th>
+                <th>{% translate "Год рождения" %}</th>
+                <th>{% translate "Ближайший библиопункт" %}</th>
                 <th class="text-center">{% translate "Активных заявок" %}</th>
                 <th>{% translate "Зарегистрирован" %}</th>
                 <th>{% translate "Статус" %}</th>
@@ -38,8 +43,10 @@
                         {{ reader.full_name }}
                     </a>
                 </td>
+                <td class="small">{{ reader.card_id|default:"—" }}</td>
                 <td class="text-muted small">{{ reader.user.username }}</td>
-                <td class="small">{{ reader.phone|default:"—" }}</td>
+                <td class="small">{{ reader.birth_year|default:"—" }}</td>
+                <td class="small">{{ reader.nearest_location.name|default:"—" }}</td>
                 <td class="text-center">
                     <span class="badge bg-primary rounded-pill">{{ reader.active_requests_count }}</span>
                 </td>

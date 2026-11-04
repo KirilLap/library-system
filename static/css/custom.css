@@ -20,3 +20,143 @@
 .badge-status-in_library  { background-color: #198754; }
 .badge-status-in_delivery { background-color: #0d6efd; }
 .badge-status-lost        { background-color: #dc3545; }
+
+
+/* Длинное название библиотеки в шапке: на телефонах и планшетах переносится на несколько строк */
+@media (max-width: 991.98px) {
+    .navbar-brand {
+        display: inline-flex;
+        align-items: center;
+        flex: 1 1 0;
+        min-width: 0;
+        margin-right: .5rem;
+        white-space: normal;
+        line-height: 1.2;
+        font-size: .95rem;
+    }
+    .navbar-brand img {
+        flex-shrink: 0;
+        height: 32px;
+        width: auto;
+    }
+}
+@media (max-width: 575.98px) {
+    .navbar-brand { font-size: .85rem; }
+}
+
+/* Three full-width areas: library identity, navigation, and account controls. */
+@media (min-width: 1200px) {
+    .public-navbar-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(260px, .8fr);
+        align-items: center;
+        gap: 1rem;
+    }
+    .public-navbar .navbar-brand {
+        display: flex;
+        grid-column: 1;
+        align-items: center;
+        min-width: 0;
+        margin: 0;
+        white-space: normal;
+        font-size: 1rem;
+    }
+    .public-navbar .navbar-brand img {
+        flex: 0 0 auto;
+        width: auto;
+    }
+    .public-navbar-brand-label {
+        max-width: 300px;
+        line-height: 1.2;
+    }
+    .public-navbar .navbar-collapse {
+        display: contents !important;
+    }
+    .public-navbar .navbar-nav {
+        grid-column: 2;
+        justify-self: center;
+    }
+    .public-navbar .navbar-nav .nav-link {
+        white-space: nowrap;
+    }
+    .public-navbar-controls {
+        display: flex;
+        grid-column: 3;
+        align-items: center;
+        justify-self: end;
+        gap: .75rem;
+    }
+}
+
+.public-navbar-primary-actions {
+    display: flex;
+    align-items: center;
+}
+.public-navbar-primary-actions > .btn,
+.public-navbar-logout .btn {
+    min-height: 44px;
+}
+.public-navbar-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .25rem;
+}
+.public-navbar-account {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    max-width: 190px;
+    white-space: nowrap;
+}
+.public-navbar-account-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.public-navbar-logout {
+    margin: 0;
+}
+
+@media (max-width: 1199.98px) {
+    .public-navbar-layout {
+        align-items: center;
+    }
+    .public-navbar .navbar-collapse {
+        flex-basis: 100%;
+    }
+    .public-navbar-controls {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        padding: .5rem 0;
+    }
+    .public-navbar-actions {
+        flex-direction: row;
+        align-items: center;
+        gap: .5rem;
+    }
+    .public-navbar .navbar-brand {
+        flex: 1 1 0;
+        min-width: 0;
+        margin-right: .5rem;
+    }
+    .public-navbar .navbar-brand img {
+        height: 40px;
+    }
+    .public-navbar-brand-label {
+        max-width: 260px;
+        line-height: 1.2;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .public-navbar-controls {
+        flex-wrap: wrap;
+    }
+    .public-navbar-actions {
+        flex-wrap: wrap;
+    }
+    .public-navbar .navbar-brand {
+        font-size: .85rem;
+    }
+}

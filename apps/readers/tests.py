@@ -228,14 +228,13 @@ class TakeBookTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'не найдена')
 
-    def test_take_book_requires_phone(self):
+    def test_take_book_does_not_require_phone(self):
         reader = make_reader('nophone', phone='')
         self.client.force_login(reader.user)
         book = make_book('INV-203')
         deliver_book(book, self.location)
-        response = self.client.post(reverse('main:take_book'), {'inventory_number': 'INV-203'})
-        self.assertRedirects(response, reverse('main:edit_profile'))
-        self.assertEqual(Loan.objects.count(), 0)
+        self.client.post(reverse('main:take_book'), {'inventory_number': 'INV-203'})
+        self.assertEqual(Loan.objects.filter(reader=reader).count(), 1)
 
     def test_blocked_reader_cannot_take_book(self):
         self.reader.is_blocked = True
@@ -427,3 +426,114 @@ class LanguagePreferenceTests(TestCase):
 
 def tearDownModule():
     shutil.rmtree(_MEDIA_ROOT, ignore_errors=True)
+
+
+class SimpleRegistrationTests(TestCase):
+    """Упрощённая регистрация: ФИО, год рождения, ближайший библиопункт; без телефона и адреса."""
+
+    def setUp(self):
+        self.point = make_location('Махалля Тест')
+
+    def _data(self, **extra):
+        data = {
+            'last_name': 'Каримов', 'first_name': 'Али', 'birth_year': 2008,
+            'nearest_location': self.point.pk, 'username': 'ali2008',
+            'password1': 'Str0ng-pass-77', 'password2': 'Str0ng-pass-77',
+        }
+        data.update(extra)
+        return data
+
+    def test_register_without_phone_and_address(self):
+        response = self.client.post(reverse('readers_auth:register'), self._data())
+        self.assertRedirects(response, reverse('main:my'))
+        reader = Reader.objects.get(user__username='ali2008')
+        self.assertEqual(reader.birth_year, 2008)
+        self.assertEqual(reader.nearest_location, self.point)
+        self.assertEqual(reader.phone, '')
+        self.assertFalse(reader.must_change_password)
+        self.assertRegex(reader.card_id, r'^[1-9]\d{9}$')
+        self.assertEqual(reader.user.username, 'ali2008')
+
+    def test_nearest_location_is_optional(self):
+        self.client.post(reverse('readers_auth:register'), self._data(nearest_location=''))
+        self.assertIsNone(Reader.objects.get(user__username='ali2008').nearest_location)
+
+    def test_future_birth_year_rejected(self):
+        self.client.post(reverse('readers_auth:register'), self._data(birth_year=2999))
+        self.assertFalse(Reader.objects.filter(user__username='ali2008').exists())
+
+    def test_hidden_location_not_offered(self):
+        hidden = make_location('Скрытый', is_public=False)
+        self.client.post(reverse('readers_auth:register'), self._data(nearest_location=hidden.pk))
+        self.assertFalse(Reader.objects.filter(user__username='ali2008').exists())
+
+    def test_cabinet_works_without_phone(self):
+        reader = make_reader('nophone2', phone='')
+        self.client.force_login(reader.user)
+        response = self.client.get(reverse('main:my'))
+        self.assertEqual(response.status_code, 200)
+
+
+class StaffCreateReaderTests(TestCase):
+    """Сотрудник вносит читателя вручную: ID = логин = временный пароль, при входе пароль меняется."""
+
+    def setUp(self):
+        from apps.staff.models import StaffProfile
+        self.staff_user = User.objects.create_user('lib', password='pw-lib-123')
+        StaffProfile.objects.create(user=self.staff_user, role=StaffProfile.ROLE_ADMIN)
+        self.client.force_login(self.staff_user)
+
+    def _create(self, **extra):
+        data = {'last_name': 'Саидов', 'first_name': 'Бобур', 'birth_year': 1999, 'nearest_location': ''}
+        data.update(extra)
+        return self.client.post(reverse('readers_admin:create'), data)
+
+    def _new_reader(self):
+        self._create()
+        return Reader.objects.get(user__last_name='Саидов')
+
+    def test_staff_can_create_reader_with_generated_id(self):
+        response = self._create()
+        reader = Reader.objects.get(user__last_name='Саидов')
+        self.assertRedirects(response, reverse('readers_admin:detail', args=[reader.pk]))
+        self.assertRegex(reader.card_id, r'^[1-9]\d{9}$')
+        self.assertEqual(reader.user.username, reader.card_id)
+        self.assertTrue(reader.user.check_password(reader.card_id))
+        self.assertTrue(reader.must_change_password)
+
+    def test_each_reader_gets_unique_id(self):
+        self._create()
+        self._create(first_name='Другой')
+        ids = list(Reader.objects.values_list('card_id', flat=True))
+        self.assertEqual(len(ids), 2)
+        self.assertEqual(len(set(ids)), 2)
+
+    def test_create_form_requires_staff(self):
+        self.client.logout()
+        response = self.client.get(reverse('readers_admin:create'))
+        self.assertNotEqual(response.status_code, 200)
+
+    def test_search_by_id(self):
+        reader = self._new_reader()
+        response = self.client.get(reverse('readers_admin:index'), {'q': reader.card_id})
+        self.assertContains(response, reader.card_id)
+
+    def test_first_login_forces_password_change(self):
+        reader = self._new_reader()
+        self.client.logout()
+        response = self.client.post(reverse('main:login'), {'username': reader.card_id, 'password': reader.card_id})
+        self.assertRedirects(response, reverse('main:change_password'))
+        response = self.client.get(reverse('main:my'))
+        self.assertRedirects(response, reverse('main:change_password'), fetch_redirect_response=False)
+
+    def test_password_change_unlocks_cabinet(self):
+        reader = self._new_reader()
+        self.client.logout()
+        self.client.post(reverse('main:login'), {'username': reader.card_id, 'password': reader.card_id})
+        response = self.client.post(reverse('main:change_password'), {
+            'new_password1': 'Mine-Own-Pass-55', 'new_password2': 'Mine-Own-Pass-55',
+        })
+        self.assertRedirects(response, reverse('main:my'))
+        reader.refresh_from_db()
+        self.assertFalse(reader.must_change_password)
+        self.assertEqual(self.client.get(reverse('main:my')).status_code, 200)

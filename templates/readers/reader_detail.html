@@ -25,19 +25,23 @@
                 <dl class="mb-0">
                     <dt class="text-muted small">{% translate "Имя" %}</dt>
                     <dd>{{ reader.user.get_full_name|default:"—" }}</dd>
+                    {% if reader.card_id %}
+                    <dt class="text-muted small">{% translate "ID читателя" %}</dt>
+                    <dd class="fw-semibold">{{ reader.card_id }}</dd>
+                    {% endif %}
                     <dt class="text-muted small">{% translate "Логин" %}</dt>
                     <dd>{{ reader.user.username }}</dd>
-                    {% if reader.user.email %}
-                    <dt class="text-muted small">Email</dt>
-                    <dd>{{ reader.user.email }}</dd>
+                    {% if reader.birth_year %}
+                    <dt class="text-muted small">{% translate "Год рождения" %}</dt>
+                    <dd>{{ reader.birth_year }}{% if reader.age is not None %} ({{ reader.age }}){% endif %}</dd>
                     {% endif %}
-                    {% if reader.phone %}
-                    <dt class="text-muted small">{% translate "Телефон" %}</dt>
-                    <dd>{{ reader.phone }}</dd>
+                    {% if reader.nearest_location %}
+                    <dt class="text-muted small">{% translate "Ближайший библиопункт" %}</dt>
+                    <dd>{{ reader.nearest_location.name }}</dd>
                     {% endif %}
-                    {% if reader.address %}
-                    <dt class="text-muted small">{% translate "Адрес" %}</dt>
-                    <dd>{{ reader.address }}</dd>
+                    {% if reader.must_change_password %}
+                    <dt class="text-muted small">{% translate "Пароль" %}</dt>
+                    <dd><span class="badge bg-warning text-dark">{% translate "Временный, ещё не сменён" %}</span></dd>
                     {% endif %}
                     <dt class="text-muted small">{% translate "Зарегистрирован" %}</dt>
                     <dd>{{ reader.created_at|date:"d.m.Y" }}</dd>

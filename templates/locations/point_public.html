@@ -14,14 +14,23 @@
 {% block body %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container d-flex justify-content-between">
-        <span class="navbar-brand">
+        <a class="navbar-brand" href="/">
             <img src="{% static 'img/logo.png' %}" alt="" height="36" class="me-2">{{ LIBRARY_NAME }}
-        </span>
+        </a>
         {% include "includes/lang_switcher.html" with remember_for_reader=True %}
     </div>
 </nav>
 
 <div class="container mt-4">
+
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a href="{% url 'locations_public:map' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> {% translate "Все библиопункты" %}
+        </a>
+        <a href="/catalog/" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-search"></i> {% translate "Каталог книг" %}
+        </a>
+    </div>
 
     <div class="mb-4">
         <h1 class="h3 mb-1">{{ location.name }}</h1>

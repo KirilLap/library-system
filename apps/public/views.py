@@ -127,10 +127,6 @@ def book_request(request, pk):
         messages.error(request, 'Ваш аккаунт заблокирован. Обратитесь в библиотеку.')
         return redirect('catalog:detail', pk=pk)
 
-    if not reader.phone:
-        messages.warning(request, 'Укажите номер телефона перед тем, как подавать заявки.')
-        return redirect('main:edit_profile')
-
     from apps.readers.models import BookRequest
     from apps.readers.forms import BookRequestForm
 
@@ -161,10 +157,6 @@ def free_book_request(request):
     if reader.is_blocked:
         messages.error(request, 'Ваш аккаунт заблокирован. Обратитесь в библиотеку.')
         return redirect('catalog:index')
-
-    if not reader.phone:
-        messages.warning(request, 'Укажите номер телефона перед тем, как подавать заявки.')
-        return redirect('main:edit_profile')
 
     from apps.readers.forms import FreeBookRequestForm
     from apps.readers.models import BookRequest
@@ -197,10 +189,6 @@ def book_queue_join(request, pk):
     if reader.is_blocked:
         messages.error(request, 'Ваш аккаунт заблокирован. Обратитесь в библиотеку.')
         return redirect('catalog:detail', pk=pk)
-
-    if not reader.phone:
-        messages.warning(request, 'Укажите номер телефона перед тем, как вставать в очередь.')
-        return redirect('main:edit_profile')
 
     from apps.readers.models import Loan, BookQueue
 

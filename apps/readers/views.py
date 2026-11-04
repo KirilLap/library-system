@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
+from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
@@ -8,7 +9,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from apps.staff.decorators import librarian_required
-from .forms import ReaderRegistrationForm, StyledAuthForm, BookRequestForm, RequestStatusForm, ReaderProfileForm, FreeBookRequestForm
+from .forms import ReaderRegistrationForm, StyledAuthForm, BookRequestForm, RequestStatusForm, ReaderProfileForm, FreeBookRequestForm, ReaderCreateForm
 from .models import Reader, BookRequest, Loan
 
 
@@ -52,7 +53,9 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             next_url = request.GET.get('next')
-            if next_url:
+            if _must_change_password(user):
+                response = redirect('main:change_password')
+            elif next_url:
                 response = redirect(next_url)
             # Redirect workers to their cabinet
             elif hasattr(user, 'worker_profile') and user.worker_profile.is_active:
@@ -72,6 +75,39 @@ def login_view(request):
     else:
         form = StyledAuthForm(request)
     return render(request, 'readers/login.html', {'form': form})
+
+
+def _must_change_password(user):
+    try:
+        return user.reader_profile.must_change_password
+    except Exception:
+        return False
+
+
+@login_required(login_url='/login/')
+def change_password(request):
+    """Первая смена пароля у читателя, которого зарегистрировал сотрудник."""
+    try:
+        reader = request.user.reader_profile
+    except Reader.DoesNotExist:
+        return redirect('main:home')
+
+    if request.method == 'POST':
+        form = SetPasswordForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, request.user)
+            reader.must_change_password = False
+            reader.save(update_fields=['must_change_password'])
+            messages.success(request, 'Пароль изменён. Добро пожаловать!')
+            return redirect('main:my')
+    else:
+        form = SetPasswordForm(request.user)
+    for field in form.fields.values():
+        field.widget.attrs['class'] = 'form-control'
+    return render(request, 'readers/change_password.html', {
+        'form': form, 'forced': reader.must_change_password,
+    })
 
 
 @require_POST
@@ -106,13 +142,6 @@ def set_language(request):
 # ──────────────────────────────
 # Helpers
 # ──────────────────────────────
-
-def _require_phone(reader, request):
-    """Возвращает redirect если у читателя нет телефона, иначе None."""
-    if not reader.phone:
-        messages.warning(request, 'Пожалуйста, укажите номер телефона — это необходимо для связи с вами.')
-        return redirect('main:edit_profile')
-    return None
 
 
 # ──────────────────────────────
@@ -158,7 +187,6 @@ def my_cabinet(request):
         'queue_entries': queue_entries,
         'loan_history': loan_history,
         'has_worker_profile': hasattr(request.user, 'worker_profile'),
-        'phone_missing': not reader.phone,
         'open_points': open_points,
     })
 
@@ -193,10 +221,6 @@ def take_book(request):
     if reader.is_blocked:
         messages.error(request, 'Ваш аккаунт заблокирован.')
         return redirect('main:my')
-
-    phone_redirect = _require_phone(reader, request)
-    if phone_redirect:
-        return phone_redirect
 
     error = None
     book = None
@@ -270,8 +294,29 @@ def reader_list(request):
         readers = readers.filter(user__first_name__icontains=q) | \
                   readers.filter(user__last_name__icontains=q) | \
                   readers.filter(user__username__icontains=q) | \
-                  readers.filter(phone__icontains=q)
+                  readers.filter(card_id__icontains=q)
     return render(request, 'readers/reader_list.html', {'readers': readers, 'q': q})
+
+
+@librarian_required
+def reader_create(request):
+    """Сотрудник вносит читателя вручную (для тех, кто не может зарегистрироваться сам)."""
+    if request.method == 'POST':
+        form = ReaderCreateForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            from apps.staff.models import ActionLog
+            ActionLog.log(request.user, f'Зарегистрировал читателя «{user.get_full_name()}» (ID {user.reader_profile.card_id})')
+            messages.success(
+                request,
+                f'Читатель «{user.get_full_name()}» добавлен. '
+                f'ID, он же логин и временный пароль: {user.reader_profile.card_id}. '
+                'Передайте ему этот номер, при первом входе он задаст свой пароль.'
+            )
+            return redirect('readers_admin:detail', pk=user.reader_profile.pk)
+    else:
+        form = ReaderCreateForm()
+    return render(request, 'readers/reader_form.html', {'form': form})
 
 
 @librarian_required

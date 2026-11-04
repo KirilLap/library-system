@@ -4,6 +4,16 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
+def generate_card_id():
+    """Случайный 10-значный ID читателя (не подбирается по порядку)."""
+    import secrets
+    while True:
+        value = str(secrets.randbelow(9 * 10 ** 9) + 10 ** 9)
+        if not Reader.objects.filter(card_id=value).exists() \
+                and not User.objects.filter(username=value).exists():
+            return value
+
+
 class Reader(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='reader_profile')
     phone = models.CharField(max_length=50, blank=True, verbose_name='Телефон')
@@ -11,6 +21,21 @@ class Reader(models.Model):
     affiliated_location = models.ForeignKey(
         'locations.Location', null=True, blank=True, on_delete=models.SET_NULL,
         related_name='affiliated_readers', verbose_name='Прикреплённый библиопункт'
+    )
+    card_id = models.CharField(
+        max_length=10, unique=True, null=True, blank=True, editable=False,
+        verbose_name='ID читателя',
+        help_text='Случайный 10-значный номер, создаётся автоматически.',
+    )
+    birth_year = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='Год рождения')
+    nearest_location = models.ForeignKey(
+        'locations.Location', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='nearby_readers', verbose_name='Ближайший библиопункт',
+        help_text='Читатель сам отмечает, какой библиопункт ему ближе всего.',
+    )
+    must_change_password = models.BooleanField(
+        default=False, verbose_name='Нужно сменить пароль',
+        help_text='Включается, когда читателя зарегистрировал сотрудник с временным паролем.',
     )
     is_blocked = models.BooleanField(default=False, verbose_name='Заблокирован')
     notes = models.TextField(blank=True, verbose_name='Заметки библиотекаря')
@@ -31,6 +56,12 @@ class Reader(models.Model):
     @property
     def full_name(self):
         return self.user.get_full_name() or self.user.username
+
+    @property
+    def age(self):
+        if not self.birth_year:
+            return None
+        return timezone.now().year - self.birth_year
 
     @property
     def active_requests_count(self):

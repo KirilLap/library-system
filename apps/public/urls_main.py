@@ -19,4 +19,5 @@ urlpatterns = [
     path('my/take/', reader_views.take_book, name='take_book'),
     path('my/return/<int:pk>/', reader_views.return_loan, name='return_loan'),
     path('my/profile/', reader_views.edit_profile, name='edit_profile'),
+    path('my/password/', reader_views.change_password, name='change_password'),
 ]

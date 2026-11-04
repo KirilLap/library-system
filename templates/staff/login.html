@@ -8,8 +8,10 @@
 <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
     <div class="col-md-5 col-lg-4">
         <div class="text-center mb-4">
-            <img src="{% static 'img/logo.png' %}" alt="" height="96">
-            <h2 class="mt-2">{{ LIBRARY_NAME }}</h2>
+            <a href="/" class="text-decoration-none text-reset d-inline-block">
+                <img src="{% static 'img/logo.png' %}" alt="" height="96">
+                <h2 class="mt-2">{{ LIBRARY_NAME }}</h2>
+            </a>
             <p class="text-muted">{% translate "Панель сотрудника" %}</p>
             <div>{% include "includes/lang_switcher.html" %}</div>
         </div>
