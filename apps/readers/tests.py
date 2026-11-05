@@ -436,7 +436,7 @@ class SimpleRegistrationTests(TestCase):
 
     def _data(self, **extra):
         data = {
-            'last_name': 'Каримов', 'first_name': 'Али', 'birth_year': 2008,
+            'last_name': 'Каримов', 'first_name': 'Али', 'gender': 'M', 'birth_year': 2008,
             'nearest_location': self.point.pk, 'username': 'ali2008',
             'password1': 'Str0ng-pass-77', 'password2': 'Str0ng-pass-77',
         }
@@ -448,6 +448,7 @@ class SimpleRegistrationTests(TestCase):
         self.assertRedirects(response, reverse('main:my'))
         reader = Reader.objects.get(user__username='ali2008')
         self.assertEqual(reader.birth_year, 2008)
+        self.assertEqual(reader.gender, 'M')
         self.assertEqual(reader.nearest_location, self.point)
         self.assertEqual(reader.phone, '')
         self.assertFalse(reader.must_change_password)
@@ -457,6 +458,14 @@ class SimpleRegistrationTests(TestCase):
     def test_nearest_location_is_optional(self):
         self.client.post(reverse('readers_auth:register'), self._data(nearest_location=''))
         self.assertIsNone(Reader.objects.get(user__username='ali2008').nearest_location)
+
+    def test_gender_is_required_and_limited_to_two_values(self):
+        self.client.post(reverse('readers_auth:register'), self._data(gender=''))
+        self.assertFalse(Reader.objects.filter(user__username='ali2008').exists())
+        self.client.post(reverse('readers_auth:register'), self._data(gender='X'))
+        self.assertFalse(Reader.objects.filter(user__username='ali2008').exists())
+        self.client.post(reverse('readers_auth:register'), self._data(gender='F'))
+        self.assertEqual(Reader.objects.get(user__username='ali2008').gender, 'F')
 
     def test_future_birth_year_rejected(self):
         self.client.post(reverse('readers_auth:register'), self._data(birth_year=2999))
@@ -484,7 +493,7 @@ class StaffCreateReaderTests(TestCase):
         self.client.force_login(self.staff_user)
 
     def _create(self, **extra):
-        data = {'last_name': 'Саидов', 'first_name': 'Бобур', 'birth_year': 1999, 'nearest_location': ''}
+        data = {'last_name': 'Саидов', 'first_name': 'Бобур', 'gender': 'M', 'birth_year': 1999, 'nearest_location': ''}
         data.update(extra)
         return self.client.post(reverse('readers_admin:create'), data)
 

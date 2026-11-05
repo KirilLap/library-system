@@ -6,11 +6,12 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.utils.translation import gettext
 from django.views.decorators.http import require_POST
 
-from apps.staff.decorators import librarian_required
-from .forms import ReaderRegistrationForm, StyledAuthForm, BookRequestForm, RequestStatusForm, ReaderProfileForm, FreeBookRequestForm, ReaderCreateForm
-from .models import Reader, BookRequest, Loan
+from apps.staff.decorators import admin_required, librarian_required
+from .forms import AgeGroupForm, ReaderRegistrationForm, StyledAuthForm, BookRequestForm, RequestStatusForm, ReaderProfileForm, FreeBookRequestForm, ReaderCreateForm
+from .models import AgeGroupSettings, Reader, BookRequest, Loan
 
 
 def _set_language_cookie(response, lang_code):
@@ -317,6 +318,137 @@ def reader_create(request):
     else:
         form = ReaderCreateForm()
     return render(request, 'readers/reader_form.html', {'form': form})
+
+
+def _stats_context(request):
+    """Общие данные для страниц статистики: период, границы возрастных групп, счётчики."""
+    from django.conf import settings
+    from .stats import current_boundaries, open_loans, parse_period, period_query
+    boundaries = current_boundaries()
+    period, date_from, date_to = parse_period(request.GET)
+    return {
+        'boundaries': boundaries,
+        'period': period,
+        'date_from': date_from,
+        'date_to': date_to,
+        'period_qs': period_query(period, date_from, date_to),
+        'unreturned_count': open_loans().count(),
+        'overdue_count': open_loans(only_overdue=True).count(),
+        'loan_period_days': settings.LOAN_PERIOD_DAYS,
+        'is_admin': request.user.staff_profile.role == 'ADMIN',
+    }
+
+
+@librarian_required
+def reader_stats(request):
+    """Статистика читателей по полу и возрастным группам, книги за период."""
+    from .stats import loan_statistics, period_loans, reader_statistics
+    ctx = _stats_context(request)
+    boundaries = ctx['boundaries']
+    ctx.update({
+        'stats': reader_statistics(Reader.objects.all(), boundaries),
+        'loan_stats': loan_statistics(period_loans(ctx['date_from'], ctx['date_to']), boundaries, top=10),
+        'date_from': ctx['date_from'].isoformat() if ctx['date_from'] else '',
+        'date_to': ctx['date_to'].isoformat() if ctx['date_to'] else '',
+        'period_choices': [('7', 7), ('30', 30), ('90', 90), ('365', 365)],
+        'form': AgeGroupForm(initial={'boundaries': ', '.join(str(b) for b in boundaries)}),
+    })
+    return render(request, 'readers/reader_stats.html', ctx)
+
+
+@librarian_required
+def reader_stats_readers(request):
+    """Полный список читателей и взятых ими книг за период (с поиском и страницами)."""
+    from django.core.paginator import Paginator
+    from .stats import period_loans, reader_loan_rows
+    ctx = _stats_context(request)
+    rows = reader_loan_rows(period_loans(ctx['date_from'], ctx['date_to']))
+    q = request.GET.get('q', '').strip()
+    if q:
+        needle = q.lower()
+        rows = [r for r in rows if needle in r['reader'].full_name.lower()
+                or needle in (r['reader'].card_id or '') or needle in r['reader'].user.username.lower()]
+    paginator = Paginator(rows, 50)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    params = request.GET.copy()
+    params.pop('page', None)
+    ctx.update({
+        'rows': page_obj, 'page_obj': page_obj, 'q': q,
+        'total_readers': paginator.count,
+        'page_range': paginator.get_elided_page_range(page_obj.number, on_each_side=2, on_ends=1),
+        'querystring': params.urlencode(),
+        'date_from': ctx['date_from'].isoformat() if ctx['date_from'] else '',
+        'date_to': ctx['date_to'].isoformat() if ctx['date_to'] else '',
+    })
+    return render(request, 'readers/reader_stats_readers.html', ctx)
+
+
+@librarian_required
+def reader_stats_unreturned(request):
+    """Не возвращённые книги; ?only=overdue оставляет только просроченные."""
+    from django.core.paginator import Paginator
+    from .stats import open_loans
+    ctx = _stats_context(request)
+    only_overdue = request.GET.get('only') == 'overdue'
+    paginator = Paginator(open_loans(only_overdue=only_overdue), 50)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    params = request.GET.copy()
+    params.pop('page', None)
+    ctx.update({
+        'loans': page_obj, 'page_obj': page_obj, 'only_overdue': only_overdue,
+        'page_range': paginator.get_elided_page_range(page_obj.number, on_each_side=2, on_ends=1),
+        'querystring': params.urlencode(),
+    })
+    return render(request, 'readers/reader_stats_unreturned.html', ctx)
+
+
+@librarian_required
+def reader_stats_export(request):
+    """Скачать статистику в Excel. Списки с именами читателей попадают в файл только у администратора."""
+    from django.http import HttpResponse
+    from .stats import loan_statistics, open_loans, period_loans, reader_loan_rows, reader_statistics
+    from .stats_export import build_stats_workbook
+    ctx = _stats_context(request)
+    boundaries = ctx['boundaries']
+    loans = period_loans(ctx['date_from'], ctx['date_to'])
+    loan_stats = loan_statistics(loans, boundaries, top=10)
+    if ctx['period'] == 'all':
+        period_text = gettext('Всё время')
+    else:
+        fmt = lambda d: d.strftime('%d.%m.%Y') if d else '…'
+        period_text = f"{fmt(ctx['date_from'])} – {fmt(ctx['date_to'])}"
+    is_admin = ctx['is_admin']
+    unreturned_qs = open_loans()
+    content = build_stats_workbook(
+        stats=reader_statistics(Reader.objects.all(), boundaries),
+        loan_stats=loan_stats,
+        period_text=period_text,
+        include_readers=is_admin,
+        reader_rows=reader_loan_rows(loans) if is_admin else [],
+        unreturned={'count': ctx['unreturned_count'], 'overdue': ctx['overdue_count'],
+                    'loans': list(unreturned_qs) if is_admin else []},
+        loan_period_days=ctx['loan_period_days'],
+    )
+    response = HttpResponse(
+        content, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="readers-stats-{timezone.localdate().isoformat()}.xlsx"'
+    return response
+
+
+@admin_required
+@require_POST
+def reader_stats_settings(request):
+    """Администратор меняет границы возрастных групп."""
+    form = AgeGroupForm(request.POST)
+    if form.is_valid():
+        settings_obj = AgeGroupSettings.get_solo()
+        settings_obj.boundaries = form.cleaned_data['boundaries']
+        settings_obj.save()
+        messages.success(request, 'Возрастные группы сохранены.')
+    else:
+        for error in form.errors.get('boundaries', []):
+            messages.error(request, error)
+    return redirect('readers_admin:stats')
 
 
 @librarian_required

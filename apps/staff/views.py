@@ -75,77 +75,23 @@ def dashboard(request):
 
 @librarian_required
 def stats_view(request):
-    from django.db.models import Count
-    from django.db.models.functions import TruncWeek
+    from .stats_books import clean_days, collect_stats
+    return render(request, 'staff/stats.html', collect_stats(clean_days(request.GET.get('days'))))
+
+
+@librarian_required
+def stats_export(request):
+    """Скачать статистику по книгам в Excel (в файле нет данных о конкретных читателях)."""
+    from django.http import HttpResponse
     from django.utils import timezone
-    import datetime
-
-    from apps.readers.models import Loan, BookRequest
-
-    try:
-        days = int(request.GET.get('days', 30))
-    except ValueError:
-        days = 30
-    days = days if days in (7, 30, 90, 365) else 30
-    since = timezone.now() - datetime.timedelta(days=days)
-
-    loans_in_period = Loan.objects.filter(issued_at__gte=since)
-    returns_in_period = Loan.objects.filter(is_returned=True, returned_at__gte=since)
-    requests_in_period = BookRequest.objects.filter(created_at__gte=since)
-
-    period_stats = {
-        'loans_issued': loans_in_period.count(),
-        'loans_returned': returns_in_period.count(),
-        'requests_created': requests_in_period.count(),
-        'requests_fulfilled': requests_in_period.filter(status='FULFILLED').count(),
-    }
-
-    top_genres = (
-        loans_in_period
-        .values('book__book_title__genre')
-        .annotate(n=Count('id'))
-        .order_by('-n')[:8]
-    )
-    from apps.catalog.models import Genre
-    genre_names = dict(Genre.objects.values_list('code', 'name'))
-    top_genres = [
-        {'name': genre_names.get(g['book__book_title__genre'], g['book__book_title__genre'] or '—'), 'count': g['n']}
-        for g in top_genres
-    ]
-
-    top_books = (
-        loans_in_period
-        .values('book__book_title__id', 'book__book_title__title', 'book__book_title__author')
-        .annotate(n=Count('id'))
-        .order_by('-n')[:10]
-    )
-
-    top_locations = (
-        loans_in_period
-        .values('location__id', 'location__name')
-        .annotate(n=Count('id'))
-        .order_by('-n')[:10]
-    )
-
-    weekly = (
-        loans_in_period
-        .annotate(week=TruncWeek('issued_at'))
-        .values('week')
-        .annotate(n=Count('id'))
-        .order_by('week')
-    )
-    weekly_labels = [w['week'].strftime('%d.%m') for w in weekly]
-    weekly_counts = [w['n'] for w in weekly]
-
-    return render(request, 'staff/stats.html', {
-        'days': days,
-        'period_stats': period_stats,
-        'top_genres': top_genres,
-        'top_books': top_books,
-        'top_locations': top_locations,
-        'weekly_labels': weekly_labels,
-        'weekly_counts': weekly_counts,
-    })
+    from .stats_books import clean_days, collect_stats
+    from .stats_export import build_books_workbook
+    data = collect_stats(clean_days(request.GET.get('days')), genre_limit=1000, book_limit=100, location_limit=1000)
+    response = HttpResponse(
+        build_books_workbook(data),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="books-stats-{timezone.localdate().isoformat()}.xlsx"'
+    return response
 
 
 def init_view(request):

@@ -4,8 +4,8 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from apps.staff.decorators import admin_required, librarian_required
-from .forms import LocationForm, LocationTypeForm
-from .models import Location, LocationType
+from .forms import LocationForm, LocationTypeForm, MapSettingsForm
+from .models import Location, LocationType, MapSettings, open_type_codes
 
 
 # ──────────────────────────────
@@ -189,7 +189,7 @@ def point_public(request, slug):
         books = [b for b in books if b.genre == genre]
 
     from apps.catalog.models import Genre
-    genre_choices = Genre.objects.values_list('code', 'name')
+    genre_choices = [(g.code, g.localized_name()) for g in Genre.objects.all()]
 
     return render(request, 'locations/point_public.html', {
         'location': location,
@@ -201,21 +201,50 @@ def point_public(request, slug):
 
 
 def points_map(request):
+    mode = MapSettings.get_solo().closed_points_mode
+    open_codes = open_type_codes()
     locations = Location.objects.filter(is_active=True, is_public=True)
-    points = []
+
+    points = []          # маркеры на карте
+    closed_list = []     # закрытые, вынесенные в отдельный список (режим SEPARATE)
+    total = 0
     for loc in locations:
+        closed = loc.type not in open_codes
+        if closed and mode == MapSettings.MODE_HIDE:
+            continue
+        total += 1
+        entry = {
+            'name': loc.name,
+            'address': loc.address,
+            'slug': loc.slug,
+            'books': loc.books_count,
+            'type': loc.get_type_display(),
+            'closed': closed,
+        }
+        if closed and mode == MapSettings.MODE_SEPARATE:
+            closed_list.append(entry)
+            total -= 1
+            continue
         if loc.latitude and loc.longitude:
-            points.append({
-                'name': loc.name,
-                'address': loc.address,
-                'slug': loc.slug,
-                'lat': loc.latitude,
-                'lng': loc.longitude,
-                'books': loc.books_count,
-                'type': loc.get_type_display(),
-            })
+            entry['lat'] = loc.latitude
+            entry['lng'] = loc.longitude
+            points.append(entry)
     return render(request, 'locations/map.html', {
         'points': points,
-        'total': locations.count(),
+        'closed_points': closed_list,
+        'mode': mode,
+        'has_closed': any(p['closed'] for p in points),
+        'total': total,
         'mapped': len(points),
     })
+
+
+@admin_required
+def map_settings(request):
+    settings_obj = MapSettings.get_solo()
+    form = MapSettingsForm(request.POST or None, instance=settings_obj)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Настройки карты сохранены.')
+        return redirect('locations_admin:map_settings')
+    return render(request, 'locations/map_settings.html', {'form': form})

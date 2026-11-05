@@ -1,0 +1,80 @@
+{% extends "admin_base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Не возвращённые книги" %}{% endblock %}
+{% block nav_stats %}active{% endblock %}
+
+{% block content %}
+{% include "staff/_stats_tabs.html" with tab="readers" %}
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+    <a href="{% url 'readers_admin:stats' %}?{{ period_qs }}" class="btn btn-sm btn-outline-secondary">← {% translate "Статистика" %}</a>
+    <h2 class="mb-0"><i class="bi bi-hourglass-split"></i> {% translate "Не возвращённые книги" %}</h2>
+</div>
+
+<div class="btn-group mb-3" role="group">
+    <a href="{% url 'readers_admin:stats_unreturned' %}?{{ period_qs }}" class="btn {% if not only_overdue %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+        {% translate "Все не возвращённые" %} ({{ unreturned_count }})
+    </a>
+    <a href="{% url 'readers_admin:stats_unreturned' %}?only=overdue&amp;{{ period_qs }}" class="btn {% if only_overdue %}btn-danger{% else %}btn-outline-danger{% endif %}">
+        {% translate "Только просрочки" %} ({{ overdue_count }})
+    </a>
+</div>
+<p class="text-muted small">
+    {% blocktranslate with days=loan_period_days %}Книга считается просроченной, если она на руках дольше {{ days }} дн.{% endblocktranslate %}
+</p>
+
+<div class="card shadow-sm">
+    {% if loans %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>{% translate "Читатель" %}</th>
+                    <th>{% translate "Книга" %}</th>
+                    <th>{% translate "Библиопункт" %}</th>
+                    <th>{% translate "Дата выдачи" %}</th>
+                    <th class="text-end">{% translate "Дней на руках" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for loan in loans %}
+                <tr {% if loan.is_overdue %}class="table-danger"{% endif %}>
+                    <td>
+                        {% if loan.reader %}
+                        <a href="{% url 'readers_admin:detail' loan.reader.pk %}" class="text-decoration-none">{{ loan.reader.full_name }}</a>
+                        <div class="small text-muted">{{ loan.reader.card_id|default:"" }}</div>
+                        {% else %}<span class="text-muted">{% translate "Без читателя" %}</span>{% endif %}
+                    </td>
+                    <td>{{ loan.book.title }}<div class="small text-muted">{{ loan.book.inventory_number }}</div></td>
+                    <td>{{ loan.location.name }}</td>
+                    <td>{{ loan.issued_at|date:"d.m.Y" }}</td>
+                    <td class="text-end">
+                        {{ loan.days_held }}
+                        {% if loan.is_overdue %}<span class="badge bg-danger ms-1">{% translate "просрочка" %}</span>{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card-body text-muted">
+        {% if only_overdue %}{% translate "Просроченных книг нет." %}{% else %}{% translate "Все книги возвращены." %}{% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-3" aria-label="{% translate 'Страницы' %}">
+    <ul class="pagination justify-content-center flex-wrap">
+        {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">← {% translate "Назад" %}</a></li>{% endif %}
+        {% for num in page_range %}
+            {% if num == page_obj.number %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num == page_obj.paginator.ELLIPSIS %}<li class="page-item disabled"><span class="page-link">…</span></li>
+            {% else %}<li class="page-item"><a class="page-link" href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ num }}">{{ num }}</a></li>{% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ page_obj.next_page_number }}">{% translate "Вперёд" %} →</a></li>{% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

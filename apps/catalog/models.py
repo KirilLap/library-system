@@ -1,28 +1,36 @@
 from django.db import models
+from django.db.models import Case, IntegerField, When
 from django.utils.translation import gettext_lazy as _
 
+from config.localized import LocalizedNameMixin
 
-class Genre(models.Model):
+# В списках жанров и языков пункт «Другое» всегда стоит последним
+OTHER_LAST = Case(When(code='OTHER', then=1), default=0, output_field=IntegerField()).asc()
+
+
+class Genre(LocalizedNameMixin, models.Model):
     code = models.CharField(max_length=30, unique=True, verbose_name='Код')
     name = models.CharField(max_length=100, verbose_name='Название')
+    name_uz = models.CharField(max_length=100, blank=True, verbose_name='Название на узбекском')
 
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
-        ordering = ['name']
+        ordering = [OTHER_LAST, 'name']
 
     def __str__(self):
         return self.name
 
 
-class Language(models.Model):
+class Language(LocalizedNameMixin, models.Model):
     code = models.CharField(max_length=20, unique=True, verbose_name='Код')
     name = models.CharField(max_length=100, verbose_name='Название')
+    name_uz = models.CharField(max_length=100, blank=True, verbose_name='Название на узбекском')
 
     class Meta:
         verbose_name = 'Язык'
         verbose_name_plural = 'Языки'
-        ordering = ['name']
+        ordering = [OTHER_LAST, 'name']
 
     def __str__(self):
         return self.name
@@ -62,13 +70,13 @@ class BookTitle(models.Model):
 
     def get_genre_display(self):
         try:
-            return Genre.objects.get(code=self.genre).name
+            return Genre.objects.get(code=self.genre).localized_name()
         except Genre.DoesNotExist:
             return self.genre
 
     def get_language_display(self):
         try:
-            return Language.objects.get(code=self.language).name
+            return Language.objects.get(code=self.language).localized_name()
         except Language.DoesNotExist:
             return self.language
 

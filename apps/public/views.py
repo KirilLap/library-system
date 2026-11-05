@@ -6,6 +6,9 @@ from django.contrib.auth.decorators import login_required
 
 from apps.catalog.models import Book, Genre, Language
 
+PER_PAGE_CHOICES = [12, 24, 48, 96]
+PER_PAGE_DEFAULT = 24
+
 
 def book_list(request):
     from django.db.models import OuterRef, Subquery
@@ -48,13 +51,45 @@ def book_list(request):
             # Несуществующая или скрытая точка — для публики её как будто нет.
             books = books.none()
 
+    from django.db.models import F
     if sort == 'location':
         books = books.order_by('current_location_name', 'book_title__title')
+    elif sort == 'author':
+        books = books.order_by('book_title__author', 'book_title__title')
+    elif sort == 'year_new':
+        books = books.order_by(F('book_title__year').desc(nulls_last=True), 'book_title__title')
+    elif sort == 'year_old':
+        books = books.order_by(F('book_title__year').asc(nulls_last=True), 'book_title__title')
     else:
+        sort = ''
         books = books.order_by('book_title__title')
 
+    # Постраничный вывод: посетитель сам выбирает, сколько книг показывать
+    from django.core.paginator import Paginator
+    try:
+        per_page = int(request.GET.get('per_page', ''))
+    except ValueError:
+        per_page = PER_PAGE_DEFAULT
+    if per_page not in PER_PAGE_CHOICES:
+        per_page = PER_PAGE_DEFAULT
+    paginator = Paginator(books, per_page)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    params = request.GET.copy()
+    params.pop('page', None)
+    querystring = params.urlencode()
+    filters_active = any([q, genre, language, status_filter, location_filter, sort,
+                          request.GET.get('per_page')])
+
     return render(request, 'catalog/public_book_list.html', {
-        'books': books,
+        'books': page_obj,
+        'page_obj': page_obj,
+        'page_range': paginator.get_elided_page_range(page_obj.number, on_each_side=2, on_ends=1),
+        'total_count': paginator.count,
+        'per_page': per_page,
+        'per_page_choices': PER_PAGE_CHOICES,
+        'querystring': querystring,
+        'filters_active': filters_active,
         'q': q,
         'genre_filter': genre,
         'lang_filter': language,

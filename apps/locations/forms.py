@@ -1,10 +1,10 @@
 from django import forms
 from django.utils.translation import gettext as _
-from .models import Location, LocationType
+from .models import Location, LocationType, MapSettings
 
 
 def _type_choices():
-    return [(code, _(name)) for code, name in LocationType.objects.values_list('code', 'name')]
+    return [(t.code, t.localized_name()) for t in LocationType.objects.all()]
 
 
 class LocationForm(forms.ModelForm):
@@ -37,13 +37,21 @@ class LocationForm(forms.ModelForm):
                 field.widget.attrs['class'] = 'form-control'
 
 
+class MapSettingsForm(forms.ModelForm):
+    class Meta:
+        model = MapSettings
+        fields = ['closed_points_mode']
+        widgets = {'closed_points_mode': forms.RadioSelect}
+
+
 class LocationTypeForm(forms.ModelForm):
     class Meta:
         model = LocationType
-        fields = ['code', 'name', 'is_open']
+        fields = ['code', 'name', 'name_uz', 'is_open']
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Напр. KINDERGARTEN'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Детский сад'}),
+            'name_uz': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Bolalar bog\'chasi'}),
             'is_open': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 

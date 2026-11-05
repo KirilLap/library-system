@@ -5,14 +5,14 @@ from .models import Book, BookTitle, Genre, Language
 
 def _genre_choices():
     choices = [('', _('— Жанр —'))] + [
-        (code, _(name)) for code, name in Genre.objects.values_list('code', 'name')
+        (genre.code, genre.localized_name()) for genre in Genre.objects.all()
     ]
     return choices
 
 
 def _language_choices():
     choices = [('', _('— Язык —'))] + [
-        (code, _(name)) for code, name in Language.objects.values_list('code', 'name')
+        (lang.code, lang.localized_name()) for lang in Language.objects.all()
     ]
     return choices
 
@@ -149,10 +149,11 @@ class NewBookForm(forms.Form):
 class GenreForm(forms.ModelForm):
     class Meta:
         model = Genre
-        fields = ['code', 'name']
+        fields = ['code', 'name', 'name_uz']
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Напр. SCIENCE'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Научно-популярная'}),
+            'name_uz': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ilmiy-ommabop'}),
         }
 
     def clean_code(self):
@@ -162,10 +163,11 @@ class GenreForm(forms.ModelForm):
 class LanguageForm(forms.ModelForm):
     class Meta:
         model = Language
-        fields = ['code', 'name']
+        fields = ['code', 'name', 'name_uz']
         widgets = {
             'code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Напр. KK'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Казахский'}),
+            'name_uz': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Qozoq'}),
         }
 
     def clean_code(self):

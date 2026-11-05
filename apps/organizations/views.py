@@ -142,7 +142,7 @@ def org_dashboard(request):
     history = location.get_delivery_history()
 
     from apps.catalog.models import Genre
-    genre_choices = list(Genre.objects.values_list('code', 'name'))
+    genre_choices = [(g.code, g.localized_name()) for g in Genre.objects.all()]
 
     return render(request, 'organizations/dashboard.html', {
         'location': location,

@@ -329,13 +329,19 @@ body.theme-soft .btn-danger {
 }
 
 body.theme-soft .btn-outline-primary { border-color: rgba(var(--soft-primary), .45); color: var(--accent); }
-body.theme-soft .btn-outline-primary:hover { background: var(--accent); border-color: var(--accent); }
+body.theme-soft .btn-outline-primary:hover,
+body.theme-soft .btn-outline-primary:focus-visible,
+body.theme-soft .btn-outline-primary:active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
 body.theme-soft .btn-outline-success { border-color: rgba(var(--soft-success), .45); color: rgb(var(--soft-success)); }
-body.theme-soft .btn-outline-success:hover { background: rgb(var(--soft-success)); border-color: rgb(var(--soft-success)); }
+body.theme-soft .btn-outline-success:hover,
+body.theme-soft .btn-outline-success:focus-visible,
+body.theme-soft .btn-outline-success:active { background: rgb(var(--soft-success)); border-color: rgb(var(--soft-success)); color: #fff; }
 
 body.theme-soft .btn-outline-danger { border-color: rgba(var(--soft-danger), .45); color: rgb(var(--soft-danger)); }
-body.theme-soft .btn-outline-danger:hover { background: rgb(var(--soft-danger)); border-color: rgb(var(--soft-danger)); }
+body.theme-soft .btn-outline-danger:hover,
+body.theme-soft .btn-outline-danger:focus-visible,
+body.theme-soft .btn-outline-danger:active { background: rgb(var(--soft-danger)); border-color: rgb(var(--soft-danger)); color: #fff; }
 
 /* ── Значки (badges) ─────────────────────────────────────────── */
 

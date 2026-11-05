@@ -23,7 +23,7 @@
         <select name="genre" class="form-select">
             <option value="">{% translate "Жанр" %}</option>
             {% for g in genre_choices %}
-            <option value="{{ g.code }}" {% if genre_filter == g.code %}selected{% endif %}>{% translate g.name %}</option>
+            <option value="{{ g.code }}" {% if genre_filter == g.code %}selected{% endif %}>{{ g.localized_name }}</option>
             {% endfor %}
         </select>
     </div>
@@ -31,7 +31,7 @@
         <select name="lang" class="form-select">
             <option value="">{% translate "Язык" %}</option>
             {% for l in language_choices %}
-            <option value="{{ l.code }}" {% if lang_filter == l.code %}selected{% endif %}>{% translate l.name %}</option>
+            <option value="{{ l.code }}" {% if lang_filter == l.code %}selected{% endif %}>{{ l.localized_name }}</option>
             {% endfor %}
         </select>
     </div>
@@ -45,7 +45,7 @@
     </div>
     <div class="col-sm-1 d-flex gap-1">
         <button class="btn btn-primary flex-grow-1" type="submit"><i class="bi bi-funnel"></i></button>
-        {% if q or genre_filter or lang_filter or status_filter or location_filter or sort %}
+        {% if filters_active %}
         <a href="/catalog/" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
         {% endif %}
     </div>
@@ -60,9 +60,19 @@
         </select>
     </div>
     <div class="col-sm-3">
-        <select name="sort" class="form-select">
+        <select name="sort" class="form-select" onchange="this.form.submit()">
             <option value="" {% if not sort %}selected{% endif %}>{% translate "Сортировка: по названию" %}</option>
+            <option value="author" {% if sort == 'author' %}selected{% endif %}>{% translate "Сортировка: по автору" %}</option>
+            <option value="year_new" {% if sort == 'year_new' %}selected{% endif %}>{% translate "Сортировка: сначала новые" %}</option>
+            <option value="year_old" {% if sort == 'year_old' %}selected{% endif %}>{% translate "Сортировка: сначала старые" %}</option>
             <option value="location" {% if sort == 'location' %}selected{% endif %}>{% translate "Сортировка: по библиопункту" %}</option>
+        </select>
+    </div>
+    <div class="col-sm-3">
+        <select name="per_page" class="form-select" onchange="this.form.submit()">
+            {% for n in per_page_choices %}
+            <option value="{{ n }}" {% if per_page == n %}selected{% endif %}>{% blocktranslate %}Показывать по {{ n }}{% endblocktranslate %}</option>
+            {% endfor %}
         </select>
     </div>
 </form>
@@ -70,7 +80,12 @@
     <i class="bi bi-lock"></i> — {% translate "закрытый библиопункт (школа/организация): книгу выдаёт работник библиопункта, не самообслуживание." %}
 </p>
 
-<p class="text-muted small mb-3">{% translate "Найдено:" %} <strong>{{ books|length }}</strong></p>
+<p class="text-muted small mb-3">
+    {% translate "Найдено:" %} <strong>{{ total_count }}</strong>
+    {% if page_obj.has_other_pages %}
+    · {% blocktranslate with first=page_obj.start_index last=page_obj.end_index %}показано {{ first }}–{{ last }}{% endblocktranslate %}
+    {% endif %}
+</p>
 
 {% if books %}
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
@@ -118,11 +133,37 @@
     </div>
     {% endfor %}
 </div>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-4" aria-label="{% translate 'Страницы' %}">
+    <ul class="pagination justify-content-center flex-wrap">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">← {% translate "Назад" %}</a>
+        </li>
+        {% endif %}
+        {% for num in page_range %}
+            {% if num == page_obj.number %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num == page_obj.paginator.ELLIPSIS %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+            {% else %}
+            <li class="page-item"><a class="page-link" href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ page_obj.next_page_number }}">{% translate "Вперёд" %} →</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
 {% else %}
 <div class="text-center py-5 text-muted">
     <i class="bi bi-book" style="font-size:3rem;opacity:.3;"></i>
     <p class="mt-3">
-        {% if q or genre_filter or lang_filter or status_filter or location_filter or sort %}
+        {% if filters_active %}
             {% translate "Ничего не найдено." %} <a href="/catalog/">{% translate "Сбросить фильтры" %}</a>
         {% else %}
             {% translate "Каталог пока пуст." %}

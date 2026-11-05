@@ -55,6 +55,10 @@
                     {% endif %}
                     <dt class="text-muted small">{% translate "Логин" %}</dt>
                     <dd>{{ reader.user.username }}</dd>
+                    {% if reader.gender %}
+                    <dt class="text-muted small">{% translate "Пол" %}</dt>
+                    <dd>{{ reader.get_gender_display }}</dd>
+                    {% endif %}
                     {% if reader.birth_year %}
                     <dt class="text-muted small">{% translate "Год рождения" %}</dt>
                     <dd>{{ reader.birth_year }}</dd>

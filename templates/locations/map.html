@@ -4,6 +4,13 @@
 {% block title %}{% translate "Карта библиопунктов" %}{% endblock %}
 
 {% block content %}
+<style>
+.map-pin { display:flex; align-items:center; justify-content:center; width:30px; height:30px;
+           border-radius:50%; border:2px solid #fff; box-shadow:0 1px 5px rgba(0,0,0,.45); color:#fff; font-size:15px; }
+.map-pin-open { background:#198754; }
+.map-pin-closed { background:#6c757d; }
+.legend-dot { display:inline-block; width:14px; height:14px; border-radius:50%; vertical-align:-2px; margin-right:4px; }
+</style>
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h4 mb-0"><i class="bi bi-geo-alt"></i> {% translate "Библиопункты на карте" %}</h1>
     <div class="text-muted small">
@@ -11,11 +18,11 @@
     </div>
 </div>
 
-{% if mapped == 0 %}
+{% if mapped == 0 and not closed_points %}
 <div class="alert alert-info">
     {% translate "Координаты библиопунктов ещё не указаны. Откройте библиопункт в панели администратора и кликните по карте." %}
 </div>
-{% else %}
+{% elif mapped > 0 %}
 
 <div class="card shadow-sm mb-3">
     <div class="card-body p-0 position-relative">
@@ -26,6 +33,19 @@
         </button>
     </div>
 </div>
+
+{% if mode == 'MARK' and has_closed %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div class="small">
+        <span class="legend-dot" style="background:#198754"></span> {% translate "Открытый: книгу можно взять самому" %}
+        <span class="legend-dot ms-3" style="background:#6c757d"></span> <i class="bi bi-lock-fill"></i> {% translate "Закрытый: книгу выдаёт работник пункта" %}
+    </div>
+    <div class="form-check form-switch mb-0">
+        <input class="form-check-input" type="checkbox" id="only-open">
+        <label class="form-check-label" for="only-open">{% translate "Только открытые" %}</label>
+    </div>
+</div>
+{% endif %}
 
 <div id="nearest-result" class="alert alert-success d-none">
     <strong><i class="bi bi-check-circle"></i> {% translate "Ближайший библиопункт:" %}</strong>
@@ -53,6 +73,27 @@
 
 {% endif %}
 
+{% if closed_points %}
+<h2 class="h5 mt-4 mb-1"><i class="bi bi-lock-fill"></i> {% translate "Закрытые библиопункты" %}</h2>
+<p class="text-muted small">{% translate "Школы и организации: книгу выдаёт работник пункта, самообслуживания нет." %}</p>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
+    {% for p in closed_points %}
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title mb-1">{{ p.name }}</h6>
+                <p class="text-muted small mb-1"><i class="bi bi-geo-alt"></i> {{ p.address }}</p>
+                <p class="text-muted small mb-0"><i class="bi bi-tag"></i> {% translate p.type %}</p>
+            </div>
+            <div class="card-footer bg-transparent text-end">
+                <a href="/p/{{ p.slug }}/" class="btn btn-sm btn-outline-primary">{% translate "Открыть" %}</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 {% load l10n %}
@@ -66,12 +107,15 @@ var POINTS = [
         lat: {{ p.lat|unlocalize }},
         lng: {{ p.lng|unlocalize }},
         books: {{ p.books }},
+        closed: {% if p.closed %}true{% else %}false{% endif %},
         type: "{% translate p.type|escapejs %}"
     }{% if not forloop.last %},{% endif %}
     {% endfor %}
 ];
 var I18N = {
     booksLabel: "{% translate 'книг' %}",
+    closed: "{% translate 'Закрытый' %}",
+    closedHint: "{% translate 'Книгу выдаёт работник пункта' %}",
     open: "{% translate 'Открыть' %}",
     geoNotSupported: "{% translate 'Геолокация не поддерживается вашим браузером.' %}",
     locating: "{% translate 'Определяем...' %}",
@@ -100,7 +144,17 @@ var I18N = {
             + '<small class="text-muted">' + p.address + '</small><br>'
             + (p.books ? '<span class="badge bg-primary mt-1">' + p.books + ' ' + I18N.booksLabel + '</span>' : '')
             + '<br><a href="/p/' + p.slug + '/" class="btn btn-sm btn-outline-primary mt-2">' + I18N.open + '</a>';
-        var m = L.marker([p.lat, p.lng]).addTo(map).bindPopup(popup);
+        if (p.closed) {
+            popup += '<br><span class="badge bg-secondary mt-2"><i class="bi bi-lock-fill"></i> ' + I18N.closed + '</span>'
+                  + ' <small class="text-muted">' + I18N.closedHint + '</small>';
+        }
+        var icon = L.divIcon({
+            className: '',
+            html: '<div class="map-pin ' + (p.closed ? 'map-pin-closed' : 'map-pin-open') + '">'
+                + '<i class="bi ' + (p.closed ? 'bi-lock-fill' : 'bi-book-fill') + '"></i></div>',
+            iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -16]
+        });
+        var m = L.marker([p.lat, p.lng], {icon: icon}).addTo(map).bindPopup(popup);
         markers[p.slug] = m;
     });
 
@@ -115,7 +169,8 @@ var I18N = {
             + '<div class="card-body">'
             + '<h6 class="card-title mb-1">' + p.name + '</h6>'
             + '<p class="text-muted small mb-1"><i class="bi bi-geo-alt"></i> ' + p.address + '</p>'
-            + '<p class="text-muted small mb-0"><i class="bi bi-tag"></i> ' + p.type + '</p>'
+            + '<p class="text-muted small mb-0"><i class="bi bi-tag"></i> ' + p.type
+            + (p.closed ? ' <span class="badge bg-secondary"><i class="bi bi-lock-fill"></i> ' + I18N.closed + '</span>' : '') + '</p>'
             + '</div>'
             + '<div class="card-footer bg-transparent d-flex justify-content-between align-items-center">'
             + '<small class="text-muted" id="dist-' + p.slug + '"></small>'
@@ -134,23 +189,34 @@ var I18N = {
     var searchInput = document.getElementById('points-search');
     var emptyMsg = document.getElementById('points-empty');
 
+    var onlyOpen = document.getElementById('only-open');
+
     function applySearch() {
         var q = searchInput.value.trim().toLowerCase();
+        var hideClosed = onlyOpen && onlyOpen.checked;
         var visible = 0;
+        POINTS.forEach(function (p) {
+            var marker = markers[p.slug];
+            if (p.closed && hideClosed) { map.removeLayer(marker); }
+            else if (!map.hasLayer(marker)) { marker.addTo(map); }
+        });
         cards.forEach(function (c) {
-            var show = !q || c.col.getAttribute('data-search').indexOf(q) !== -1;
+            var show = (!q || c.col.getAttribute('data-search').indexOf(q) !== -1)
+                       && !(c.p.closed && hideClosed);
             c.col.classList.toggle('d-none', !show);
             if (show) visible++;
         });
         emptyMsg.classList.toggle('d-none', visible > 0);
     }
     searchInput.addEventListener('input', applySearch);
+    if (onlyOpen) { onlyOpen.addEventListener('change', applySearch); }
 
     function showAll() {
         searchInput.value = '';
         applySearch();
         map.closePopup();
-        var bounds = L.latLngBounds(POINTS.map(function (p) { return [p.lat, p.lng]; }));
+        var shown = POINTS.filter(function (p) { return !(onlyOpen && onlyOpen.checked && p.closed); });
+        var bounds = L.latLngBounds((shown.length ? shown : POINTS).map(function (p) { return [p.lat, p.lng]; }));
         map.fitBounds(bounds, {padding: [30, 30], maxZoom: 15});
     }
     document.getElementById('btn-showall').addEventListener('click', showAll);
@@ -189,9 +255,11 @@ var I18N = {
 
             var nearest = null;
             var minDist = Infinity;
+            var hasOpen = POINTS.some(function (p) { return !p.closed; });
             var sorted = POINTS.map(function (p) {
                 var d = haversine(uLat, uLng, p.lat, p.lng);
-                if (d < minDist) { minDist = d; nearest = p; }
+                // Ближайшим предлагаем открытый пункт: в закрытый посетитель не попадёт
+                if (d < minDist && (!p.closed || !hasOpen)) { minDist = d; nearest = p; }
                 return {p: p, d: d};
             }).sort(function (a, b) { return a.d - b.d; });
 

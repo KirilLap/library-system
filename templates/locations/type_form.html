@@ -9,7 +9,7 @@
     <div class="col-md-6">
         <div class="d-flex align-items-center gap-2 mb-3">
             <a href="{% url 'locations_admin:type_list' %}" class="btn btn-sm btn-outline-secondary">← {% translate "Типы" %}</a>
-            <h4 class="mb-0">{% translate "Редактировать:" %} {% translate location_type.name %}</h4>
+            <h4 class="mb-0">{% translate "Редактировать:" %} {{ location_type.name }}</h4>
         </div>
 
         <div class="card">
@@ -25,6 +25,12 @@
                         <label class="form-label fw-semibold">{% translate "Название" %}</label>
                         {{ form.name }}
                         {% for e in form.name.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{% translate "Название на узбекском" %}</label>
+                        {{ form.name_uz }}
+                        <div class="form-text">{% translate "Необязательно. Если не заполнено, в узбекской версии останется название по умолчанию." %}</div>
+                        {% for e in form.name_uz.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
                     </div>
                     <div class="form-check mb-3">
                         {{ form.is_open }}

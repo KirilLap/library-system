@@ -59,8 +59,8 @@ def book_list(request):
         'genre_filter': genre,
         'language_filter': language,
         'status_choices': Book.STATUS_CHOICES,
-        'genre_choices': Genre.objects.values_list('code', 'name'),
-        'language_choices': Language.objects.values_list('code', 'name'),
+        'genre_choices': [(g.code, g.localized_name()) for g in Genre.objects.all()],
+        'language_choices': [(l.code, l.localized_name()) for l in Language.objects.all()],
         'total': BookTitle.objects.count(),
         'total_copies': Book.objects.count(),
     })

@@ -1957,3 +1957,343 @@ msgstr ""
 
 msgid "Поиск по имени, логину и ID…"
 msgstr "Ism, login va ID bo'yicha qidirish…"
+
+msgid "Название на узбекском"
+msgstr "O'zbekcha nomi"
+
+msgid "На узбекском"
+msgstr "O'zbekcha"
+
+msgid ""
+"Необязательно. Если не заполнено, в узбекской версии останется название по "
+"умолчанию."
+msgstr ""
+"Majburiy emas. To'ldirilmasa, o'zbekcha versiyada standart nom qoladi."
+
+msgid "Настройки карты"
+msgstr "Xarita sozlamalari"
+
+msgid "Закрытые библиопункты"
+msgstr "Yopiq kutubxona nuqtalari"
+
+msgid "Закрытый: книгу выдаёт работник пункта"
+msgstr "Yopiq: kitobni nuqta xodimi beradi"
+
+msgid "Книгу выдаёт работник пункта"
+msgstr "Kitobni nuqta xodimi beradi"
+
+msgid "Открытый: книгу можно взять самому"
+msgstr "Ochiq: kitobni o'zingiz olishingiz mumkin"
+
+msgid "Только открытые"
+msgstr "Faqat ochiqlar"
+
+msgid ""
+"Школы и организации: книгу выдаёт работник пункта, самообслуживания нет."
+msgstr ""
+"Maktablar va tashkilotlar: kitobni nuqta xodimi beradi, o'z-o'ziga xizmat "
+"yo'q."
+
+msgid ""
+"Закрытый библиопункт (школа, организация): книгу выдаёт работник, а не "
+"самообслуживание. Выберите, как показывать такие пункты на публичной карте. "
+"Настройка действует сразу для всех библиопунктов."
+msgstr ""
+"Yopiq kutubxona nuqtasi (maktab, tashkilot): kitobni xodim beradi, "
+"o'z-o'ziga xizmat yo'q. Bunday nuqtalar ochiq xaritada qanday "
+"ko'rsatilishini tanlang. Sozlama barcha nuqtalarga birdan amal qiladi."
+
+msgid "Показывать все, закрытые помечены"
+msgstr "Barchasini ko'rsatish, yopiqlari belgilanadi"
+
+msgid "На карте только открытые, закрытые отдельным списком"
+msgstr "Xaritada faqat ochiqlar, yopiqlari alohida ro'yxatda"
+
+msgid "Закрытые на публичной карте не показывать"
+msgstr "Yopiqlarni ochiq xaritada ko'rsatmaslik"
+
+msgid ""
+"«Показывать все»: закрытые на карте с замком другого цвета, есть легенда и "
+"переключатель «Только открытые»."
+msgstr ""
+"«Barchasini ko'rsatish»: yopiqlari xaritada boshqa rangdagi qulf bilan, izoh"
+" va «Faqat ochiqlar» tugmasi bor."
+
+msgid "«Только открытые»: закрытые не на карте, а в отдельном списке под ней."
+msgstr ""
+"«Faqat ochiqlar»: yopiqlari xaritada emas, uning ostidagi alohida ro'yxatda."
+
+msgid ""
+"«Не показывать»: закрытые видны только в каталоге книг и в кабинетах. "
+"Страница пункта по прямой ссылке или QR-коду открывается."
+msgstr ""
+"«Ko'rsatmaslik»: yopiqlari faqat kitoblar katalogida va kabinetlarda "
+"ko'rinadi. Nuqta sahifasi to'g'ridan-to'g'ri havola yoki QR-kod orqali "
+"ochiladi."
+
+msgid "Сортировка: по автору"
+msgstr "Saralash: muallif bo'yicha"
+
+msgid "Сортировка: сначала новые"
+msgstr "Saralash: avval yangilari"
+
+msgid "Сортировка: сначала старые"
+msgstr "Saralash: avval eskilari"
+
+msgid "Показывать по %(n)s"
+msgstr "%(n)s tadan ko'rsatish"
+
+msgid "показано %(first)s–%(last)s"
+msgstr "ko'rsatilgan %(first)s–%(last)s"
+
+msgid "Пол"
+msgstr "Jins"
+
+msgid "Мужской"
+msgstr "Erkak"
+
+msgid "Женский"
+msgstr "Ayol"
+
+msgid "— выберите —"
+msgstr "— tanlang —"
+
+msgid "— не указан —"
+msgstr "— ko'rsatilmagan —"
+
+msgid "до %(n)s"
+msgstr "%(n)s gacha"
+
+msgid "%(a)s–%(b)s"
+msgstr "%(a)s–%(b)s"
+
+msgid "%(n)s+"
+msgstr "%(n)s+"
+
+msgid "Возраст не указан"
+msgstr "Yosh ko'rsatilmagan"
+
+msgid "Не указан"
+msgstr "Ko'rsatilmagan"
+
+msgid "Статистика читателей"
+msgstr "O'quvchilar statistikasi"
+
+msgid "Всего читателей"
+msgstr "Jami o'quvchilar"
+
+msgid "По полу"
+msgstr "Jins bo'yicha"
+
+msgid "По возрасту и полу"
+msgstr "Yosh va jins bo'yicha"
+
+msgid "Возраст"
+msgstr "Yosh"
+
+msgid "Всего"
+msgstr "Jami"
+
+msgid "Возраст считается как текущий год минус год рождения."
+msgstr "Yosh joriy yil minus tug'ilgan yil sifatida hisoblanadi."
+
+msgid "Возрастные группы"
+msgstr "Yosh guruhlari"
+
+msgid "Начало каждой группы (возраст), через запятую"
+msgstr "Har bir guruhning boshlanishi (yosh), vergul bilan"
+
+msgid ""
+"Например, 14, 18, 31, 61 даёт группы: до 14, 14–17, 18–30, 31–60 и 61+. "
+"Изменение сразу пересчитывает статистику."
+msgstr ""
+"Masalan, 14, 18, 31, 61 guruhlarni beradi: 14 gacha, 14–17, 18–30, 31–60 va "
+"61+. O'zgartirish statistikani darhol qayta hisoblaydi."
+
+msgid "Границы возрастных групп меняет администратор."
+msgstr "Yosh guruhlari chegaralarini administrator o'zgartiradi."
+
+msgid "Взятые книги за период"
+msgstr "Davr bo'yicha olingan kitoblar"
+
+msgid "%(n)s дн."
+msgstr "%(n)s kun"
+
+msgid "Всё время"
+msgstr "Butun davr"
+
+msgid "С"
+msgstr "Dan"
+
+msgid "По"
+msgstr "Gacha"
+
+msgid "Показать"
+msgstr "Ko'rsatish"
+
+msgid "Взято книг"
+msgstr "Olingan kitoblar"
+
+msgid "из них без читателя: %(n)s"
+msgstr "shundan o'quvchisiz: %(n)s"
+
+msgid "Читателей брали книги"
+msgstr "Kitob olgan o'quvchilar"
+
+msgid "В среднем на читателя"
+msgstr "O'rtacha bitta o'quvchiga"
+
+msgid "Читатели и взятые книги"
+msgstr "O'quvchilar va olingan kitoblar"
+
+msgid "Взято"
+msgstr "Olingan"
+
+msgid "Не возвращено"
+msgstr "Qaytarilmagan"
+
+msgid ""
+"Показаны первые %(limit)s читателей, ещё %(n)s с меньшим числом книг не "
+"показаны."
+msgstr ""
+"Dastlabki %(limit)s o'quvchi ko'rsatilgan, kitoblari kamroq yana %(n)s ta "
+"o'quvchi ko'rsatilmagan."
+
+msgid "За выбранный период книги не выдавались."
+msgstr "Tanlangan davrda kitoblar berilmagan."
+
+msgid "Взято книг по возрасту и полу"
+msgstr "Yosh va jins bo'yicha olingan kitoblar"
+
+msgid "Скачать в Excel"
+msgstr "Excel'da yuklab olish"
+
+msgid "Не возвращено сейчас"
+msgstr "Hozir qaytarilmagan"
+
+msgid "Показать список"
+msgstr "Ro'yxatni ko'rsatish"
+
+msgid "Просрочено (больше %(days)s дн.)"
+msgstr "Muddati o'tgan (%(days)s kundan ortiq)"
+
+msgid "Читатели и взятые книги (первые %(n)s)"
+msgstr "O'quvchilar va olingan kitoblar (dastlabki %(n)s)"
+
+msgid "Весь список"
+msgstr "To'liq ro'yxat"
+
+msgid "Ещё %(n)s читателей с меньшим числом книг: смотрите «Весь список»."
+msgstr "Kitoblari kamroq yana %(n)s o'quvchi: «To'liq ro'yxat»ga qarang."
+
+msgid "Имя или ID"
+msgstr "Ism yoki ID"
+
+msgid "Читателей:"
+msgstr "O'quvchilar:"
+
+msgid "Никого не найдено за выбранный период."
+msgstr "Tanlangan davrda hech kim topilmadi."
+
+msgid "Не возвращённые книги"
+msgstr "Qaytarilmagan kitoblar"
+
+msgid "Все не возвращённые"
+msgstr "Barcha qaytarilmaganlar"
+
+msgid "Только просрочки"
+msgstr "Faqat muddati o'tganlar"
+
+msgid "Книга считается просроченной, если она на руках дольше %(days)s дн."
+msgstr ""
+"Kitob %(days)s kundan ortiq qo'lda bo'lsa, muddati o'tgan hisoblanadi."
+
+msgid "Дней на руках"
+msgstr "Qo'lda necha kun"
+
+msgid "Без читателя"
+msgstr "O'quvchisiz"
+
+msgid "просрочка"
+msgstr "muddati o'tgan"
+
+msgid "Просроченных книг нет."
+msgstr "Muddati o'tgan kitoblar yo'q."
+
+msgid "Сводка"
+msgstr "Xulosa"
+
+msgid "Дата выгрузки"
+msgstr "Yuklangan sana"
+
+msgid "Период для книг"
+msgstr "Kitoblar uchun davr"
+
+msgid "Взято книг за период"
+msgstr "Davr davomida olingan kitoblar"
+
+msgid "Из них просрочено"
+msgstr "Shundan muddati o'tgan"
+
+msgid "Срок возврата, дней"
+msgstr "Qaytarish muddati, kun"
+
+msgid "Списки читателей в файл не включены (доступны администратору)."
+msgstr "O'quvchilar ro'yxati faylga kiritilmagan (administratorga ochiq)."
+
+msgid "Читатели по возрасту"
+msgstr "Yosh bo'yicha o'quvchilar"
+
+msgid "Книги по возрасту"
+msgstr "Yosh bo'yicha kitoblar"
+
+msgid "Читатели и книги"
+msgstr "O'quvchilar va kitoblar"
+
+msgid "Не возвращены"
+msgstr "Qaytarilmaganlar"
+
+msgid "Да"
+msgstr "Ha"
+
+msgid "Нет"
+msgstr "Yo'q"
+
+msgid "Книги"
+msgstr "Kitoblar"
+
+msgid "Статистика по книгам"
+msgstr "Kitoblar statistikasi"
+
+msgid "последние %(n)s дн."
+msgstr "oxirgi %(n)s kun"
+
+msgid "Период"
+msgstr "Davr"
+
+msgid "Всего книг"
+msgstr "Jami kitoblar"
+
+msgid "В библиопунктах"
+msgstr "Kutubxona nuqtalarida"
+
+msgid "Потеряно"
+msgstr "Yo'qolgan"
+
+msgid "На руках сейчас"
+msgstr "Hozir qo'lda"
+
+msgid "Выдачи по неделям"
+msgstr "Haftalar bo'yicha berilgan"
+
+msgid "Неделя (с понедельника)"
+msgstr "Hafta (dushanbadan)"
+
+msgid "Выдано раз"
+msgstr "Necha marta berilgan"
+
+msgid "Выдано за период"
+msgstr "Davr davomida berilgan"
+
+msgid "Книг сейчас в пункте"
+msgstr "Hozir nuqtadagi kitoblar"

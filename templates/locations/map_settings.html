@@ -1,0 +1,42 @@
+{% extends "admin_base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Настройки карты" %}{% endblock %}
+{% block nav_locations %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-3">
+    <a href="{% url 'locations_admin:index' %}" class="btn btn-sm btn-outline-secondary">← {% translate "Библиопункты" %}</a>
+    <h2 class="mb-0"><i class="bi bi-map"></i> {% translate "Настройки карты" %}</h2>
+</div>
+
+<div class="row">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="text-muted">
+                    {% translate "Закрытый библиопункт (школа, организация): книгу выдаёт работник, а не самообслуживание. Выберите, как показывать такие пункты на публичной карте. Настройка действует сразу для всех библиопунктов." %}
+                </p>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% for radio in form.closed_points_mode %}
+                    <div class="form-check mb-3">
+                        {{ radio.tag }}
+                        <label class="form-check-label fw-semibold" for="{{ radio.id_for_label }}">{% translate radio.choice_label %}</label>
+                    </div>
+                    {% endfor %}
+                    {% for e in form.closed_points_mode.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                    <ul class="small text-muted ps-3">
+                        <li>{% translate "«Показывать все»: закрытые на карте с замком другого цвета, есть легенда и переключатель «Только открытые»." %}</li>
+                        <li>{% translate "«Только открытые»: закрытые не на карте, а в отдельном списке под ней." %}</li>
+                        <li>{% translate "«Не показывать»: закрытые видны только в каталоге книг и в кабинетах. Страница пункта по прямой ссылке или QR-коду открывается." %}</li>
+                    </ul>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> {% translate "Сохранить" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

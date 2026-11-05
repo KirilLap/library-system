@@ -1,0 +1,9 @@
+{% load i18n %}
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'books' %}active{% endif %}" href="{% url 'staff:stats' %}"><i class="bi bi-book"></i> {% translate "Книги" %}</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'readers' %}active{% endif %}" href="{% url 'readers_admin:stats' %}"><i class="bi bi-people"></i> {% translate "Читатели" %}</a>
+    </li>
+</ul>

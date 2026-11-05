@@ -1,8 +1,23 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
+from django.utils.translation import gettext_lazy as _
 
 from .models import Reader, BookRequest
+
+
+def _configure_nearest_field(field, current=None):
+    """Какие библиопункты можно выбрать как «ближайший»: учитывает настройку карты.
+    Закрытые помечаются замком; если закрытые скрыты, их в списке нет."""
+    from apps.locations.models import Location, MapSettings, open_type_codes
+    open_codes = open_type_codes()
+    queryset = Location.objects.filter(is_active=True, is_public=True)
+    if MapSettings.get_solo().closed_points_mode == MapSettings.MODE_HIDE:
+        queryset = queryset.filter(type__in=open_codes)
+    if current is not None:
+        queryset = queryset | Location.objects.filter(pk=current.pk)
+    field.queryset = queryset.distinct().order_by('name')
+    field.label_from_instance = lambda loc: ('🔒 ' if loc.type not in open_codes else '') + loc.name
 
 
 def _nearest_location_field():
@@ -26,15 +41,16 @@ class _ReaderFormBase(forms.Form):
 
     last_name = forms.CharField(max_length=150, label='Фамилия')
     first_name = forms.CharField(max_length=150, label='Имя')
+    gender = forms.ChoiceField(
+        label='Пол', choices=[('', _('— выберите —'))] + list(Reader.GENDER_CHOICES),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+    )
     birth_year = _birth_year_field()
     nearest_location = _nearest_location_field()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        from apps.locations.models import Location
-        self.fields['nearest_location'].queryset = Location.objects.filter(
-            is_active=True, is_public=True,
-        ).order_by('name')
+        _configure_nearest_field(self.fields['nearest_location'])
         for field in self.fields.values():
             if not isinstance(field.widget, forms.Select):
                 field.widget.attrs['class'] = 'form-control'
@@ -64,6 +80,7 @@ class _ReaderFormBase(forms.Form):
         Reader.objects.create(
             user=user,
             card_id=card_id or generate_card_id(),
+            gender=data['gender'],
             birth_year=data['birth_year'],
             nearest_location=data.get('nearest_location'),
             must_change_password=must_change_password,
@@ -78,7 +95,7 @@ class ReaderRegistrationForm(_ReaderFormBase):
     password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
 
-    field_order = ['last_name', 'first_name', 'birth_year', 'nearest_location',
+    field_order = ['last_name', 'first_name', 'gender', 'birth_year', 'nearest_location',
                    'username', 'password1', 'password2']
 
     def clean(self):
@@ -97,7 +114,7 @@ class ReaderCreateForm(_ReaderFormBase):
     """Читателя вносит сотрудник библиотеки. Логин и временный пароль создаются
     автоматически (это ID читателя), при первом входе читатель задаёт свой пароль."""
 
-    field_order = ['last_name', 'first_name', 'birth_year', 'nearest_location']
+    field_order = ['last_name', 'first_name', 'gender', 'birth_year', 'nearest_location']
 
     def save(self):
         from .models import generate_card_id
@@ -120,12 +137,14 @@ class ReaderProfileForm(forms.ModelForm):
 
     class Meta:
         model = Reader
-        fields = ['birth_year', 'nearest_location']
+        fields = ['gender', 'birth_year', 'nearest_location']
         widgets = {
+            'gender': forms.Select(attrs={'class': 'form-select'}),
             'birth_year': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '2005'}),
             'nearest_location': forms.Select(attrs={'class': 'form-select'}),
         }
         labels = {
+            'gender': 'Пол',
             'birth_year': 'Год рождения',
             'nearest_location': 'Ближайший библиопункт',
         }
@@ -133,14 +152,15 @@ class ReaderProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        from apps.locations.models import Location
-        self.fields['nearest_location'].queryset = Location.objects.filter(
-            is_active=True, is_public=True,
-        ).order_by('name')
+        _configure_nearest_field(
+            self.fields['nearest_location'], current=getattr(self.instance, 'nearest_location', None),
+        )
         self.fields['nearest_location'].empty_label = '— не выбран —'
         self.fields['nearest_location'].required = False
         self.fields['birth_year'].required = False
-        self.order_fields(['last_name', 'first_name', 'birth_year', 'nearest_location'])
+        self.fields['gender'].required = False
+        self.fields['gender'].choices = [('', _('— не указан —'))] + list(Reader.GENDER_CHOICES)
+        self.order_fields(['last_name', 'first_name', 'gender', 'birth_year', 'nearest_location'])
         if self.user:
             self.fields['first_name'].initial = self.user.first_name
             self.fields['last_name'].initial = self.user.last_name
@@ -242,3 +262,18 @@ class RequestStatusForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['status'].widget.attrs['class'] = 'form-select'
+
+
+class AgeGroupForm(forms.Form):
+    boundaries = forms.CharField(
+        label='Границы возрастных групп', max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '14, 18, 31, 61'}),
+    )
+
+    def clean_boundaries(self):
+        from .stats import parse_boundaries
+        try:
+            values = parse_boundaries(self.cleaned_data['boundaries'])
+        except ValueError as exc:
+            raise forms.ValidationError(str(exc))
+        return ','.join(str(v) for v in values)

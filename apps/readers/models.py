@@ -4,6 +4,28 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
+class AgeGroupSettings(models.Model):
+    """Границы возрастных групп для статистики (одна запись на весь сайт).
+    Хранятся как начало каждой группы: «14,18,31,61» — до 14, 14–17, 18–30, 31–60, 61+."""
+
+    boundaries = models.CharField(
+        max_length=100, default='14,18,31,61', verbose_name='Границы возрастных групп',
+    )
+
+    class Meta:
+        verbose_name = 'Настройки возрастных групп'
+        verbose_name_plural = 'Настройки возрастных групп'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_solo(cls):
+        obj, _created = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 def generate_card_id():
     """Случайный 10-значный ID читателя (не подбирается по порядку)."""
     import secrets
@@ -26,6 +48,17 @@ class Reader(models.Model):
         max_length=10, unique=True, null=True, blank=True, editable=False,
         verbose_name='ID читателя',
         help_text='Случайный 10-значный номер, создаётся автоматически.',
+    )
+    GENDER_MALE = 'M'
+    GENDER_FEMALE = 'F'
+    GENDER_CHOICES = [
+        (GENDER_MALE, _('Мужской')),
+        (GENDER_FEMALE, _('Женский')),
+    ]
+
+    gender = models.CharField(
+        max_length=1, choices=GENDER_CHOICES, blank=True, default='', verbose_name='Пол',
+        help_text='Нужен для статистики.',
     )
     birth_year = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='Год рождения')
     nearest_location = models.ForeignKey(

@@ -1,0 +1,247 @@
+{% extends "admin_base.html" %}
+{% load i18n l10n %}
+
+{% block title %}{% translate "Статистика читателей" %}{% endblock %}
+{% block nav_stats %}active{% endblock %}
+
+{% block content %}
+{% include "staff/_stats_tabs.html" with tab="readers" %}
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+    <a href="{% url 'readers_admin:index' %}" class="btn btn-sm btn-outline-secondary">← {% translate "Читатели" %}</a>
+    <h2 class="mb-0"><i class="bi bi-bar-chart"></i> {% translate "Статистика читателей" %}</h2>
+    <a href="{% url 'readers_admin:stats_export' %}?{{ period_qs }}" class="btn btn-success ms-md-auto">
+        <i class="bi bi-file-earmark-excel"></i> {% translate "Скачать в Excel" %}
+    </a>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">{% translate "Всего читателей" %}</div>
+                <div class="display-6 fw-bold">{{ stats.total }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">{% translate "По полу" %}</div>
+            <div class="card-body">
+                {% for g in stats.gender %}
+                <div class="d-flex justify-content-between small">
+                    <span>{{ g.label }}</span>
+                    <span><strong>{{ g.count }}</strong> · {{ g.percent|unlocalize }}%</span>
+                </div>
+                <div class="progress mb-2" style="height:8px;">
+                    <div class="progress-bar" role="progressbar" style="width:{{ g.percent|unlocalize }}%"></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-header">{% translate "По возрасту и полу" %}</div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>{% translate "Возраст" %}</th>
+                    <th class="text-end">{% translate "Мужской" %}</th>
+                    <th class="text-end">{% translate "Женский" %}</th>
+                    <th class="text-end">{% translate "Не указан" %}</th>
+                    <th class="text-end">{% translate "Всего" %}</th>
+                    <th style="min-width:140px;">%</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in stats.age_rows %}
+                <tr {% if r.muted %}class="text-muted"{% endif %}>
+                    <td class="fw-semibold">{{ r.label }}</td>
+                    <td class="text-end">{{ r.male }}</td>
+                    <td class="text-end">{{ r.female }}</td>
+                    <td class="text-end">{{ r.unknown_gender }}</td>
+                    <td class="text-end fw-semibold">{{ r.total }}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="progress flex-grow-1" style="height:8px;">
+                                <div class="progress-bar" role="progressbar" style="width:{{ r.percent|unlocalize }}%"></div>
+                            </div>
+                            <span class="small text-muted">{{ r.percent|unlocalize }}%</span>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer small text-muted">
+        {% translate "Возраст считается как текущий год минус год рождения." %}
+    </div>
+</div>
+
+<h3 class="h5 mt-4 mb-3"><i class="bi bi-book"></i> {% translate "Взятые книги за период" %}</h3>
+
+<form method="get" class="card shadow-sm mb-3">
+    <div class="card-body d-flex flex-wrap align-items-end gap-2">
+        <div class="btn-group" role="group">
+            {% for key, n in period_choices %}
+            <a href="?days={{ key }}" class="btn btn-sm {% if period == key %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                {% blocktranslate %}{{ n }} дн.{% endblocktranslate %}
+            </a>
+            {% endfor %}
+            <a href="?days=all" class="btn btn-sm {% if period == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %}">{% translate "Всё время" %}</a>
+        </div>
+        <div class="ms-md-3">
+            <label class="form-label small mb-0" for="d-from">{% translate "С" %}</label>
+            <input type="date" id="d-from" name="from" value="{{ date_from }}" class="form-control form-control-sm">
+        </div>
+        <div>
+            <label class="form-label small mb-0" for="d-to">{% translate "По" %}</label>
+            <input type="date" id="d-to" name="to" value="{{ date_to }}" class="form-control form-control-sm">
+        </div>
+        <button type="submit" class="btn btn-sm btn-outline-primary {% if period == 'custom' %}active{% endif %}">
+            <i class="bi bi-funnel"></i> {% translate "Показать" %}
+        </button>
+    </div>
+</form>
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">{% translate "Взято книг" %}</div>
+            <div class="fs-2 fw-bold">{{ loan_stats.total }}</div>
+            {% if loan_stats.anonymous %}<div class="small text-muted">{% blocktranslate with n=loan_stats.anonymous %}из них без читателя: {{ n }}{% endblocktranslate %}</div>{% endif %}
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">{% translate "Читателей брали книги" %}</div>
+            <div class="fs-2 fw-bold">{{ loan_stats.readers_total }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">{% translate "В среднем на читателя" %}</div>
+            <div class="fs-2 fw-bold">{{ loan_stats.average|unlocalize }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{% url 'readers_admin:stats_unreturned' %}?{{ period_qs }}" class="text-decoration-none text-reset">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <div class="text-muted small">{% translate "Не возвращено сейчас" %}</div>
+                <div class="fs-2 fw-bold">{{ unreturned_count }}</div>
+                <div class="small text-primary">{% translate "Показать список" %} →</div>
+            </div></div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{% url 'readers_admin:stats_unreturned' %}?only=overdue&{{ period_qs }}" class="text-decoration-none text-reset">
+            <div class="card shadow-sm h-100 {% if overdue_count %}border-danger{% endif %}"><div class="card-body">
+                <div class="text-muted small">{% blocktranslate with days=loan_period_days %}Просрочено (больше {{ days }} дн.){% endblocktranslate %}</div>
+                <div class="fs-2 fw-bold {% if overdue_count %}text-danger{% endif %}">{{ overdue_count }}</div>
+                <div class="small text-primary">{% translate "Показать список" %} →</div>
+            </div></div>
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>{% blocktranslate with n=loan_stats.top_limit %}Читатели и взятые книги (первые {{ n }}){% endblocktranslate %}</span>
+                {% if loan_stats.readers_total %}
+                <a href="{% url 'readers_admin:stats_readers' %}?{{ period_qs }}" class="btn btn-sm btn-outline-primary">
+                    {% translate "Весь список" %} ({{ loan_stats.readers_total }})
+                </a>
+                {% endif %}
+            </div>
+            {% if loan_stats.top_readers %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>{% translate "Читатель" %}</th>
+                            <th>{% translate "ID читателя" %}</th>
+                            <th class="text-end">{% translate "Взято" %}</th>
+                            <th class="text-end">{% translate "Не возвращено" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in loan_stats.top_readers %}
+                        <tr>
+                            <td><a href="{% url 'readers_admin:detail' row.reader.pk %}" class="text-decoration-none">{{ row.reader.full_name }}</a></td>
+                            <td class="small text-muted">{{ row.reader.card_id|default:"—" }}</td>
+                            <td class="text-end fw-semibold">{{ row.taken }}</td>
+                            <td class="text-end">{{ row.not_returned }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if loan_stats.hidden_readers %}
+            <div class="card-footer small text-muted">
+                {% blocktranslate with n=loan_stats.hidden_readers %}Ещё {{ n }} читателей с меньшим числом книг: смотрите «Весь список».{% endblocktranslate %}
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="card-body text-muted">{% translate "За выбранный период книги не выдавались." %}</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">{% translate "Взято книг по возрасту и полу" %}</div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>{% translate "Возраст" %}</th>
+                            <th class="text-end">{% translate "Мужской" %}</th>
+                            <th class="text-end">{% translate "Женский" %}</th>
+                            <th class="text-end">{% translate "Не указан" %}</th>
+                            <th class="text-end">{% translate "Всего" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in loan_stats.age_rows %}
+                        <tr {% if r.muted %}class="text-muted"{% endif %}>
+                            <td class="fw-semibold">{{ r.label }}</td>
+                            <td class="text-end">{{ r.male }}</td>
+                            <td class="text-end">{{ r.female }}</td>
+                            <td class="text-end">{{ r.unknown_gender }}</td>
+                            <td class="text-end fw-semibold">{{ r.total }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header">{% translate "Возрастные группы" %}</div>
+    <div class="card-body">
+        {% if is_admin %}
+        <form method="post" action="{% url 'readers_admin:stats_settings' %}" class="row g-2 align-items-end">
+            {% csrf_token %}
+            <div class="col-md-6">
+                <label class="form-label fw-semibold" for="{{ form.boundaries.id_for_label }}">{% translate "Начало каждой группы (возраст), через запятую" %}</label>
+                {{ form.boundaries }}
+            </div>
+            <div class="col-md-auto">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> {% translate "Сохранить" %}</button>
+            </div>
+        </form>
+        <div class="form-text mt-2">
+            {% translate "Например, 14, 18, 31, 61 даёт группы: до 14, 14–17, 18–30, 31–60 и 61+. Изменение сразу пересчитывает статистику." %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">{% translate "Границы возрастных групп меняет администратор." %}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.text import slugify
 
+from config.localized import LocalizedNameMixin
+
 
 def _translit(text):
     """Transliterate Cyrillic to Latin for slug generation."""
@@ -18,11 +20,12 @@ def _translit(text):
     return slugify(result)
 
 
-class LocationType(models.Model):
+class LocationType(LocalizedNameMixin, models.Model):
     """Настраиваемый тип библиопункта (Махалля, Школа, Детский сад, ...)."""
 
     code = models.CharField(max_length=30, unique=True, verbose_name='Код')
     name = models.CharField(max_length=100, verbose_name='Название')
+    name_uz = models.CharField(max_length=100, blank=True, verbose_name='Название на узбекском')
     is_open = models.BooleanField(
         default=False,
         verbose_name='Открытый тип',
@@ -37,6 +40,42 @@ class LocationType(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class MapSettings(models.Model):
+    """Общая настройка публичной карты (одна запись на весь сайт)."""
+
+    MODE_MARK = 'MARK'
+    MODE_SEPARATE = 'SEPARATE'
+    MODE_HIDE = 'HIDE'
+    MODE_CHOICES = [
+        (MODE_MARK, 'Показывать все, закрытые помечены'),
+        (MODE_SEPARATE, 'На карте только открытые, закрытые отдельным списком'),
+        (MODE_HIDE, 'Закрытые на публичной карте не показывать'),
+    ]
+
+    closed_points_mode = models.CharField(
+        max_length=10, choices=MODE_CHOICES, default=MODE_MARK,
+        verbose_name='Закрытые библиопункты на публичной карте',
+    )
+
+    class Meta:
+        verbose_name = 'Настройки карты'
+        verbose_name_plural = 'Настройки карты'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_solo(cls):
+        obj, _created = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+def open_type_codes():
+    """Коды типов, у которых читатель берёт книгу сам (самообслуживание)."""
+    return set(LocationType.objects.filter(is_open=True).values_list('code', flat=True))
 
 
 class Location(models.Model):
@@ -70,7 +109,7 @@ class Location(models.Model):
 
     def get_type_display(self):
         try:
-            return LocationType.objects.get(code=self.type).name
+            return LocationType.objects.get(code=self.type).localized_name()
         except LocationType.DoesNotExist:
             return self.type
 
