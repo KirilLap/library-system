@@ -8,6 +8,11 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2><i class="bi bi-people"></i> {% translate "Читатели" %}</h2>
     <div class="d-flex flex-wrap gap-2">
+        {% if request.user.staff_profile.role == 'ADMIN' %}
+        <a href="{% url 'readers_admin:loan_settings' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-hourglass-split"></i> {% translate "Срок выдачи" %}
+        </a>
+        {% endif %}
         <a href="{% url 'readers_admin:stats' %}" class="btn btn-outline-secondary">
             <i class="bi bi-bar-chart"></i> {% translate "Статистика" %}
         </a>

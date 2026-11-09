@@ -1,4 +1,6 @@
 """Статистика по книгам за период (для страницы «Статистика» и выгрузки в Excel)."""
+import datetime
+
 from django.db.models import Count
 from django.db.models.functions import TruncWeek
 from django.utils import timezone
@@ -53,6 +55,17 @@ def collect_stats(date_from, date_to, genre_limit=8, book_limit=10, location_lim
     )
     weeks = [(w['week'], w['n']) for w in weekly]
 
+    # Простая таблица по неделям: от первой до последней недели с выдачами, пустые недели с нулём
+    week_rows = []
+    if weeks:
+        counts = {timezone.localtime(w).date(): n for w, n in weeks}
+        start, last = min(counts), max(counts)
+        while start <= last:
+            week_rows.append({'start': start, 'end': start + datetime.timedelta(days=6),
+                              'count': counts.get(start, 0)})
+            start += datetime.timedelta(days=7)
+        week_rows.reverse()                       # сначала свежие недели
+
     in_points = dict(
         DeliveryItem.objects.filter(is_returned=False)
         .values_list('batch__location__name').annotate(n=Count('id'))
@@ -74,6 +87,7 @@ def collect_stats(date_from, date_to, genre_limit=8, book_limit=10, location_lim
         'weekly_labels': [w.strftime('%d.%m') for w, _n in weeks],
         'weekly_counts': [n for _w, n in weeks],
         'weeks': weeks,
+        'week_rows': week_rows,
         'current': current,
         'books_in_points_by_location': in_points,
         'all_genres': [

@@ -6,6 +6,7 @@ app_name = 'readers_admin'
 urlpatterns = [
     path('', views.reader_list, name='index'),
     path('add/', views.reader_create, name='create'),
+    path('loan-settings/', views.loan_settings, name='loan_settings'),
     path('stats/', views.reader_stats, name='stats'),
     path('stats/settings/', views.reader_stats_settings, name='stats_settings'),
     path('stats/readers/', views.reader_stats_readers, name='stats_readers'),

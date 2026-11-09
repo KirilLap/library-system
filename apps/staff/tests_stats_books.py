@@ -142,3 +142,46 @@ class BooksFreePeriodTests(TestCase):
         values = {r[0]: r[1] for r in wb['Сводка'].iter_rows(min_row=3, values_only=True) if r[0]}
         self.assertEqual(values['Выдано книг'], 1)
         self.assertIn('–', values['Период'])
+
+
+class WeeklyTableTests(TestCase):
+    """Выдачи по неделям показываются простой таблицей, а не диаграммой."""
+
+    def setUp(self):
+        staff('adm', StaffProfile.ROLE_ADMIN)
+        self.client.force_login(staff('lib', StaffProfile.ROLE_LIBRARIAN))
+        reader = make_reader('r', 'F', 20)
+        make_loan(reader, days_ago=1)
+        make_loan(reader, days_ago=2)
+        make_loan(reader, days_ago=30)       # между ними недели без выдач
+
+    def test_rows_are_newest_first_with_empty_weeks_as_zero(self):
+        rows = collect_stats(None, None)['week_rows']
+        self.assertGreaterEqual(len(rows), 4)
+        self.assertGreater(rows[0]['start'], rows[-1]['start'])                 # свежие сверху
+        self.assertEqual(sum(r['count'] for r in rows), 3)
+        self.assertIn(0, [r['count'] for r in rows])                            # пропущенные недели с нулём
+        for r in rows:
+            self.assertEqual(r['start'].weekday(), 0)                           # неделя с понедельника
+            self.assertEqual((r['end'] - r['start']).days, 6)
+
+    def test_page_has_table_and_no_chart(self):
+        response = self.client.get(reverse('staff:stats'), {'days': 90})
+        self.assertContains(response, 'Выдачи книг по неделям')
+        self.assertNotContains(response, 'canvas')
+        self.assertNotContains(response, 'chart.js')
+        self.assertEqual(len(response.context['week_rows']), len(collect_stats(*[None, None])['week_rows']))
+
+    def test_no_loans_message(self):
+        Loan.objects.all().delete()
+        response = self.client.get(reverse('staff:stats'))
+        self.assertEqual(response.context['week_rows'], [])
+        self.assertContains(response, 'Нет данных о выдачах за этот период')
+
+    def test_excel_sheet_matches_table(self):
+        response = self.client.get(reverse('staff:stats_export'), {'days': 'all'})
+        sheet = load_workbook(BytesIO(response.content))['Выдачи по неделям']
+        rows = list(sheet.iter_rows(values_only=True))
+        self.assertEqual(rows[0], ('Неделя с', 'по', 'Выдано книг'))
+        self.assertEqual(sum(r[2] for r in rows[1:]), 3)
+        self.assertLess(rows[1][0], rows[-1][0])                                # в файле от старых к новым

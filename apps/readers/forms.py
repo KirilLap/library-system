@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import gettext_lazy as _
 
-from .models import Reader, BookRequest
+from .models import LoanSettings, Reader, BookRequest
 
 
 def _configure_nearest_field(field, current=None):
@@ -277,3 +277,19 @@ class AgeGroupForm(forms.Form):
         except ValueError as exc:
             raise forms.ValidationError(str(exc))
         return ','.join(str(v) for v in values)
+
+
+class LoanSettingsForm(forms.ModelForm):
+    class Meta:
+        model = LoanSettings
+        fields = ['limit_enabled', 'period_days']
+        widgets = {
+            'limit_enabled': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'period_days': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 365}),
+        }
+
+    def clean_period_days(self):
+        days = self.cleaned_data['period_days']
+        if days is None or not (1 <= days <= 365):
+            raise forms.ValidationError('Укажите срок от 1 до 365 дней. Для более долгих выдач отключите ограничение срока.')
+        return days

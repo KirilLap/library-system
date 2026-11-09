@@ -11,8 +11,8 @@ from django.utils.translation import gettext
 from django.views.decorators.http import require_POST
 
 from apps.staff.decorators import admin_required, librarian_required
-from .forms import AgeGroupForm, ReaderRegistrationForm, StyledAuthForm, BookRequestForm, RequestStatusForm, ReaderProfileForm, FreeBookRequestForm, ReaderCreateForm
-from .models import AgeGroupSettings, Reader, BookRequest, Loan
+from .forms import AgeGroupForm, LoanSettingsForm, ReaderRegistrationForm, StyledAuthForm, BookRequestForm, RequestStatusForm, ReaderProfileForm, FreeBookRequestForm, ReaderCreateForm
+from .models import AgeGroupSettings, LoanSettings, Reader, BookRequest, Loan, get_loan_period
 
 
 def _set_language_cookie(response, lang_code):
@@ -338,7 +338,7 @@ def _stats_context(request):
         'period_qs': period_query(period, date_from, date_to),
         'unreturned_count': open_loans().count(),
         'overdue_count': open_loans(only_overdue=True).count(),
-        'loan_period_days': settings.LOAN_PERIOD_DAYS,
+        'loan_period_days': get_loan_period(),
         'is_admin': request.user.staff_profile.role == 'ADMIN',
     }
 
@@ -437,6 +437,17 @@ def reader_stats_export(request):
         content, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename="readers-stats-{timezone.localdate().isoformat()}.xlsx"'
     return response
+
+
+@admin_required
+def loan_settings(request):
+    """Администратор задаёт срок, на который можно брать книги, или отключает ограничение."""
+    form = LoanSettingsForm(request.POST or None, instance=LoanSettings.get_solo())
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Срок выдачи сохранён.')
+        return redirect('readers_admin:loan_settings')
+    return render(request, 'readers/loan_settings.html', {'form': form})
 
 
 @admin_required

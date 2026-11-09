@@ -51,16 +51,31 @@
     </div>
 </div>
 
-<!-- График по неделям -->
+<!-- Выдачи по неделям: простая таблица -->
 <div class="card shadow-sm mb-4">
-    <div class="card-header"><i class="bi bi-graph-up"></i> {% translate "Выдачи книг по неделям" %}</div>
-    <div class="card-body">
-        {% if weekly_labels %}
-        <canvas id="loansChart" height="80"></canvas>
-        {% else %}
-        <div class="text-center text-muted py-4">{% translate "Нет данных о выдачах за этот период" %}</div>
-        {% endif %}
+    <div class="card-header"><i class="bi bi-calendar-week"></i> {% translate "Выдачи книг по неделям" %}</div>
+    {% if week_rows %}
+    <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+        <table class="table table-sm table-hover align-middle mb-0">
+            <thead class="table-light" style="position: sticky; top: 0;">
+                <tr>
+                    <th>{% translate "Неделя" %}</th>
+                    <th class="text-end">{% translate "Выдано книг" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for w in week_rows %}
+                <tr {% if not w.count %}class="text-muted"{% endif %}>
+                    <td>{{ w.start|date:"d.m.Y" }} – {{ w.end|date:"d.m.Y" }}</td>
+                    <td class="text-end fw-semibold">{{ w.count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+    {% else %}
+    <div class="card-body text-center text-muted py-4">{% translate "Нет данных о выдачах за этот период" %}</div>
+    {% endif %}
 </div>
 
 <div class="row g-3">
@@ -137,29 +152,4 @@
     </div>
 </div>
 
-{% if weekly_labels %}
-{{ weekly_labels|json_script:"weekly-labels" }}
-{{ weekly_counts|json_script:"weekly-counts" }}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script>
-var weeklyLabels = JSON.parse(document.getElementById('weekly-labels').textContent);
-var weeklyCounts = JSON.parse(document.getElementById('weekly-counts').textContent);
-new Chart(document.getElementById('loansChart'), {
-    type: 'bar',
-    data: {
-        labels: weeklyLabels,
-        datasets: [{
-            label: "{% translate 'Выдано книг' %}",
-            data: weeklyCounts,
-            backgroundColor: '#0d6efd'
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-    }
-});
-</script>
-{% endif %}
 {% endblock %}

@@ -43,8 +43,9 @@ def build_books_workbook(data, period_text):
 
     # ── По неделям ──
     ws = wb.create_sheet(_sheet_title(_t('Выдачи по неделям')))
-    _table(ws, 1, [_t('Неделя (с понедельника)'), _t('Выдано книг')],
-           [[timezone.localtime(w).date(), n] for w, n in data['weeks']], widths={1: 26, 2: 16})
+    _table(ws, 1, [_t('Неделя с'), _t('по'), _t('Выдано книг')],
+           [[w['start'], w['end'], w['count']] for w in reversed(data['week_rows'])],
+           widths={1: 14, 2: 14, 3: 16})
 
     # ── Жанры ──
     ws = wb.create_sheet(_sheet_title(_t('Жанры')))

@@ -233,11 +233,13 @@ def reader_loan_rows(loans):
 
 def open_loans(only_overdue=False):
     """Не возвращённые книги (сначала самые давние). Просрочка считается так же, как в кабинете читателя:
-    книга на руках дольше LOAN_PERIOD_DAYS дней."""
+    книга на руках дольше срока возврата (настройка администратора); если срок не ограничен, просрочек нет."""
     from datetime import timedelta
-    from django.conf import settings
-    from .models import Loan
+    from .models import Loan, get_loan_period
     loans = Loan.objects.filter(is_returned=False).select_related('book__book_title', 'reader__user', 'location')
     if only_overdue:
-        loans = loans.filter(issued_at__lte=timezone.now() - timedelta(days=settings.LOAN_PERIOD_DAYS + 1))
+        period = get_loan_period()
+        if period is None:
+            return loans.none()
+        loans = loans.filter(issued_at__lte=timezone.now() - timedelta(days=period + 1))
     return loans.order_by('issued_at')

@@ -128,7 +128,7 @@
                                     <div class="fw-semibold small">{{ loan.book.title|truncatechars:40 }}</div>
                                     <div class="text-muted small">{{ loan.book.author|truncatechars:30 }}</div>
                                     {% if loan.is_overdue %}
-                                    <span class="badge bg-danger small">{% blocktranslate with days=loan.days_held %}Просрочено, {{ days }} дн.{% endblocktranslate %}</span>
+                                    <span class="badge bg-danger small">{% blocktranslate with n=loan.overdue_days %}просрочено дней: {{ n }}{% endblocktranslate %}</span>
                                     {% endif %}
                                 </td>
                                 <td class="small">

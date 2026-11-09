@@ -73,7 +73,7 @@ def build_stats_workbook(*, stats, loan_stats, period_text, include_readers,
         (_t('В среднем на читателя'), loan_stats['average']),
         (_t('Не возвращено сейчас'), unreturned['count']),
         (_t('Из них просрочено'), unreturned['overdue']),
-        (_t('Срок возврата, дней'), loan_period_days),
+        (_t('Срок возврата, дней'), loan_period_days if loan_period_days else _t('без ограничения')),
     ]
     if not include_readers:
         summary += [('', ''), (_t('Списки читателей в файл не включены (доступны администратору).'), '')]
@@ -110,11 +110,10 @@ def build_stats_workbook(*, stats, loan_stats, period_text, include_readers,
                 loan.reader.full_name if loan.reader else _t('Без читателя'),
                 (loan.reader.card_id or '') if loan.reader else '',
                 loan.book.title, loan.book.inventory_number, loan.location.name,
-                timezone.localtime(loan.issued_at).date(), loan.days_held,
-                _t('Да') if loan.is_overdue else _t('Нет'),
+                timezone.localtime(loan.issued_at).date(), loan.days_held, loan.overdue_days,
             ])
         _table(ws, 1, [_t('Читатель'), _t('ID читателя'), _t('Книга'), _t('Инв. номер'), _t('Библиопункт'),
-                       _t('Дата выдачи'), _t('Дней на руках'), _t('Просрочено')], rows)
+                       _t('Дата выдачи'), _t('Дней на руках'), _t('Просрочено дней')], rows)
 
     buffer = BytesIO()
     wb.save(buffer)

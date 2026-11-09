@@ -1,7 +1,48 @@
+import threading
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+
+
+class LoanSettings(models.Model):
+    """Срок, на который читатель берёт книгу (одна запись на весь сайт).
+    Если ограничение выключено, срока возврата нет и просрочек не бывает."""
+
+    limit_enabled = models.BooleanField(default=True, verbose_name='Ограничивать срок возврата')
+    period_days = models.PositiveSmallIntegerField(default=30, verbose_name='Срок возврата, дней')
+
+    class Meta:
+        verbose_name = 'Настройки срока выдачи'
+        verbose_name_plural = 'Настройки срока выдачи'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_solo(cls):
+        obj, _created = cls.objects.get_or_create(pk=1, defaults={'period_days': settings.LOAN_PERIOD_DAYS})
+        return obj
+
+
+_loan_memo = threading.local()
+
+
+def get_loan_period():
+    """Срок возврата в днях или None, если срок не ограничен.
+
+    Пока настройки не сохраняли, берётся LOAN_PERIOD_DAYS из settings (по умолчанию 30).
+    Внутри одного запроса значение читается из базы один раз (см. LoanPeriodMemoMiddleware)."""
+    if getattr(_loan_memo, 'active', False) and hasattr(_loan_memo, 'value'):
+        return _loan_memo.value
+    row = LoanSettings.objects.first()
+    value = settings.LOAN_PERIOD_DAYS if row is None else (row.period_days if row.limit_enabled else None)
+    if getattr(_loan_memo, 'active', False):
+        _loan_memo.value = value
+    return value
 
 
 class AgeGroupSettings(models.Model):
@@ -144,8 +185,16 @@ class Loan(models.Model):
 
     @property
     def is_overdue(self):
-        from django.conf import settings
-        return not self.is_returned and self.days_held > settings.LOAN_PERIOD_DAYS
+        period = get_loan_period()
+        return period is not None and not self.is_returned and self.days_held > period
+
+    @property
+    def overdue_days(self):
+        """Сколько дней просрочено (0, если срок не вышел или не ограничен)."""
+        period = get_loan_period()
+        if period is None or self.is_returned:
+            return 0
+        return max(self.days_held - period, 0)
 
 
 class BookRequest(models.Model):

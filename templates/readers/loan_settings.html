@@ -1,0 +1,53 @@
+{% extends "admin_base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Срок выдачи книг" %}{% endblock %}
+{% block nav_readers %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+    <a href="{% url 'readers_admin:index' %}" class="btn btn-sm btn-outline-secondary">← {% translate "Читатели" %}</a>
+    <h2 class="mb-0"><i class="bi bi-hourglass-split"></i> {% translate "Срок выдачи книг" %}</h2>
+</div>
+
+<div class="row">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="text-muted">
+                    {% translate "На сколько дней читатель может взять книгу. Если книга на руках дольше этого срока, она считается просроченной. Можно вовсе отключить ограничение: тогда срока возврата и просрочек нет." %}
+                </p>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="form-check form-switch mb-3">
+                        {{ form.limit_enabled }}
+                        <label class="form-check-label fw-semibold" for="{{ form.limit_enabled.id_for_label }}">
+                            {% translate "Ограничивать срок возврата" %}
+                        </label>
+                    </div>
+                    <div class="mb-3" id="period-box">
+                        <label class="form-label fw-semibold" for="{{ form.period_days.id_for_label }}">{% translate "Срок возврата, дней" %}</label>
+                        {{ form.period_days }}
+                        <div class="form-text">{% translate "От 1 до 365 дней." %}</div>
+                        {% for e in form.period_days.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> {% translate "Сохранить" %}</button>
+                </form>
+            </div>
+        </div>
+        <p class="small text-muted mt-3">
+            {% translate "Изменение действует сразу для всех книг на руках: например, при увеличении срока часть просрочек пропадёт." %}
+        </p>
+    </div>
+</div>
+
+<script>
+(function () {
+    var toggle = document.getElementById('{{ form.limit_enabled.id_for_label }}');
+    var days = document.getElementById('{{ form.period_days.id_for_label }}');
+    function sync() { days.disabled = !toggle.checked; }
+    toggle.addEventListener('change', sync);
+    sync();
+})();
+</script>
+{% endblock %}

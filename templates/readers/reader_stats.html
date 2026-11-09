@@ -139,7 +139,7 @@
     <div class="col-6 col-md-3">
         <a href="{% url 'readers_admin:stats_unreturned' %}?only=overdue&{{ period_qs }}" class="text-decoration-none text-reset">
             <div class="card shadow-sm h-100 {% if overdue_count %}border-danger{% endif %}"><div class="card-body">
-                <div class="text-muted small">{% blocktranslate with days=loan_period_days %}Просрочено (больше {{ days }} дн.){% endblocktranslate %}</div>
+                <div class="text-muted small">{% if loan_period_days %}{% blocktranslate with days=loan_period_days %}Просрочено (больше {{ days }} дн.){% endblocktranslate %}{% else %}{% translate "Просрочено (срок не ограничен)" %}{% endif %}</div>
                 <div class="fs-2 fw-bold {% if overdue_count %}text-danger{% endif %}">{{ overdue_count }}</div>
                 <div class="small text-primary">{% translate "Показать список" %} →</div>
             </div></div>

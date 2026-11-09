@@ -20,7 +20,12 @@
     </a>
 </div>
 <p class="text-muted small">
+    {% if loan_period_days %}
     {% blocktranslate with days=loan_period_days %}Книга считается просроченной, если она на руках дольше {{ days }} дн.{% endblocktranslate %}
+    {% else %}
+    {% translate "Срок возврата не ограничен, поэтому просрочек нет." %}
+    {% endif %}
+    {% if is_admin %}<a href="{% url 'readers_admin:loan_settings' %}">{% translate "Изменить срок" %}</a>{% endif %}
 </p>
 
 <div class="card shadow-sm">
@@ -51,7 +56,7 @@
                     <td>{{ loan.issued_at|date:"d.m.Y" }}</td>
                     <td class="text-end">
                         {{ loan.days_held }}
-                        {% if loan.is_overdue %}<span class="badge bg-danger ms-1">{% translate "просрочка" %}</span>{% endif %}
+                        {% if loan.is_overdue %}<span class="badge bg-danger ms-1">{% blocktranslate with n=loan.overdue_days %}просрочено дней: {{ n }}{% endblocktranslate %}</span>{% endif %}
                     </td>
                     <td class="text-end">
                         <form method="post" action="{% url 'readers_admin:loan_return' loan.pk %}" class="d-inline"

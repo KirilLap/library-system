@@ -125,7 +125,7 @@ class StatsExportTests(TestCase):
         self.assertEqual(rows[1][4:6], (2, 1))                      # взято 2, не возвращено 1
         unreturned = list(wb['Не возвращены'].iter_rows(values_only=True))
         self.assertEqual(len(unreturned), 2)                        # заголовок + одна не возвращённая
-        self.assertEqual(unreturned[1][-1], 'Да')                   # просрочена
+        self.assertEqual(unreturned[1][-1], 10)                     # просрочена на 10 дней
 
     def test_librarian_file_has_no_reader_lists(self):
         wb = self._workbook(self.librarian, days='all')

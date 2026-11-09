@@ -28,7 +28,7 @@ from django.utils import timezone
 from apps.catalog.models import Book
 from apps.deliveries.models import DeliveryBatch, DeliveryItem
 from apps.locations.models import Location, open_type_codes
-from apps.readers.models import Loan, Reader, generate_card_id
+from apps.readers.models import Loan, Reader, generate_card_id, get_loan_period
 
 DEMO_MARK = 'DEMO'
 
@@ -239,13 +239,14 @@ class Command(BaseCommand):
         busy = {}      # book.pk -> список (с какого, по какое) занятых промежутков
         loan_counts = [0, 1, 2, 3, 4, 6, 9, 14]
         loan_weights = [14, 20, 20, 15, 11, 10, 7, 3]
+        period = get_loan_period()          # None — срок не ограничен, просрочек не создаём
         n_loans = n_open = n_overdue = 0
         for reader in readers:
             for _ in range(rng.choices(loan_counts, weights=loan_weights)[0]):
                 days_ago = int(rng.triangular(0, 120, 12))
                 issued = now - timedelta(days=days_ago, hours=rng.randint(0, 6), minutes=rng.randint(0, 59))
                 # на руках: свежие выдачи и немного давних, которые уже просрочены
-                overdue_from = settings.LOAN_PERIOD_DAYS + 3
+                overdue_from = (period or 10 ** 6) + 3
                 keep_open = ((days_ago <= 20 and rng.random() < 0.35)
                              or (overdue_from <= days_ago <= overdue_from + 50 and rng.random() < 0.12))
                 end = None if keep_open else min(issued + timedelta(days=rng.randint(3, 21)), now)
@@ -262,7 +263,7 @@ class Command(BaseCommand):
                 fields = {'issued_at': issued}
                 if keep_open:
                     n_open += 1
-                    n_overdue += days_ago > settings.LOAN_PERIOD_DAYS
+                    n_overdue += bool(period) and days_ago > period
                 else:
                     fields['returned_at'] = end
                 Loan.objects.filter(pk=loan.pk).update(**fields)

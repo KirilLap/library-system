@@ -21,3 +21,22 @@ class ForcePasswordChangeMiddleware:
             if must_change:
                 return redirect(reverse('main:change_password'))
         return self.get_response(request)
+
+
+class LoanPeriodMemoMiddleware:
+    """На время запроса запоминает срок возврата, чтобы не спрашивать базу для каждой книги в списке."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        from .models import _loan_memo
+        _loan_memo.active = True
+        if hasattr(_loan_memo, 'value'):
+            del _loan_memo.value
+        try:
+            return self.get_response(request)
+        finally:
+            _loan_memo.active = False
+            if hasattr(_loan_memo, 'value'):
+                del _loan_memo.value

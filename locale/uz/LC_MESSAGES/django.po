@@ -2313,3 +2313,61 @@ msgstr "yo'qolgan: %(n)s"
 
 msgid "Утеряно книг за период"
 msgstr "Davr davomida yo'qolgan kitoblar"
+
+msgid "Неделя"
+msgstr "Hafta"
+
+msgid "Неделя с"
+msgstr "Hafta boshi"
+
+msgid "по"
+msgstr "gacha"
+
+msgid "просрочено дней: %(n)s"
+msgstr "muddati o'tgan kunlar: %(n)s"
+
+msgid "Просрочка"
+msgstr "Muddati o'tish"
+
+msgid "Просрочено дней"
+msgstr "Muddati o'tgan kunlar"
+
+msgid "без ограничения"
+msgstr "cheklovsiz"
+
+msgid "Срок возврата не ограничен, поэтому просрочек нет."
+msgstr "Qaytarish muddati cheklanmagan, shuning uchun muddati o'tganlar yo'q."
+
+msgid "Изменить срок"
+msgstr "Muddatni o'zgartirish"
+
+msgid "Просрочено (срок не ограничен)"
+msgstr "Muddati o'tgan (muddat cheklanmagan)"
+
+msgid "Срок выдачи"
+msgstr "Berish muddati"
+
+msgid "Срок выдачи книг"
+msgstr "Kitoblarni berish muddati"
+
+msgid "Ограничивать срок возврата"
+msgstr "Qaytarish muddatini cheklash"
+
+msgid "От 1 до 365 дней."
+msgstr "1 dan 365 kungacha."
+
+msgid ""
+"На сколько дней читатель может взять книгу. Если книга на руках дольше этого"
+" срока, она считается просроченной. Можно вовсе отключить ограничение: тогда"
+" срока возврата и просрочек нет."
+msgstr ""
+"O'quvchi kitobni necha kunga olishi mumkin. Kitob bu muddatdan ortiq qo'lda "
+"bo'lsa, muddati o'tgan hisoblanadi. Cheklovni butunlay o'chirish mumkin: u "
+"holda qaytarish muddati ham, muddati o'tishlar ham bo'lmaydi."
+
+msgid ""
+"Изменение действует сразу для всех книг на руках: например, при увеличении "
+"срока часть просрочек пропадёт."
+msgstr ""
+"O'zgarish qo'ldagi barcha kitoblarga darhol amal qiladi: masalan, muddat "
+"uzaytirilsa, muddati o'tganlarning bir qismi yo'qoladi."

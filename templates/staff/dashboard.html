@@ -104,7 +104,7 @@
                     <th>{% translate "Книга" %}</th>
                     <th>{% translate "Читатель" %}</th>
                     <th>{% translate "Библиопункт" %}</th>
-                    <th class="text-end">{% translate "Дней держит" %}</th>
+                    <th class="text-end">{% translate "Просрочка" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -122,7 +122,7 @@
                     </td>
                     <td class="small text-muted">{{ loan.location.name }}</td>
                     <td class="text-end">
-                        <span class="badge bg-danger">{{ loan.days_held }} {% translate "дн." %}</span>
+                        <span class="badge bg-danger">{% blocktranslate with n=loan.overdue_days %}просрочено дней: {{ n }}{% endblocktranslate %}</span>
                     </td>
                 </tr>
                 {% endfor %}
