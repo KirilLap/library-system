@@ -9,8 +9,8 @@ from openpyxl.styles import Font
 from apps.readers.stats_export import TITLE_FONT, _put, _sheet_title, _table
 
 
-def build_books_workbook(data):
-    """data — результат collect_stats(days, ...) с большими лимитами."""
+def build_books_workbook(data, period_text):
+    """data — результат collect_stats(...) с большими лимитами; period_text — подпись периода."""
     wb = Workbook()
     ps, cur = data['period_stats'], data['current']
 
@@ -20,10 +20,11 @@ def build_books_workbook(data):
     _put(ws, 1, 1, _t('Статистика по книгам')).font = TITLE_FONT
     rows = [
         (_t('Дата выгрузки'), timezone.localtime().strftime('%d.%m.%Y %H:%M')),
-        (_t('Период'), _t('последние %(n)s дн.') % {'n': data['days']}),
+        (_t('Период'), period_text),
         ('', ''),
         (_t('Выдано книг'), ps['loans_issued']),
         (_t('Возвращено книг'), ps['loans_returned']),
+        (_t('Утеряно книг за период'), ps['loans_lost']),
         (_t('Новых заявок'), ps['requests_created']),
         (_t('Заявок выполнено'), ps['requests_fulfilled']),
         ('', ''),

@@ -83,7 +83,7 @@
             <div class="card-body p-0">
                 <table class="table table-sm mb-0 align-middle">
                     <thead class="table-light">
-                        <tr><th>{% translate "Книга" %}</th><th>{% translate "Библиопункт" %}</th><th>{% translate "Взята" %}</th><th></th></tr>
+                        <tr><th>{% translate "Книга" %}</th><th>{% translate "Библиопункт" %}</th><th>{% translate "Взята" %}</th><th></th><th></th></tr>
                     </thead>
                     <tbody>
                         {% for loan in active_loans %}
@@ -98,6 +98,24 @@
                                 {% if loan.is_overdue %}
                                 <span class="badge bg-danger">{% blocktranslate with days=loan.days_held %}Просрочено, {{ days }} дн.{% endblocktranslate %}</span>
                                 {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <form method="post" action="{% url 'readers_admin:loan_return' loan.pk %}" class="d-inline"
+                                      onsubmit="return confirm('{% translate "Принять возврат этой книги?" %}');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-success text-nowrap">
+                                        <i class="bi bi-box-arrow-in-down"></i> {% translate "Принять возврат" %}
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'readers_admin:loan_lost' loan.pk %}" class="d-inline"
+                                      onsubmit="return confirm('{% translate "Отметить книгу как утерянную? Она пропадёт из каталога, и её нельзя будет разместить в библиопункте." %}');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger text-nowrap">
+                                        <i class="bi bi-slash-circle"></i> {% translate "Утеряна" %}
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         {% endfor %}
@@ -187,7 +205,7 @@
                                 <td class="small text-muted">{{ loan.location.name|truncatechars:20 }}</td>
                                 <td class="small text-muted text-nowrap">{{ loan.issued_at|date:"d.m.Y" }}</td>
                                 <td class="small text-muted text-nowrap">
-                                    {{ loan.returned_at|date:"d.m.Y"|default:"—" }}
+                                    {% if loan.is_lost %}<span class="badge bg-dark">{% translate "Утеряна" %}</span>{% else %}{{ loan.returned_at|date:"d.m.Y"|default:"—" }}{% endif %}
                                 </td>
                             </tr>
                             {% endfor %}

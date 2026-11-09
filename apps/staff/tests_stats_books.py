@@ -1,3 +1,4 @@
+from datetime import timedelta
 from io import BytesIO
 
 from django.contrib.auth.models import User
@@ -12,7 +13,7 @@ from apps.locations.models import Location
 from apps.readers.models import Loan
 from apps.readers.tests_stats import make_loan, make_reader
 from apps.staff.models import StaffProfile
-from apps.staff.stats_books import clean_days, collect_stats
+from apps.staff.stats_books import collect_stats
 
 
 def staff(username, role):
@@ -37,11 +38,9 @@ class BooksStatsTests(TestCase):
         DeliveryItem.objects.create(batch=batch, book=self.l1.book)
         Book.objects.filter(pk=self.l1.book.pk).update(status='IN_DELIVERY')
 
-    def test_clean_days(self):
-        self.assertEqual([clean_days(x) for x in ('7', '90', '365', '31', 'abc', None)], [7, 90, 365, 30, 30, 30])
-
     def test_collect_stats_numbers(self):
-        data = collect_stats(30)
+        today = timezone.localdate()
+        data = collect_stats(today - timedelta(days=29), today)
         self.assertEqual(data['period_stats']['loans_issued'], 2)
         self.assertEqual(data['period_stats']['loans_returned'], 1)
         self.assertEqual(data['current']['on_hands'], 2)
@@ -94,3 +93,52 @@ class BooksStatsTests(TestCase):
         response = self.client.get(reverse('staff:stats_export'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(load_workbook(BytesIO(response.content)).sheetnames[0], 'Xulosa')
+
+
+class BooksFreePeriodTests(TestCase):
+    """На странице книг, как и у читателей, можно выбрать свой период."""
+
+    def setUp(self):
+        staff('adm', StaffProfile.ROLE_ADMIN)
+        self.client.force_login(staff('lib', StaffProfile.ROLE_LIBRARIAN))
+        reader = make_reader('r', 'M', 20)
+        make_loan(reader, days_ago=2)
+        make_loan(reader, days_ago=10)
+        make_loan(reader, days_ago=100)
+
+    def _issued(self, **params):
+        response = self.client.get(reverse('staff:stats'), params)
+        self.assertEqual(response.status_code, 200)
+        return response.context['period_stats']['loans_issued']
+
+    def test_presets_and_all_time(self):
+        self.assertEqual(self._issued(), 2)                       # по умолчанию 30 дней
+        self.assertEqual(self._issued(days=7), 1)
+        self.assertEqual(self._issued(days=365), 3)
+        self.assertEqual(self._issued(days='all'), 3)
+
+    def test_custom_dates(self):
+        today = timezone.localdate()
+        self.assertEqual(self._issued(**{'from': (today - timedelta(days=120)).isoformat(),
+                                         'to': (today - timedelta(days=50)).isoformat()}), 1)
+
+    def test_bad_dates_do_not_break(self):
+        today = timezone.localdate()
+        self.assertEqual(self._issued(**{'from': 'abc', 'to': 'zzz'}), 2)
+        self.assertEqual(self._issued(**{'from': today.isoformat(),
+                                         'to': (today - timedelta(days=30)).isoformat()}), 2)   # даты поменяются местами
+
+    def test_page_has_date_inputs_and_export_keeps_period(self):
+        response = self.client.get(reverse('staff:stats'), {'days': 90})
+        self.assertContains(response, 'name="from"')
+        self.assertContains(response, 'name="to"')
+        self.assertContains(response, reverse('staff:stats_export') + '?days=90')
+
+    def test_export_uses_custom_period(self):
+        today = timezone.localdate()
+        params = {'from': (today - timedelta(days=120)).isoformat(), 'to': (today - timedelta(days=50)).isoformat()}
+        response = self.client.get(reverse('staff:stats_export'), params)
+        wb = load_workbook(BytesIO(response.content))
+        values = {r[0]: r[1] for r in wb['Сводка'].iter_rows(min_row=3, values_only=True) if r[0]}
+        self.assertEqual(values['Выдано книг'], 1)
+        self.assertIn('–', values['Период'])

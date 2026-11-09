@@ -122,6 +122,10 @@ class Loan(models.Model):
     )
     issued_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата выдачи')
     returned_at = models.DateTimeField(null=True, blank=True, verbose_name='Дата возврата')
+    is_lost = models.BooleanField(
+        default=False, verbose_name='Книга утеряна',
+        help_text='Выдача закрыта не возвратом, а утерей книги.',
+    )
     is_returned = models.BooleanField(default=False, verbose_name='Возвращена')
 
     class Meta:

@@ -190,7 +190,10 @@ def worker_issue(request):
             try:
                 book = Book.objects.get(inventory_number=inv)
                 # Verify it's at this location
-                if book.current_location != location:
+                if book.status == 'LOST':
+                    error = f'Книга «{book.title}» числится утерянной.'
+                    book = None
+                elif book.current_location != location:
                     error = f'Книга «{book.title}» не находится в вашем библиопункте.'
                     book = None
                 else:
@@ -211,6 +214,8 @@ def worker_issue(request):
                 reader = get_object_or_404(Reader, pk=reader_pk)
                 if reader.is_blocked:
                     error = f'Читатель {reader.full_name} заблокирован — выдача книг ему запрещена.'
+                elif book.status == 'LOST':
+                    error = 'Эта книга числится утерянной.'
                 elif book.current_location != location:
                     error = 'Книга не в вашем библиопункте.'
                 elif Loan.objects.filter(book=book, is_returned=False).exists():

@@ -73,10 +73,26 @@ def dashboard(request):
     })
 
 
+def _books_period(request):
+    from apps.readers.stats import parse_period, period_query
+    period, date_from, date_to = parse_period(request.GET)
+    return period, date_from, date_to, period_query(period, date_from, date_to)
+
+
 @librarian_required
 def stats_view(request):
-    from .stats_books import clean_days, collect_stats
-    return render(request, 'staff/stats.html', collect_stats(clean_days(request.GET.get('days'))))
+    from .stats_books import collect_stats
+    period, date_from, date_to, period_qs = _books_period(request)
+    ctx = collect_stats(date_from, date_to)
+    ctx.update({
+        'tab': 'books',
+        'period': period,
+        'period_qs': period_qs,
+        'date_from': date_from.isoformat() if date_from else '',
+        'date_to': date_to.isoformat() if date_to else '',
+        'period_choices': [('7', 7), ('30', 30), ('90', 90), ('365', 365)],
+    })
+    return render(request, 'staff/stats.html', ctx)
 
 
 @librarian_required
@@ -84,11 +100,18 @@ def stats_export(request):
     """Скачать статистику по книгам в Excel (в файле нет данных о конкретных читателях)."""
     from django.http import HttpResponse
     from django.utils import timezone
-    from .stats_books import clean_days, collect_stats
+    from django.utils.translation import gettext
+    from .stats_books import collect_stats
     from .stats_export import build_books_workbook
-    data = collect_stats(clean_days(request.GET.get('days')), genre_limit=1000, book_limit=100, location_limit=1000)
+    period, date_from, date_to, _qs = _books_period(request)
+    data = collect_stats(date_from, date_to, genre_limit=1000, book_limit=100, location_limit=1000)
+    if period == 'all':
+        period_text = gettext('Всё время')
+    else:
+        fmt = lambda d: d.strftime('%d.%m.%Y') if d else '…'
+        period_text = f'{fmt(date_from)} – {fmt(date_to)}'
     response = HttpResponse(
-        build_books_workbook(data),
+        build_books_workbook(data, period_text),
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename="books-stats-{timezone.localdate().isoformat()}.xlsx"'
     return response

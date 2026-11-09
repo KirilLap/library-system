@@ -121,6 +121,14 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# На сервере к именам стилей и скриптов добавляется хеш: после обновления у всех сразу новая версия,
+# а не старая из кэша браузера (раньше телефоны могли неделю показывать прежние стили).
+if not DEBUG:
+    STORAGES = {
+        'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+        'staticfiles': {'BACKEND': 'config.storage.RelaxedManifestStaticFilesStorage'},
+    }
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 

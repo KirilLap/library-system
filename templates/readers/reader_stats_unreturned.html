@@ -34,6 +34,7 @@
                     <th>{% translate "Библиопункт" %}</th>
                     <th>{% translate "Дата выдачи" %}</th>
                     <th class="text-end">{% translate "Дней на руках" %}</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -51,6 +52,24 @@
                     <td class="text-end">
                         {{ loan.days_held }}
                         {% if loan.is_overdue %}<span class="badge bg-danger ms-1">{% translate "просрочка" %}</span>{% endif %}
+                    </td>
+                    <td class="text-end">
+                        <form method="post" action="{% url 'readers_admin:loan_return' loan.pk %}" class="d-inline"
+                              onsubmit="return confirm('{% translate "Принять возврат этой книги?" %}');">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button type="submit" class="btn btn-sm btn-outline-success text-nowrap">
+                                <i class="bi bi-box-arrow-in-down"></i> {% translate "Принять возврат" %}
+                            </button>
+                        </form>
+                                <form method="post" action="{% url 'readers_admin:loan_lost' loan.pk %}" class="d-inline"
+                              onsubmit="return confirm('{% translate "Отметить книгу как утерянную? Она пропадёт из каталога, и её нельзя будет разместить в библиопункте." %}');">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger text-nowrap">
+                                <i class="bi bi-slash-circle"></i> {% translate "Утеряна" %}
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}

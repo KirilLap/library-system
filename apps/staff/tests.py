@@ -84,7 +84,7 @@ class StatsViewTests(TestCase):
     def test_invalid_days_falls_back_to_default(self):
         response = self.client.get(reverse('staff:stats'), {'days': 'garbage'})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['days'], 30)
+        self.assertEqual(response.context['period'], '30')
 
 
 @override_settings(MEDIA_ROOT=_MEDIA_ROOT)

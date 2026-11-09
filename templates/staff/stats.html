@@ -8,18 +8,11 @@
 {% include "staff/_stats_tabs.html" with tab="books" %}
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <h4 class="mb-0"><i class="bi bi-bar-chart"></i> {% translate "Статистика по книгам" %}</h4>
-    <div class="d-flex flex-wrap gap-2">
-    <a href="{% url 'staff:stats_export' %}?days={{ days }}" class="btn btn-sm btn-success">
+    <a href="{% url 'staff:stats_export' %}?{{ period_qs }}" class="btn btn-sm btn-success">
         <i class="bi bi-file-earmark-excel"></i> {% translate "Скачать в Excel" %}
     </a>
-    <div class="btn-group">
-        <a href="?days=7" class="btn btn-sm {% if days == 7 %}btn-primary{% else %}btn-outline-primary{% endif %}">{% blocktranslate %}7 дней{% endblocktranslate %}</a>
-        <a href="?days=30" class="btn btn-sm {% if days == 30 %}btn-primary{% else %}btn-outline-primary{% endif %}">{% blocktranslate %}30 дней{% endblocktranslate %}</a>
-        <a href="?days=90" class="btn btn-sm {% if days == 90 %}btn-primary{% else %}btn-outline-primary{% endif %}">{% blocktranslate %}90 дней{% endblocktranslate %}</a>
-        <a href="?days=365" class="btn btn-sm {% if days == 365 %}btn-primary{% else %}btn-outline-primary{% endif %}">{% translate "Год" %}</a>
-    </div>
-    </div>
 </div>
+{% include "staff/_period_form.html" %}
 
 <!-- Карточки -->
 <div class="row g-3 mb-4">
@@ -36,6 +29,7 @@
             <div class="card-body">
                 <div class="fs-2 fw-bold">{{ period_stats.loans_returned }}</div>
                 <div class="small text-muted">{% translate "Возвращено книг" %}</div>
+                {% if period_stats.loans_lost %}<div class="small text-danger">{% blocktranslate with n=period_stats.loans_lost %}утеряно: {{ n }}{% endblocktranslate %}</div>{% endif %}
             </div>
         </div>
     </div>

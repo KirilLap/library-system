@@ -2297,3 +2297,19 @@ msgstr "Davr davomida berilgan"
 
 msgid "Книг сейчас в пункте"
 msgstr "Hozir nuqtadagi kitoblar"
+
+msgid "Принять возврат этой книги?"
+msgstr "Ushbu kitobning qaytarilishini qabul qilasizmi?"
+
+msgid ""
+"Отметить книгу как утерянную? Она пропадёт из каталога, и её нельзя будет "
+"разместить в библиопункте."
+msgstr ""
+"Kitobni yo'qolgan deb belgilaysizmi? U katalogdan yo'qoladi va uni kutubxona"
+" nuqtasiga joylab bo'lmaydi."
+
+msgid "утеряно: %(n)s"
+msgstr "yo'qolgan: %(n)s"
+
+msgid "Утеряно книг за период"
+msgstr "Davr davomida yo'qolgan kitoblar"

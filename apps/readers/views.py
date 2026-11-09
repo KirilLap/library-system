@@ -5,6 +5,7 @@ from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext
 from django.views.decorators.http import require_POST
@@ -232,7 +233,10 @@ def take_book(request):
         try:
             book = Book.objects.get(inventory_number=inv)
             location = book.current_location
-            if location is None:
+            if book.status == 'LOST':
+                error = 'Эта книга числится утерянной.'
+                book = None
+            elif location is None:
                 error = 'Эта книга сейчас в библиотеке, а не в библиопункте.'
                 book = None
             elif Loan.objects.filter(book=book, is_returned=False).exists():
@@ -449,6 +453,57 @@ def reader_stats_settings(request):
         for error in form.errors.get('boundaries', []):
             messages.error(request, error)
     return redirect('readers_admin:stats')
+
+
+def _staff_next(request):
+    """Куда вернуть сотрудника после действия: только внутри панели, иначе — список не возвращённых."""
+    from django.utils.http import url_has_allowed_host_and_scheme
+    target = request.POST.get('next', '')
+    if target.startswith('/admin-panel/') and url_has_allowed_host_and_scheme(target, allowed_hosts=None):
+        return target
+    return reverse('readers_admin:stats_unreturned')
+
+
+@librarian_required
+@require_POST
+def loan_return_staff(request, pk):
+    """Сотрудник принимает возврат книги за читателя (например, просроченной)."""
+    from apps.staff.models import ActionLog
+    loan = get_object_or_404(Loan.objects.select_related('book__book_title', 'reader__user'),
+                             pk=pk, is_returned=False)
+    loan.is_returned = True
+    loan.returned_at = timezone.now()
+    loan.save()
+    who = loan.reader.full_name if loan.reader else 'читателя без аккаунта'
+    ActionLog.log(request.user, f'Принял возврат книги «{loan.book.title}» ({loan.book.inventory_number}) от {who}')
+    messages.success(request, f'Книга «{loan.book.title}» принята назад.')
+    return redirect(_staff_next(request))
+
+
+@librarian_required
+@require_POST
+def loan_lost_staff(request, pk):
+    """Книгу не вернули, она утеряна: остаётся в базе, но скрывается из каталога и не ставится в пункты."""
+    from django.db import transaction
+    from apps.catalog.models import Book
+    from apps.deliveries.models import DeliveryItem
+    from apps.staff.models import ActionLog
+    with transaction.atomic():
+        loan = get_object_or_404(Loan.objects.select_related('book__book_title', 'reader__user'),
+                                 pk=pk, is_returned=False)
+        now = timezone.now()
+        loan.is_returned = True
+        loan.is_lost = True
+        loan.returned_at = now
+        loan.save()
+        # Книга больше не числится в библиопункте; статус «Утеряна» (mark_returned его бы сбросил, поэтому закрываем вручную)
+        DeliveryItem.objects.filter(book=loan.book, is_returned=False).update(is_returned=True, returned_at=now)
+        Book.objects.filter(pk=loan.book_id).update(status='LOST')
+    who = loan.reader.full_name if loan.reader else 'читателя без аккаунта'
+    ActionLog.log(request.user, f'Отметил книгу «{loan.book.title}» ({loan.book.inventory_number}) '
+                                f'как утерянную (была у {who})')
+    messages.warning(request, f'Книга «{loan.book.title}» отмечена как утерянная: из каталога она скрыта.')
+    return redirect(_staff_next(request))
 
 
 @librarian_required

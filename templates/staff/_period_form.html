@@ -1,0 +1,22 @@
+{% load i18n %}
+<form method="get" class="card shadow-sm mb-3">
+    <div class="card-body d-flex flex-wrap align-items-end gap-2">
+        <div class="btn-group" role="group">
+            {% for key, n in period_choices %}
+            <a href="?days={{ key }}" class="btn btn-sm {% if period == key %}btn-primary{% else %}btn-outline-secondary{% endif %}">{% blocktranslate %}{{ n }} дн.{% endblocktranslate %}</a>
+            {% endfor %}
+            <a href="?days=all" class="btn btn-sm {% if period == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %}">{% translate "Всё время" %}</a>
+        </div>
+        <div class="ms-md-3">
+            <label class="form-label small mb-0" for="d-from">{% translate "С" %}</label>
+            <input type="date" id="d-from" name="from" value="{{ date_from }}" class="form-control form-control-sm">
+        </div>
+        <div>
+            <label class="form-label small mb-0" for="d-to">{% translate "По" %}</label>
+            <input type="date" id="d-to" name="to" value="{{ date_to }}" class="form-control form-control-sm">
+        </div>
+        <button type="submit" class="btn btn-sm btn-outline-primary {% if period == 'custom' %}active{% endif %}">
+            <i class="bi bi-funnel"></i> {% translate "Показать" %}
+        </button>
+    </div>
+</form>

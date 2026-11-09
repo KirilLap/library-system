@@ -1,35 +1,34 @@
 """Статистика по книгам за период (для страницы «Статистика» и выгрузки в Excel)."""
-import datetime
-
 from django.db.models import Count
 from django.db.models.functions import TruncWeek
 from django.utils import timezone
 
-PERIODS = (7, 30, 90, 365)
 
 
-def clean_days(raw):
-    try:
-        days = int(raw)
-    except (TypeError, ValueError):
-        return 30
-    return days if days in PERIODS else 30
-
-
-def collect_stats(days, genre_limit=8, book_limit=10, location_limit=10):
-    """Считает выдачи, возвраты, заявки, популярные жанры, книги и библиопункты за последние days дней."""
+def collect_stats(date_from, date_to, genre_limit=8, book_limit=10, location_limit=10):
+    """Считает выдачи, возвраты, заявки, популярные жанры, книги и библиопункты за период
+    (включительно; None вместо даты — без ограничения с этой стороны)."""
     from apps.catalog.models import Book, Genre
     from apps.deliveries.models import DeliveryItem
     from apps.readers.models import BookRequest, Loan
     from apps.readers.stats import open_loans
 
-    since = timezone.now() - datetime.timedelta(days=days)
-    loans = Loan.objects.filter(issued_at__gte=since)
-    requests = BookRequest.objects.filter(created_at__gte=since)
+    def between(queryset, field):
+        if date_from:
+            queryset = queryset.filter(**{f'{field}__date__gte': date_from})
+        if date_to:
+            queryset = queryset.filter(**{f'{field}__date__lte': date_to})
+        return queryset
+
+    loans = between(Loan.objects.all(), 'issued_at')
+    returns = between(Loan.objects.filter(is_returned=True, is_lost=False), 'returned_at')
+    lost = between(Loan.objects.filter(is_lost=True), 'returned_at')
+    requests = between(BookRequest.objects.all(), 'created_at')
 
     period_stats = {
         'loans_issued': loans.count(),
-        'loans_returned': Loan.objects.filter(is_returned=True, returned_at__gte=since).count(),
+        'loans_returned': returns.count(),
+        'loans_lost': lost.count(),
         'requests_created': requests.count(),
         'requests_fulfilled': requests.filter(status='FULFILLED').count(),
     }
@@ -68,7 +67,6 @@ def collect_stats(days, genre_limit=8, book_limit=10, location_limit=10):
     }
 
     return {
-        'days': days,
         'period_stats': period_stats,
         'top_genres': top_genres,
         'top_books': top_books,
