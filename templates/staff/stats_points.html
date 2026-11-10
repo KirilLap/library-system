@@ -1,0 +1,109 @@
+{% extends "admin_base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Статистика по библиопунктам" %}{% endblock %}
+{% block nav_stats %}active{% endblock %}
+
+{% block content %}
+{% include "staff/_stats_tabs.html" %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h4 class="mb-0"><i class="bi bi-geo-alt"></i> {% translate "Статистика по библиопунктам" %}</h4>
+    <a href="{% url 'staff:stats_points_export' %}?{{ period_qs }}" class="btn btn-sm btn-success">
+        <i class="bi bi-file-earmark-excel"></i> {% translate "Скачать в Excel" %}
+    </a>
+</div>
+{% include "staff/_period_form.html" %}
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-md-3"><div class="card shadow-sm h-100"><div class="card-body">
+        <div class="text-muted small">{% translate "Партий завезено" %}</div>
+        <div class="fs-2 fw-bold">{{ totals.batches_period }}</div>
+        <div class="small text-muted">{% blocktranslate with n=totals.batches_all %}за всё время: {{ n }}{% endblocktranslate %}</div>
+    </div></div></div>
+    <div class="col-6 col-md-3"><div class="card shadow-sm h-100"><div class="card-body">
+        <div class="text-muted small">{% translate "Книг завезено" %}</div>
+        <div class="fs-2 fw-bold">{{ totals.books_period }}</div>
+        <div class="small text-muted">{% blocktranslate with n=totals.books_all %}за всё время: {{ n }}{% endblocktranslate %}</div>
+    </div></div></div>
+    <div class="col-6 col-md-3"><div class="card shadow-sm h-100"><div class="card-body">
+        <div class="text-muted small">{% translate "Выдач за период" %}</div>
+        <div class="fs-2 fw-bold">{{ totals.loans }}</div>
+        <div class="small text-muted">{% blocktranslate with n=totals.in_point %}книг сейчас в пунктах: {{ n }}{% endblocktranslate %}</div>
+    </div></div></div>
+    <div class="col-6 col-md-3"><div class="card shadow-sm h-100"><div class="card-body">
+        <div class="text-muted small">{% translate "Читателей брали книги" %}</div>
+        <div class="fs-2 fw-bold">{{ totals.readers }}</div>
+        <div class="small text-muted">{% translate "за выбранный период" %}</div>
+    </div></div></div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle small mb-0">
+            <thead class="table-light">
+                <tr class="text-center">
+                    <th rowspan="2" class="text-start">{% translate "Библиопункт" %}</th>
+                    <th colspan="2">{% translate "Партий" %}</th>
+                    <th colspan="2">{% translate "Книг завезено" %}</th>
+                    <th colspan="2">{% translate "Выдачи за период" %}</th>
+                    <th colspan="3">{% translate "Сейчас" %}</th>
+                    <th rowspan="2">{% translate "Выбрали ближайшим" %}</th>
+                </tr>
+                <tr class="text-center">
+                    <th>{% translate "за период" %}</th>
+                    <th>{% translate "всего" %}</th>
+                    <th>{% translate "за период" %}</th>
+                    <th>{% translate "всего" %}</th>
+                    <th>{% translate "выдач" %}</th>
+                    <th>{% translate "читателей" %}</th>
+                    <th>{% translate "книг в пункте" %}</th>
+                    <th>{% translate "не возвращено" %}</th>
+                    <th>{% translate "просрочено" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                <tr class="text-center">
+                    <td class="text-start">
+                        <a href="{% url 'locations_admin:detail' r.location.pk %}" class="text-decoration-none fw-semibold">{{ r.location.name }}</a>
+                        <div class="text-muted">{{ r.type }}{% if not r.location.is_active %} · <span class="text-danger">{% translate "выключен" %}</span>{% endif %}</div>
+                    </td>
+                    <td>{{ r.batches_period }}</td>
+                    <td class="text-muted">{{ r.batches_all }}</td>
+                    <td>{{ r.books_period }}</td>
+                    <td class="text-muted">{{ r.books_all }}</td>
+                    <td class="fw-semibold">{{ r.loans }}</td>
+                    <td>{{ r.readers }}</td>
+                    <td>{{ r.in_point }}</td>
+                    <td>{{ r.open }}</td>
+                    <td {% if r.overdue %}class="text-danger fw-semibold"{% endif %}>{{ r.overdue }}</td>
+                    <td>{{ r.nearest }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="11" class="text-center text-muted py-4">{% translate "Библиопунктов пока нет" %}</td></tr>
+                {% endfor %}
+            </tbody>
+            {% if rows %}
+            <tfoot class="table-light fw-semibold text-center">
+                <tr>
+                    <td class="text-start">{% translate "Итого" %}</td>
+                    <td>{{ totals.batches_period }}</td>
+                    <td>{{ totals.batches_all }}</td>
+                    <td>{{ totals.books_period }}</td>
+                    <td>{{ totals.books_all }}</td>
+                    <td>{{ totals.loans }}</td>
+                    <td>{{ totals.readers }}</td>
+                    <td>{{ totals.in_point }}</td>
+                    <td>{{ totals.open }}</td>
+                    <td>{{ totals.overdue }}</td>
+                    <td>{{ totals.nearest }}</td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+    <div class="card-footer small text-muted">
+        {% translate "Партии и завезённые книги считаются по дате доставки, выдачи по дате выдачи. Колонки «Сейчас» от периода не зависят. В строке «Итого» число читателей считается без повторов: тот, кто брал книги в нескольких пунктах, учтён один раз." %}
+    </div>
+</div>
+{% endblock %}

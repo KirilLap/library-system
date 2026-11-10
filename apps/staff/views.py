@@ -110,6 +110,44 @@ def stats_export(request):
     return response
 
 
+@librarian_required
+def stats_points(request):
+    """Статистика по библиопунктам: партии, завезённые книги, выдачи, читатели."""
+    from .stats_points import collect_points_stats
+    period, date_from, date_to, period_qs = _books_period(request)
+    data = collect_points_stats(date_from, date_to)
+    data.update({
+        'tab': 'points',
+        'period': period,
+        'period_qs': period_qs,
+        'date_from': date_from.isoformat() if date_from else '',
+        'date_to': date_to.isoformat() if date_to else '',
+        'period_choices': [('7', 7), ('30', 30), ('90', 90), ('365', 365)],
+    })
+    return render(request, 'staff/stats_points.html', data)
+
+
+@librarian_required
+def stats_points_export(request):
+    """Скачать статистику по библиопунктам в Excel (данных о конкретных читателях в файле нет)."""
+    from django.http import HttpResponse
+    from django.utils import timezone
+    from django.utils.translation import gettext
+    from .stats_export import build_points_workbook
+    from .stats_points import collect_points_stats
+    period, date_from, date_to, _qs = _books_period(request)
+    if period == 'all':
+        period_text = gettext('Всё время')
+    else:
+        fmt = lambda d: d.strftime('%d.%m.%Y') if d else '…'
+        period_text = f'{fmt(date_from)} – {fmt(date_to)}'
+    response = HttpResponse(
+        build_points_workbook(collect_points_stats(date_from, date_to), period_text),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="points-stats-{timezone.localdate().isoformat()}.xlsx"'
+    return response
+
+
 def init_view(request):
     if StaffProfile.objects.filter(role=StaffProfile.ROLE_ADMIN).exists():
         return redirect('/admin-panel/login/')

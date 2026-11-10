@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
 
 from apps.readers.models import AgeGroupSettings, Reader
 from apps.readers.stats import build_groups, parse_boundaries, reader_statistics
@@ -9,6 +9,10 @@ from apps.staff.models import StaffProfile
 
 
 class BoundariesTests(SimpleTestCase):
+    def setUp(self):
+        translation.activate('ru')      # подписи групп проверяем по-русски, что бы ни включили другие тесты
+        self.addCleanup(translation.deactivate)
+
     def test_parse_accepts_commas_spaces_and_sorts(self):
         self.assertEqual(parse_boundaries('31, 14 18;61'), [14, 18, 31, 61])
 

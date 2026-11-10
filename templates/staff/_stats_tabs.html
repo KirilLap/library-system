@@ -6,4 +6,7 @@
     <li class="nav-item">
         <a class="nav-link {% if tab == 'readers' %}active{% endif %}" href="{% url 'readers_admin:stats' %}"><i class="bi bi-people"></i> {% translate "Читатели" %}</a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'points' %}active{% endif %}" href="{% url 'staff:stats_points' %}"><i class="bi bi-geo-alt"></i> {% translate "Библиопункты" %}</a>
+    </li>
 </ul>

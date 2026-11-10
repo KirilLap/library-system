@@ -2371,3 +2371,113 @@ msgid ""
 msgstr ""
 "O'zgarish qo'ldagi barcha kitoblarga darhol amal qiladi: masalan, muddat "
 "uzaytirilsa, muddati o'tganlarning bir qismi yo'qoladi."
+
+msgid "Статистика по библиопунктам"
+msgstr "Kutubxona nuqtalari statistikasi"
+
+msgid "Партий завезено"
+msgstr "Yetkazilgan partiyalar"
+
+msgid "Книг завезено"
+msgstr "Yetkazilgan kitoblar"
+
+msgid "за всё время: %(n)s"
+msgstr "butun davr uchun: %(n)s"
+
+msgid "книг сейчас в пунктах: %(n)s"
+msgstr "hozir nuqtalardagi kitoblar: %(n)s"
+
+msgid "за выбранный период"
+msgstr "tanlangan davr uchun"
+
+msgid "Выдач за период"
+msgstr "Davr davomida berilganlar"
+
+msgid "Партий"
+msgstr "Partiyalar"
+
+msgid "Выдачи за период"
+msgstr "Davr davomida berilganlar"
+
+msgid "Сейчас"
+msgstr "Hozir"
+
+msgid "Выбрали ближайшим"
+msgstr "Eng yaqin deb tanlaganlar"
+
+msgid "за период"
+msgstr "davr uchun"
+
+msgid "всего"
+msgstr "jami"
+
+msgid "выдач"
+msgstr "berilgan"
+
+msgid "читателей"
+msgstr "o'quvchilar"
+
+msgid "книг в пункте"
+msgstr "nuqtadagi kitoblar"
+
+msgid "не возвращено"
+msgstr "qaytarilmagan"
+
+msgid "просрочено"
+msgstr "muddati o'tgan"
+
+msgid "выключен"
+msgstr "o'chirilgan"
+
+msgid "Библиопунктов пока нет"
+msgstr "Kutubxona nuqtalari hali yo'q"
+
+msgid "Итого"
+msgstr "Jami"
+
+msgid ""
+"Партии и завезённые книги считаются по дате доставки, выдачи по дате выдачи."
+" Колонки «Сейчас» от периода не зависят. В строке «Итого» число читателей "
+"считается без повторов: тот, кто брал книги в нескольких пунктах, учтён один"
+" раз."
+msgstr ""
+"Partiyalar va yetkazilgan kitoblar yetkazilgan sana bo'yicha, berilganlar "
+"berilgan sana bo'yicha hisoblanadi. «Hozir» ustunlari davrga bog'liq emas. "
+"«Jami» qatorida o'quvchilar takrorlanmasdan hisoblanadi: bir necha nuqtada "
+"kitob olgan o'quvchi bir marta hisobga olinadi."
+
+msgid "Библиопунктов в таблице"
+msgstr "Jadvaldagi kutubxona nuqtalari"
+
+msgid "Партий за период"
+msgstr "Davr uchun partiyalar"
+
+msgid "Партий за всё время"
+msgstr "Butun davr partiyalari"
+
+msgid "Книг завезено за период"
+msgstr "Davr uchun yetkazilgan kitoblar"
+
+msgid "Книг завезено за всё время"
+msgstr "Butun davr yetkazilgan kitoblar"
+
+msgid "Книг сейчас в пунктах"
+msgstr "Hozir nuqtalardagi kitoblar"
+
+msgid "Читателей брали книги за период"
+msgstr "Davr davomida kitob olgan o'quvchilar"
+
+msgid "По библиопунктам"
+msgstr "Nuqtalar bo'yicha"
+
+msgid "Партий всего"
+msgstr "Jami partiyalar"
+
+msgid "Книг завезено всего"
+msgstr "Jami yetkazilgan kitoblar"
+
+msgid "Просрочено"
+msgstr "Muddati o'tgan"
+
+msgid "Выбрали пункт ближайшим"
+msgstr "Nuqtani eng yaqin deb tanlaganlar"

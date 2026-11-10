@@ -131,7 +131,10 @@
     <!-- Активность по библиопунктам -->
     <div class="col-md-4">
         <div class="card h-100">
-            <div class="card-header"><i class="bi bi-geo-alt"></i> {% translate "Активность по библиопунктам" %}</div>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-geo-alt"></i> {% translate "Активность по библиопунктам" %}</span>
+                <a href="{% url 'staff:stats_points' %}?{{ period_qs }}" class="small text-decoration-none">{% translate "Подробнее" %} →</a>
+            </div>
             <div class="card-body p-0">
                 {% if top_locations %}
                 <table class="table table-sm mb-0">

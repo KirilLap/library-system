@@ -4,7 +4,7 @@ from io import BytesIO
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
 from openpyxl import load_workbook
 
 from apps.catalog.models import Book, BookTitle
@@ -89,6 +89,7 @@ class BooksStatsTests(TestCase):
         self.assertNotEqual(self.client.get(reverse('staff:stats_export')).status_code, 200)
 
     def test_export_in_uzbek(self):
+        self.addCleanup(translation.activate, 'ru')      # язык после запроса остаётся включённым, возвращаем русский
         self.client.cookies['django_language'] = 'uz'
         response = self.client.get(reverse('staff:stats_export'))
         self.assertEqual(response.status_code, 200)

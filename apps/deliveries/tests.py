@@ -2,6 +2,7 @@
 import shutil
 import tempfile
 
+from django.utils import translation
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -113,6 +114,7 @@ class ActDownloadTests(TestCase):
             self.assertIn(expected, text)
 
     def test_word_act_follows_active_language(self):
+        self.addCleanup(translation.activate, 'ru')      # язык после запроса остаётся включённым
         self.client.cookies['django_language'] = 'uz'
         response = self.client.get(reverse('deliveries_admin:docx', args=[self.batch.pk]))
         text = self._docx_text(response)
@@ -120,6 +122,7 @@ class ActDownloadTests(TestCase):
         self.assertNotIn('Итого книг', text)
 
     def test_pdf_in_uzbek_does_not_fail(self):
+        self.addCleanup(translation.activate, 'ru')      # язык после запроса остаётся включённым
         self.client.cookies['django_language'] = 'uz'
         response = self.client.get(reverse('deliveries_admin:pdf', args=[self.batch.pk]))
         self.assertEqual(response['Content-Type'], 'application/pdf')
