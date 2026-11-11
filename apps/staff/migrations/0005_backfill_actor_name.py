@@ -5,7 +5,9 @@ def fill_names(apps, schema_editor):
     """Старым записям журнала записываем имя сотрудника, чтобы оно не потерялось при удалении учётной записи."""
     ActionLog = apps.get_model('staff', 'ActionLog')
     for entry in ActionLog.objects.filter(actor__isnull=False, actor_name='').select_related('actor'):
-        entry.actor_name = (entry.actor.get_full_name() or entry.actor.username)[:150]
+        # В миграциях у модели нет методов (get_full_name), поэтому имя собираем сами
+        full_name = f'{entry.actor.first_name} {entry.actor.last_name}'.strip()
+        entry.actor_name = (full_name or entry.actor.username)[:150]
         entry.save(update_fields=['actor_name'])
 
 
