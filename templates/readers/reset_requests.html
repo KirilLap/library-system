@@ -1,0 +1,83 @@
+{% extends "admin_base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Запросы на сброс пароля" %}{% endblock %}
+{% block nav_readers %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+    <a href="{% url 'readers_admin:index' %}" class="btn btn-sm btn-outline-secondary">← {% translate "Читатели" %}</a>
+    <h2 class="mb-0"><i class="bi bi-key"></i> {% translate "Запросы на сброс пароля" %}</h2>
+</div>
+
+<div class="alert alert-info small">
+    {% translate "Прежде чем выдать временный пароль, убедитесь, что просит именно этот читатель: лично в библиотеке, по знакомому номеру телефона или через сотрудника. Пароль показывается один раз, при первом входе читатель обязан задать свой." %}
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header">{% translate "Ожидают" %} <span class="badge bg-warning text-dark">{{ pending|length }}</span></div>
+    {% if pending %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>{% translate "Читатель" %}</th>
+                    <th>{% translate "ID читателя" %}</th>
+                    <th>{% translate "Когда" %}</th>
+                    <th>{% translate "От кого" %}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in pending %}
+                <tr>
+                    <td><a href="{% url 'readers_admin:detail' r.reader.pk %}" class="text-decoration-none">{{ r.reader.full_name }}</a>
+                        <div class="small text-muted">{{ r.reader.user.username }}</div></td>
+                    <td class="small">{{ r.reader.card_id|default:"—" }}</td>
+                    <td class="small">{{ r.created_at|date:"d.m.Y H:i" }}</td>
+                    <td class="small">
+                        {% if r.source == 'STAFF' %}{% translate "Сотрудник" %}{% if r.requested_by %}: {{ r.requested_by.get_full_name|default:r.requested_by.username }}{% endif %}
+                        {% else %}{% translate "Сам читатель" %}{% endif %}
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <form method="post" action="{% url 'readers_admin:reset_issue' r.pk %}" class="d-inline"
+                              onsubmit="return confirm('{% translate "Вы проверили, что это именно этот читатель? Будет выдан новый временный пароль." %}');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-key"></i> {% translate "Выдать временный пароль" %}</button>
+                        </form>
+                        <form method="post" action="{% url 'readers_admin:reset_reject' r.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">{% translate "Отклонить" %}</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card-body text-muted">{% translate "Новых запросов нет." %}</div>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header">{% translate "Недавно обработанные" %}</div>
+    {% if handled %}
+    <div class="table-responsive">
+        <table class="table table-sm mb-0 small">
+            <tbody>
+                {% for r in handled %}
+                <tr>
+                    <td>{{ r.reader.full_name }}</td>
+                    <td>{% if r.status == 'DONE' %}<span class="badge bg-success">{% translate "Пароль выдан" %}</span>{% else %}<span class="badge bg-secondary">{% translate "Отклонён" %}</span>{% endif %}</td>
+                    <td class="text-muted">{{ r.handled_at|date:"d.m.Y H:i" }}{% if r.handled_by %}, {{ r.handled_by.get_full_name|default:r.handled_by.username }}{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card-body text-muted small">{% translate "Пока ничего." %}</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -9,6 +9,10 @@
     <h2><i class="bi bi-people"></i> {% translate "Читатели" %}</h2>
     <div class="d-flex flex-wrap gap-2">
         {% if request.user.staff_profile.role == 'ADMIN' %}
+        <a href="{% url 'readers_admin:reset_requests' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-key"></i> {% translate "Сброс пароля" %}
+            {% if reset_pending %}<span class="badge bg-danger">{{ reset_pending }}</span>{% endif %}
+        </a>
         <a href="{% url 'readers_admin:loan_settings' %}" class="btn btn-outline-secondary">
             <i class="bi bi-hourglass-split"></i> {% translate "Срок выдачи" %}
         </a>

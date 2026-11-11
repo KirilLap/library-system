@@ -293,3 +293,14 @@ class LoanSettingsForm(forms.ModelForm):
         if days is None or not (1 <= days <= 365):
             raise forms.ValidationError('Укажите срок от 1 до 365 дней. Для более долгих выдач отключите ограничение срока.')
         return days
+
+
+class PasswordResetRequestForm(forms.Form):
+    login = forms.CharField(
+        label='Логин или ID читателя', max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'autofocus': True}),
+    )
+    last_name = forms.CharField(
+        label='Фамилия', max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )

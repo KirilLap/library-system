@@ -12,6 +12,7 @@ def home(request):
 urlpatterns = [
     path('', home, name='home'),
     path('login/', reader_views.login_view, name='login'),
+    path('password-reset/', reader_views.password_reset_request, name='password_reset'),
     path('logout/', reader_views.logout_view, name='logout'),
     path('set-language/', reader_views.set_language, name='set_language'),
     path('my/', reader_views.my_cabinet, name='my'),

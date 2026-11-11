@@ -11,8 +11,8 @@ from django.utils.translation import gettext
 from django.views.decorators.http import require_POST
 
 from apps.staff.decorators import admin_required, librarian_required
-from .forms import AgeGroupForm, LoanSettingsForm, ReaderRegistrationForm, StyledAuthForm, BookRequestForm, RequestStatusForm, ReaderProfileForm, FreeBookRequestForm, ReaderCreateForm
-from .models import AgeGroupSettings, LoanSettings, Reader, BookRequest, Loan, get_loan_period
+from .forms import AgeGroupForm, LoanSettingsForm, PasswordResetRequestForm, ReaderRegistrationForm, StyledAuthForm, BookRequestForm, RequestStatusForm, ReaderProfileForm, FreeBookRequestForm, ReaderCreateForm
+from .models import AgeGroupSettings, LoanSettings, PasswordResetRequest, Reader, BookRequest, Loan, get_loan_period
 
 
 def _set_language_cookie(response, lang_code):
@@ -300,7 +300,11 @@ def reader_list(request):
                   readers.filter(user__last_name__icontains=q) | \
                   readers.filter(user__username__icontains=q) | \
                   readers.filter(card_id__icontains=q)
-    return render(request, 'readers/reader_list.html', {'readers': readers, 'q': q})
+    from .passwords import pending_count
+    return render(request, 'readers/reader_list.html', {
+        'readers': readers, 'q': q,
+        'reset_pending': pending_count() if request.user.staff_profile.role == 'ADMIN' else 0,
+    })
 
 
 @librarian_required
@@ -473,6 +477,129 @@ def _staff_next(request):
     if target.startswith('/admin-panel/') and url_has_allowed_host_and_scheme(target, allowed_hosts=None):
         return target
     return reverse('readers_admin:stats_unreturned')
+
+
+# ──────────────────────────────
+# Сброс пароля через администратора
+# ──────────────────────────────
+
+RESET_ATTEMPTS_PER_HOUR = 8
+
+
+def _client_ip(request):
+    """Адрес посетителя: сайт стоит за nginx, который дописывает настоящий адрес в конец X-Forwarded-For."""
+    forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    if forwarded:
+        return forwarded.split(',')[-1].strip()
+    return request.META.get('REMOTE_ADDR', '')
+
+
+def password_reset_request(request):
+    """Читатель без почты просит сбросить пароль. Ответ одинаковый, существует такой читатель или нет."""
+    from django.core.cache import cache
+    from .passwords import open_request
+    sent = throttled = False
+    if request.method == 'POST':
+        form = PasswordResetRequestForm(request.POST)
+        key = f'pwreset:{_client_ip(request)}'
+        attempts = cache.get(key, 0)
+        if attempts >= RESET_ATTEMPTS_PER_HOUR:
+            throttled = True
+        elif form.is_valid():
+            cache.set(key, attempts + 1, 3600)
+            login_value = form.cleaned_data['login'].strip()
+            surname = form.cleaned_data['last_name'].strip().lower()
+            reader = (Reader.objects.select_related('user').filter(card_id=login_value).first()
+                      or Reader.objects.select_related('user').filter(user__username__iexact=login_value).first())
+            if reader and reader.user.last_name.strip().lower() == surname:
+                open_request(reader, PasswordResetRequest.SOURCE_SELF)
+            sent = True
+    else:
+        form = PasswordResetRequestForm()
+    return render(request, 'readers/password_reset.html', {'form': form, 'sent': sent, 'throttled': throttled})
+
+
+@admin_required
+def reset_requests(request):
+    """Запросы на сброс пароля: ожидающие и недавно обработанные."""
+    pending = PasswordResetRequest.objects.filter(status=PasswordResetRequest.STATUS_NEW).select_related(
+        'reader__user', 'requested_by')
+    handled = PasswordResetRequest.objects.exclude(status=PasswordResetRequest.STATUS_NEW).select_related(
+        'reader__user', 'handled_by')[:20]
+    return render(request, 'readers/reset_requests.html', {'pending': pending, 'handled': handled})
+
+
+def _show_temp_password(request, reader, password):
+    """Запоминает пароль в сессии администратора, чтобы показать его один раз на отдельной странице."""
+    request.session['temp_password_once'] = {'reader': reader.pk, 'password': password}
+    return redirect('readers_admin:temp_password', pk=reader.pk)
+
+
+@admin_required
+@require_POST
+def reset_issue(request, pk):
+    """Администратор выдаёт временный пароль по запросу."""
+    from apps.staff.models import ActionLog
+    from .passwords import issue_temp_password
+    reset = get_object_or_404(PasswordResetRequest.objects.select_related('reader__user'),
+                              pk=pk, status=PasswordResetRequest.STATUS_NEW)
+    password = issue_temp_password(reset.reader, request.user)
+    ActionLog.log(request.user, f'Выдал временный пароль читателю «{reset.reader.full_name}» (ID {reset.reader.card_id})')
+    return _show_temp_password(request, reset.reader, password)
+
+
+@admin_required
+@require_POST
+def reset_reject(request, pk):
+    from apps.staff.models import ActionLog
+    reset = get_object_or_404(PasswordResetRequest.objects.select_related('reader__user'),
+                              pk=pk, status=PasswordResetRequest.STATUS_NEW)
+    reset.status = PasswordResetRequest.STATUS_REJECTED
+    reset.handled_by = request.user
+    reset.handled_at = timezone.now()
+    reset.save()
+    ActionLog.log(request.user, f'Отклонил запрос на сброс пароля читателя «{reset.reader.full_name}»')
+    messages.info(request, 'Запрос отклонён.')
+    return redirect('readers_admin:reset_requests')
+
+
+@admin_required
+@require_POST
+def reader_reset_password(request, pk):
+    """Администратор сразу выдаёт временный пароль со страницы читателя (после проверки личности)."""
+    from apps.staff.models import ActionLog
+    from .passwords import issue_temp_password
+    reader = get_object_or_404(Reader.objects.select_related('user'), pk=pk)
+    password = issue_temp_password(reader, request.user)
+    ActionLog.log(request.user, f'Выдал временный пароль читателю «{reader.full_name}» (ID {reader.card_id})')
+    return _show_temp_password(request, reader, password)
+
+
+@librarian_required
+@require_POST
+def reader_request_reset(request, pk):
+    """Сотрудник оформляет запрос на сброс пароля за читателя; пароль выдаст администратор."""
+    from apps.staff.models import ActionLog
+    from .passwords import open_request
+    reader = get_object_or_404(Reader.objects.select_related('user'), pk=pk)
+    _reset, created = open_request(reader, PasswordResetRequest.SOURCE_STAFF, requested_by=request.user)
+    if created:
+        ActionLog.log(request.user, f'Оформил запрос на сброс пароля читателя «{reader.full_name}»')
+        messages.success(request, 'Запрос передан администратору.')
+    else:
+        messages.info(request, 'Запрос на сброс пароля для этого читателя уже ожидает администратора.')
+    return redirect('readers_admin:detail', pk=reader.pk)
+
+
+@admin_required
+def temp_password_show(request, pk):
+    """Показывает выданный временный пароль ровно один раз."""
+    reader = get_object_or_404(Reader.objects.select_related('user'), pk=pk)
+    data = request.session.pop('temp_password_once', None)
+    password = data['password'] if data and data.get('reader') == reader.pk else None
+    response = render(request, 'readers/temp_password.html', {'reader': reader, 'password': password})
+    response['Cache-Control'] = 'no-store'
+    return response
 
 
 @librarian_required

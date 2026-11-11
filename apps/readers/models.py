@@ -45,6 +45,35 @@ def get_loan_period():
     return value
 
 
+class PasswordResetRequest(models.Model):
+    """Запрос на сброс пароля читателя. Пароль выдаёт только администратор после проверки личности."""
+
+    STATUS_NEW = 'NEW'
+    STATUS_DONE = 'DONE'
+    STATUS_REJECTED = 'REJECTED'
+    STATUS_CHOICES = [
+        (STATUS_NEW, 'Ожидает'),
+        (STATUS_DONE, 'Пароль выдан'),
+        (STATUS_REJECTED, 'Отклонён'),
+    ]
+    SOURCE_SELF = 'SELF'
+    SOURCE_STAFF = 'STAFF'
+    SOURCE_CHOICES = [(SOURCE_SELF, 'Сам читатель'), (SOURCE_STAFF, 'Сотрудник')]
+
+    reader = models.ForeignKey('Reader', on_delete=models.CASCADE, related_name='reset_requests')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_NEW)
+    source = models.CharField(max_length=5, choices=SOURCE_CHOICES, default=SOURCE_SELF)
+    requested_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    handled_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    handled_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Запрос на сброс пароля'
+        verbose_name_plural = 'Запросы на сброс пароля'
+        ordering = ['-created_at']
+
+
 class AgeGroupSettings(models.Model):
     """Границы возрастных групп для статистики (одна запись на весь сайт).
     Хранятся как начало каждой группы: «14,18,31,61» — до 14, 14–17, 18–30, 31–60, 61+."""

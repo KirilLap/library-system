@@ -2481,3 +2481,145 @@ msgstr "Muddati o'tgan"
 
 msgid "Выбрали пункт ближайшим"
 msgstr "Nuqtani eng yaqin deb tanlaganlar"
+
+msgid "учётная запись удалена"
+msgstr "hisob o'chirilgan"
+
+msgid ""
+"Удалить учётную запись сотрудника насовсем? Это нельзя отменить. История его"
+" действий в журнале останется."
+msgstr ""
+"Xodim hisobini butunlay o'chirasizmi? Buni bekor qilib bo'lmaydi. Uning "
+"harakatlari tarixi jurnalda qoladi."
+
+msgid "Забыли пароль"
+msgstr "Parolni unutdingizmi"
+
+msgid "Забыли пароль?"
+msgstr "Parolni unutdingizmi?"
+
+msgid "Логин или ID читателя"
+msgstr "Login yoki o'quvchi ID raqami"
+
+msgid ""
+"Если данные указаны верно, запрос передан администратору. Он проверит, что "
+"это вы, и выдаст временный пароль."
+msgstr ""
+"Ma'lumotlar to'g'ri kiritilgan bo'lsa, so'rov administratorga yuborildi. U "
+"sizning shaxsingizni tekshiradi va vaqtinchalik parol beradi."
+
+msgid "Чтобы это произошло быстрее, свяжитесь с библиотекой"
+msgstr "Tezroq bo'lishi uchun kutubxona bilan bog'laning"
+
+msgid ""
+"Временный пароль вам сообщат лично или по телефону. При первом входе вы "
+"задайте свой пароль."
+msgstr ""
+"Vaqtinchalik parol sizga shaxsan yoki telefon orqali aytiladi. Birinchi "
+"kirishda o'z parolingizni o'rnatasiz."
+
+msgid "Ко входу"
+msgstr "Kirishga"
+
+msgid "Назад ко входу"
+msgstr "Kirishga qaytish"
+
+msgid "Слишком много попыток. Попробуйте позже или позвоните в библиотеку."
+msgstr ""
+"Urinishlar juda ko'p. Keyinroq urinib ko'ring yoki kutubxonaga qo'ng'iroq "
+"qiling."
+
+msgid ""
+"Введите логин (или ID читателя) и фамилию. Администратор проверит, что это "
+"вы, и выдаст временный пароль. Пароль по почте не отправляется."
+msgstr ""
+"Login (yoki o'quvchi ID raqami) va familiyangizni kiriting. Administrator "
+"shaxsingizni tekshiradi va vaqtinchalik parol beradi. Parol pochta orqali "
+"yuborilmaydi."
+
+msgid "Отправить запрос"
+msgstr "So'rov yuborish"
+
+msgid "Запросы на сброс пароля"
+msgstr "Parolni tiklash so'rovlari"
+
+msgid ""
+"Прежде чем выдать временный пароль, убедитесь, что просит именно этот "
+"читатель: лично в библиотеке, по знакомому номеру телефона или через "
+"сотрудника. Пароль показывается один раз, при первом входе читатель обязан "
+"задать свой."
+msgstr ""
+"Vaqtinchalik parol berishdan oldin aynan shu o'quvchi so'rayotganiga ishonch"
+" hosil qiling: kutubxonada shaxsan, tanish telefon raqami orqali yoki xodim "
+"orqali. Parol bir marta ko'rsatiladi, birinchi kirishda o'quvchi o'zinikini "
+"o'rnatishi shart."
+
+msgid "Ожидают"
+msgstr "Kutilmoqda"
+
+msgid "От кого"
+msgstr "Kimdan"
+
+msgid "Сам читатель"
+msgstr "O'quvchining o'zi"
+
+msgid ""
+"Вы проверили, что это именно этот читатель? Будет выдан новый временный "
+"пароль."
+msgstr ""
+"Aynan shu o'quvchi ekanligini tekshirdingizmi? Yangi vaqtinchalik parol "
+"beriladi."
+
+msgid "Выдать временный пароль"
+msgstr "Vaqtinchalik parol berish"
+
+msgid "Новых запросов нет."
+msgstr "Yangi so'rovlar yo'q."
+
+msgid "Недавно обработанные"
+msgstr "Yaqinda ko'rib chiqilganlar"
+
+msgid "Пароль выдан"
+msgstr "Parol berildi"
+
+msgid "Отклонён"
+msgstr "Rad etildi"
+
+msgid "Пока ничего."
+msgstr "Hozircha hech narsa yo'q."
+
+msgid ""
+"Этот пароль показан один раз и нигде не сохраняется. Передайте его читателю "
+"лично или по телефону. При первом входе читатель задаст свой пароль."
+msgstr ""
+"Bu parol bir marta ko'rsatiladi va hech qayerda saqlanmaydi. Uni o'quvchiga "
+"shaxsan yoki telefon orqali bering. Birinchi kirishda o'quvchi o'z parolini "
+"o'rnatadi."
+
+msgid ""
+"Пароль уже был показан и больше недоступен. Если он потерян, выдайте новый."
+msgstr ""
+"Parol allaqachon ko'rsatilgan va endi mavjud emas. Yo'qolgan bo'lsa, "
+"yangisini bering."
+
+msgid "К читателю"
+msgstr "O'quvchiga"
+
+msgid "К запросам"
+msgstr "So'rovlarga"
+
+msgid ""
+"Вы проверили личность читателя? Будет выдан новый временный пароль, старый "
+"перестанет работать."
+msgstr ""
+"O'quvchining shaxsini tekshirdingizmi? Yangi vaqtinchalik parol beriladi, "
+"eskisi ishlamay qoladi."
+
+msgid "Запросить сброс пароля"
+msgstr "Parolni tiklashni so'rash"
+
+msgid "Сброс пароля"
+msgstr "Parolni tiklash"
+
+msgid "Запросов на сброс пароля: %(n)s"
+msgstr "Parolni tiklash so'rovlari: %(n)s"

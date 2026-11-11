@@ -61,6 +61,13 @@
                                 {% endif %}
                             </button>
                         </form>
+                        <form method="post" action="{% url 'staff:delete' profile.pk %}" class="d-inline"
+                              onsubmit="return confirm('{% translate "Удалить учётную запись сотрудника насовсем? Это нельзя отменить. История его действий в журнале останется." %}');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="{% translate 'Удалить' %}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
                         {% endif %}
                     </td>
                 </tr>

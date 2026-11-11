@@ -19,6 +19,8 @@ def dashboard(request):
 
     from apps.readers.stats import open_loans
     overdue_qs = open_loans(only_overdue=True)
+    from apps.readers.passwords import pending_count
+    reset_pending = pending_count() if request.user.staff_profile.role == 'ADMIN' else 0
 
     stats = {
         'books_total': Book.objects.count(),
@@ -63,6 +65,7 @@ def dashboard(request):
         'pending_requests': pending_requests,
         'recent_loans': recent_loans,
         'overdue_loans': overdue_loans,
+        'reset_pending': reset_pending,
     })
 
 
@@ -291,4 +294,27 @@ def staff_toggle_active(request, pk):
     profile.save()
     action = 'активирован' if profile.is_active else 'заблокирован'
     messages.success(request, f'Сотрудник {profile.full_name} {action}.')
+    return redirect('staff:list')
+
+
+@admin_required
+@require_POST
+def staff_delete(request, pk):
+    """Полное удаление учётной записи сотрудника (в отличие от блокировки). Журнал действий остаётся."""
+    from django.db import transaction
+    from .models import ActionLog
+    profile = get_object_or_404(StaffProfile.objects.select_related('user'), pk=pk)
+    user = profile.user
+    if user == request.user:
+        messages.error(request, 'Нельзя удалить самого себя.')
+        return redirect('staff:list')
+    if any(hasattr(user, attr) for attr in ('reader_profile', 'org_account', 'worker_profile')):
+        messages.error(request, 'Эта учётная запись связана ещё и с читателем или организацией, '
+                                'удалять её нельзя. Заблокируйте сотрудника.')
+        return redirect('staff:list')
+    name = profile.full_name
+    with transaction.atomic():
+        ActionLog.log(request.user, f'Удалил учётную запись сотрудника «{name}» (логин {user.username})')
+        user.delete()
+    messages.success(request, f'Сотрудник {name} удалён.')
     return redirect('staff:list')

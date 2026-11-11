@@ -44,6 +44,10 @@ class ActionLog(models.Model):
         User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='action_logs', verbose_name='Сотрудник',
     )
+    actor_name = models.CharField(
+        max_length=150, blank=True, verbose_name='Имя сотрудника',
+        help_text='Сохраняется в записи, чтобы после удаления учётной записи было видно, кто это сделал.',
+    )
     action = models.CharField(max_length=500, verbose_name='Действие')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Когда')
 
@@ -53,7 +57,7 @@ class ActionLog(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        who = self.actor.get_full_name() or self.actor.username if self.actor else 'Система'
+        who = (self.actor.get_full_name() or self.actor.username) if self.actor else (self.actor_name or 'Система')
         return f'{who}: {self.action}'
 
     @staticmethod
@@ -61,8 +65,10 @@ class ActionLog(models.Model):
         """Записать действие сотрудника. Не бросает исключений — журнал не
         должен ронять основную операцию, если вдруг что-то пойдёт не так."""
         try:
+            known = user if getattr(user, 'is_authenticated', False) else None
             ActionLog.objects.create(
-                actor=user if getattr(user, 'is_authenticated', False) else None,
+                actor=known,
+                actor_name=(known.get_full_name() or known.username) if known else '',
                 action=action,
             )
         except Exception:

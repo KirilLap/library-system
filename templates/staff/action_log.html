@@ -25,6 +25,8 @@
                     <td class="small">
                         {% if log.actor %}
                             {{ log.actor.get_full_name|default:log.actor.username }}
+                        {% elif log.actor_name %}
+                            {{ log.actor_name }} <span class="text-muted small">({% translate "учётная запись удалена" %})</span>
                         {% else %}
                             <span class="text-muted">{% translate "Система" %}</span>
                         {% endif %}
